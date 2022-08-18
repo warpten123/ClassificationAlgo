@@ -1,10 +1,25 @@
 from concurrent.futures import process
+from hashlib import new
 from multiprocessing.resource_sharer import stop
 import docx2txt #lib for reading docx files
+import re
 
 texts_from_file = docx2txt.process("Introduction.docx")
-print(texts_from_file)
+# print(texts_from_file)
 
+def manual_tokenization(text):
+    container = ""
+    newText = []
+    for i in range(len(text)):
+        if(text[i] != ' ' and text[i] != '\t'):
+            container = container + text[i]
+            if(i == len(text)-1):
+                newText.append(text[i])
+        else:
+            newText.append(container)
+            container = ""
+   
+    return newText
 
 def text_tokenization(text):
     text = texts_from_file.split()
@@ -19,18 +34,22 @@ def removeStopWords(text):
         stop_words = f.read().splitlines()
     text = [word for word in text if word not in stop_words]
     return text
+def removeSpecialCharacters(text):
+    return re.sub(r"[^a-zA-Z0-9]+", ' ', text)
 
 text,processedText = [],[]
 text = texts_from_file
 
-
 print("Initial Count of Words in File: " + str(len(text)))
-
-processedText = text_tokenization(text)
+processedText = removeSpecialCharacters(text)
 processedText = toLowerCase(processedText)
+processedText = manual_tokenization(processedText)
 processedText = removeStopWords(processedText)
-print(processedText)
-# tokenize texts_from_file
+print("After Preprocessing: " + str(len(processedText)))
+# processedText = text_tokenization(processedText)
+
+
+
 
 
 # lowercase the content from text
