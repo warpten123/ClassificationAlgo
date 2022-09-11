@@ -5,179 +5,209 @@ import docx2txt #lib for reading docx files
 import re
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
-texts_from_file = docx2txt.process("Introduction.docx")
-print(texts_from_file[0])
+class TFIDF():
+    def __init__(self, path):
+        self.path = path
 
+    def print(self):
+        print(self.path)
 
-# sentence tokenization
-def sentence_tokenization(texts_from_file):
-    # manual tokenization by sentences
-    # if word ends with . or ! or ?  then it is a sentence
-    sentences = []
-    container = ""
-    for i in range(len(texts_from_file)):
-        if(texts_from_file[i] != '.' and texts_from_file[i] != '!' and texts_from_file[i] != '?'
-        and texts_from_file[i] != '\n'and texts_from_file[i] != '\xa0'and texts_from_file[i] != '\t'):
-            container = container + texts_from_file[i]
-            if(i == len(texts_from_file)-1):
+    # sentence tokenization
+    def sentence_tokenization(self):
+        # manual tokenization by sentences
+        # if word ends with . or ! or ?  then it is a sentence
+        sentences = []
+        container = ""
+        for i in range(len(self.path)):
+            if(self.path[i] != '.' and self.path[i] != '!' and self.path[i] != '?'
+            and self.path[i] != '\n'and self.path[i] != '\xa0'and self.path[i] != '\t'):
+                container = container + self.path[i]
+                if(i == len(self.path)-1):
+                    sentences.append(container)
+            else:
                 sentences.append(container)
-        else:
-            sentences.append(container)
-            container = ""
-    return sentences
+                container = ""
+        return sentences
+
+    # word tokenization
+    def word_tokenization(self, sentences):
+        words = []
+        for i in range(len(sentences)):
+            words.append(sentences[i].split())
+        return words
 
 
-sentences = sentence_tokenization(texts_from_file)
-# print(sentences)
-
-# word tokenization
-def word_tokenization(sentences):
-    words = []
-    for i in range(len(sentences)):
-        words.append(sentences[i].split())
-    return words
-
-word = word_tokenization(sentences)
-# print(word)
-
-# remove empty array in word
-def removeEmptyArray(word):
-    word = [x for x in word if x != []]
-    return word
-
-word = removeEmptyArray(word)
-# print(word)
-
-# remove the value in word from index 0 - 3
-def removeValue(word):
-    # remove index 0 to 2
-    for i in range(3):
-        word.pop(0)
-    return word
-
-word = removeValue(word)
-print(word)
+    # remove empty array in word
+    def removeEmptyArray(self, word):
+        word = [x for x in word if x != []]
+        return word
 
 
-def toLowerCase(text):
-    print(text)
-    # convert into lowercase
+    # remove the value in word from index 0 - 3
+    def removeValue(self, word):
+        # remove index 0 to 2
+        for i in range(3):
+            word.pop(0)
+        return word
+
+
+    def toLowerCase(self, text):
+        print(text)
+        # convert into lowercase
+
+        
+    def removeStopWords(self, text):
+        with open('stopwords.txt', 'r') as f:
+            stop_words = f.read().splitlines()
+        # if text is in stop_words, remove it 
+        text = [x for x in text if x not in stop_words]
+        return text
+        
+
+    def removeSpecialCharacters(self, text):
+        # remove all special characters except / and -
+        sym = re.sub(r'[^\w\s/-]', '', text)
+        return sym
+
+
+    def save_to_file(self, filename, lines):
+        with open(filename, 'w') as f:
+            for line in lines:
+                f.write(line)
+                f.write('\n')
+
+
+    def pre_process(self, word):
+        # loop each array in word
+        for i in range(len(word)):
+            # lowercase all elements under each array
+            word[i] = [x.lower() for x in word[i]]
+            # remove all stopwords under each_array
+            word[i] = self.removeStopWords(word[i])
+            # loop each element in word
+            for j in range(len(word[i])):
+                # if index value contains digit then remove it
+                if word[i][j].isdigit():
+                    word[i][j] = ""
+                # remove all special characters
+                word[i][j] = self.removeSpecialCharacters(word[i][j])
+                # check if first index of the current index is digit then remove it
+                if word[i][j][0].isdigit():
+                    word[i][j] = ''
+            # check if current index has empty string then remove it
+            word[i] = [x for x in word[i] if x != '']
+        return word
 
     
-def removeStopWords(text):
-    with open('stopwords.txt', 'r') as f:
-        stop_words = f.read().splitlines()
-    # if text is in stop_words, remove it 
-    text = [x for x in text if x not in stop_words]
-    return text
+    # use set to create a set of unique values
+    def create_set(self, pre_process):
+        word_set = set()
+        for i in range(len(pre_process)):
+            for j in range(len(pre_process[i])):
+                word_set.add(pre_process[i][j])
+        return word_set
+
+
+    def count_dict(self, sentences):
+        word_count = {}
+        for word in word_set:
+            word_count[word] = 0
+            for sent in sentences:
+                if word in sent:
+                    word_count[word] += 1
+        return word_count
+
+
+    # Term Frequency
+    def termfreq(self, document, word):
+        N = len(document)
+        occurance = len([token for token in document if token == word])
+        return occurance/N
+
     
-def removeSpecialCharacters(text):
-    # remove all special characters except / and -
-    sym = re.sub(r'[^\w\s/-]', '', text)
-    return sym
-
-def save_to_file(filename, lines):
-    with open(filename, 'w') as f:
-        for line in lines:
-            f.write(line)
-            f.write('\n')
-
-def pre_process(word):
-    # loop each array in word
-    for i in range(len(word)):
-        # lowercase all elements under each array
-        word[i] = [x.lower() for x in word[i]]
-        # remove all stopwords under each_array
-        word[i] = removeStopWords(word[i])
-        # loop each element in word
-        for j in range(len(word[i])):
-            # if index value contains digit then remove it
-            if word[i][j].isdigit():
-                word[i][j] = ""
-            # remove all special characters
-            word[i][j] = removeSpecialCharacters(word[i][j])
-            # check if first index of the current index is digit then remove it
-            if word[i][j][0].isdigit():
-                word[i][j] = ''
-        # check if current index has empty string then remove it
-        word[i] = [x for x in word[i] if x != '']
-    return word
-
-pre_process = pre_process(word)
-# print(pre_process)
-# use set to create a set of unique values
-def create_set(pre_process):
-    word_set = set()
-    for i in range(len(pre_process)):
-        for j in range(len(pre_process[i])):
-            word_set.add(pre_process[i][j])
-    return word_set
-
-word_set = create_set(pre_process)
-print(word_set)
+    # Inverse Document Frequency
+    def inverse_doc_freq(self, word, total_documents):
+        try:
+            word_occurance = word_count[word] + 1
+        except:
+            word_occurance = 1
+        return np.log(total_documents/word_occurance)
 
 
-index_dict = {}
-i = 0
-for word in word_set:
-    index_dict[word] = i
-    i += 1
+    def tf_idf(self, sentence, word_set):
+        index_dict = {}
+        i = 0
+        for word in word_set:
+            index_dict[word] = i
+            i += 1
+
+        tf_idf_vec = np.zeros((len(word_set),))
+
+        for word in sentence:
+            tf = self.termfreq(sentence, word)
+            idf = self.inverse_doc_freq(word, len(sentence))
+            value = tf*idf
+            print(index_dict[word], word, value, tf, idf)
+            tf_idf_vec[index_dict[word]] = value
+        return tf_idf_vec
 
 
-def count_dict(sentences):
-    word_count = {}
-    for word in word_set:
-        word_count[word] = 0
-        for sent in sentences:
-            if word in sent:
-                word_count[word] += 1
-    return word_count
+    #TF-IDF Encoded text corpus
+    def encoded_corpus(self, pre_process, word_set):
+        vectors = []
+        for sent in pre_process:
+            vec = self.tf_idf(sent, word_set)
+            vectors.append(vec)
+            print(vec, sent)
+        return vectors
 
-word_count = count_dict(pre_process)
-print(word_count)
+    def plot_vectors(self, vectors):
+        # plot the vectors with labels
+        for i in range(len(vectors)):
+            plt.plot(vectors[i], label = "sentence" + str(i))
+        plt.legend()
+        plt.show()
 
-#Term Frequency
-def termfreq(document, word):
-    N = len(document)
-    occurance = len([token for token in document if token == word])
-    return occurance/N
+    
+    
+    
 
-total_documents = len(pre_process)
-#Inverse Document Frequency
- 
-def inverse_doc_freq(word):
-    try:
-        word_occurance = word_count[word] + 1
-    except:
-        word_occurance = 1
-    return np.log(total_documents/word_occurance)
+# main program
+if __name__=='__main__':
+    texts_from_file = docx2txt.process("Introduction.docx")
+    # print(texts_from_file[0])
+    # initialize new class
+    tfidf = TFIDF(texts_from_file)
+    tfidf.print()
+    sentences = tfidf.sentence_tokenization()
+    print(sentences)
+    word = tfidf.word_tokenization(sentences)
+    print(word)
+    word = tfidf.removeEmptyArray(word)
+    print(word)    
+    word = tfidf.removeValue(word)
+    print(word)
+    pre_process = tfidf.pre_process(word)
+    print(pre_process)
+    word_set = tfidf.create_set(pre_process)
+    print(word_set)
+    word_count = tfidf.count_dict(pre_process)
+    print(word_count)
+    total_documents = len(pre_process)
+    print(total_documents)
+    vector = tfidf.encoded_corpus(pre_process, word_set)
+    print(vector)
+    tfidf.plot_vectors(vector)
 
-#Inverse Document Frequency
- 
-def inverse_doc_freq(word):
-    try:
-        word_occurance = word_count[word] + 1
-    except:
-        word_occurance = 1
-    return np.log(total_documents/word_occurance)
+    # def plot_vector(self, vectors):
+    #     sns.set_style('whitegrid')
+    #     plt.figure(figsize=(10,10))
+    #     plt.plot(vectors)
+    #     plt.show()
 
-def tf_idf(sentence):
-    tf_idf_vec = np.zeros((len(word_set),))
-    for word in sentence:
-        tf = termfreq(sentence,word)
-        idf = inverse_doc_freq(word)
-         
-        value = tf*idf
-        tf_idf_vec[index_dict[word]] = value 
-    return tf_idf_vec
+    
 
-#TF-IDF Encoded text corpus
-vectors = []
-for sent in pre_process:
-    vec = tf_idf(sent)
-    vectors.append(vec)
-    print(vec, sent)
- 
-print(vectors)
