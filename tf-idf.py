@@ -138,12 +138,12 @@ class TFIDF():
         return np.log(total_documents/word_occurance)
 
 
-    def tf_idf(self, sentence, word_set):
-        index_dict = {}
-        i = 0
-        for word in word_set:
-            index_dict[word] = i
-            i += 1
+    def tf_idf(self, sentence, word_set, index_dict):
+        # index_dict = {}
+        # i = 0
+        # for word in word_set:
+        #     index_dict[word] = i
+        #     i += 1
 
         tf_idf_vec = np.zeros((len(word_set),))
 
@@ -157,10 +157,10 @@ class TFIDF():
 
 
     #TF-IDF Encoded text corpus
-    def encoded_corpus(self, pre_process, word_set):
+    def encoded_corpus(self, pre_process, word_set, index_dict):
         vectors = []
         for sent in pre_process:
-            vec = self.tf_idf(sent, word_set)
+            vec = self.tf_idf(sent, word_set, index_dict)
             vectors.append(vec)
             print(vec, sent)
         return vectors
@@ -199,8 +199,17 @@ if __name__=='__main__':
     print(word_count)
     total_documents = len(pre_process)
     print(total_documents)
-    vector = tfidf.encoded_corpus(pre_process, word_set)
-    print(vector[0])
+    index_dict = {}
+    i = 0
+    for word in word_set:
+        index_dict[word] = i
+        i += 1
+    vector = tfidf.encoded_corpus(pre_process, word_set, index_dict)
+    # loop through vectors
+    for i in range(len(vector)):
+        print('Vector[',i,']\n')
+        print(vector[i])
+        print('\n')
     # tfidf.plot_vectors(vector)
 
 
