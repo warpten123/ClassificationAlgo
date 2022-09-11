@@ -200,8 +200,10 @@ if __name__=='__main__':
     total_documents = len(pre_process)
     print(total_documents)
     vector = tfidf.encoded_corpus(pre_process, word_set)
-    print(vector)
-    tfidf.plot_vectors(vector)
+    print(vector[0])
+    # tfidf.plot_vectors(vector)
+
+
 
     # def plot_vector(self, vectors):
     #     sns.set_style('whitegrid')
