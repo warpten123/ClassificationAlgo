@@ -5,9 +5,20 @@ import docx2txt #lib for reading docx files
 import re
 import pandas as pd
 import numpy as np
+import PyPDF2 
+import pdfplumber
 
-texts_from_file = docx2txt.process("Introduction.docx")
-print(texts_from_file)
+
+def PDFProcessing():
+    with pdfplumber.open(r'15_Why-it-Matters_Goal15__Life-on-Land_3p.pdf') as pdf:
+        first_page = pdf.pages[0]
+        test = first_page.extract_text()
+        return test
+
+
+# texts_from_file = docx2txt.process("Introduction.docx")
+# print(texts_from_file)
+
 
 def manual_tokenization(text):
     container = ""
@@ -48,7 +59,7 @@ def save_to_file(filename, lines):
 def stemming(processedText):
     # manual stemming
     # if word ends with ing or ed, ly, s, es, ion, er, ness, ful, al, ment, ist, ness, ness, remove it
-
+    #wtf
     for i in range(len(processedText)):
         if(processedText[i].endswith('ing') or processedText[i].endswith('ed')):
             processedText[i] = processedText[i][:-3]
@@ -99,7 +110,7 @@ def compute_tf(wordDict, bagOfWords):
         tfDict[word] = count / float(bagOfWordsCount)
     return tfDict
 
-def sentence_creation(text):
+# def sentence_creation(text):
 
 # def computeIDF(term_frequency):
     # try:
@@ -130,11 +141,11 @@ def sentence_creation(text):
     # set the 
 
 text,processedText = [],[]
-text = texts_from_file
+fromPDF = PDFProcessing()
 n_docs = len(text) # number of text in text
 
 print("Initial Count of Words in File: " + str(n_docs))
-processedText = removeSpecialCharacters(text)
+processedText = removeSpecialCharacters(fromPDF)
 processedText = toLowerCase(processedText)
 processedText = manual_tokenization(processedText)
 processedText = removeStopWords(processedText)
@@ -149,7 +160,7 @@ compute_tf = compute_tf(term_frequency, processedText)
 print(compute_tf)
 
 # print()
-idfs = computeIDF([term_frequency])
+# idfs = computeIDF([term_frequency])
 # print(idfs)
 
 
