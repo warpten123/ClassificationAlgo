@@ -6,7 +6,7 @@ import docx2txt #lib for reading docx files
 import re
 import pandas as pd
 import numpy as np
-
+import text_processing as prePr
 #for data set
 
 def dataSet():
@@ -28,5 +28,5 @@ def getAccuracy():
 
 data1 = [2, 2, 2, 'a']
 data2 = [4, 4, 4, 'b']
-distance = euclideanDistance(data1, data2, 3)
+distance = getEuclideanDistance(data1, data2, 3)
 print ('Distance: ' + repr(distance))

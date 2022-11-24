@@ -8,12 +8,23 @@ import numpy as np
 import PyPDF2 
 import pdfplumber
 
+import csv
+
+import math
 
 def PDFProcessing():
+    fist_page = ""
     with pdfplumber.open(r'15_Why-it-Matters_Goal15__Life-on-Land_3p.pdf') as pdf:
-        first_page = pdf.pages[0]
-        test = first_page.extract_text()
-        return test
+        for page in pdf.pages:
+            first_page = page.extract_text()
+        return first_page
+
+def extractNames():
+    print("extracting names")
+def extractResearchTitle():
+    print("extract research title")
+def extractDepartment():
+    print("extract department")
 
 
 # texts_from_file = docx2txt.process("Introduction.docx")
@@ -109,33 +120,36 @@ def compute_tf(wordDict, bagOfWords):
     for word, count in wordDict.items():
         tfDict[word] = count / float(bagOfWordsCount)
     return tfDict
-
+def removeNumbers(text):
+    result = ''.join([i for i in text if not i.isdigit()])
+    return result
 # def sentence_creation(text):
 
-# def computeIDF(term_frequency):
-    # try:
-    #     word_occurance = word_count[word] + 1
-    # except:
-    #     word_occurance = 1
-    # return np.log(total_documents/word_occurance)
-#     import math
-#     N = len(term_frequency)
-#     print(N)
-#     idf_dict = {}
+def computeIDF(term_frequency):
+    N = len(term_frequency)
+    print(N)
+    idf_dict = {}
 
-#     idf_dict = dict.fromkeys(term_frequency[0].keys(),0)
-#     # print(idf_dict)
-
-#     # loop in term_frequency
-#     for document in term_frequency:
-#         for word, val in document.items():
-#             if val > 0:
-#                 idf_dict[word] += 1
-
-#     for word, val in idf_dict.items():
-#         idf_dict[word] = math.log10(N / float(val))
-
+    idf_dict = dict.fromkeys(term_frequency[0].keys(),0)
     # print(idf_dict)
+
+    # loop in term_frequency
+    for document in term_frequency:
+        for word, val in document.items():
+            if val > 0:
+                idf_dict[word] += 1
+
+    for word, val in idf_dict.items():
+        idf_dict[word] = math.log10(N / float(val))
+    try:
+        word_occurance = term_frequency[word] + 1
+    except:
+        word_occurance = 1
+        return np.log(2/word_occurance)
+  
+   
+
+    print(idf_dict)
 
 
     # set the 
@@ -149,15 +163,18 @@ processedText = removeSpecialCharacters(fromPDF)
 processedText = toLowerCase(processedText)
 processedText = manual_tokenization(processedText)
 processedText = removeStopWords(processedText)
+# processedText = removeNumbers(processedText)
 print("After Preprocessing: " + str(len(processedText)))
 n_words_set = len(processedText) # number of unique words in text
 
 save_to_file("processedText.txt", processedText)
 term_frequency = term_frequency_calculation(processedText)
+# term_frequency = {k: v for k, v in term_frequency.items() if not k.isdigit()}
 print(term_frequency)
 
+
 compute_tf = compute_tf(term_frequency, processedText)
-print(compute_tf)
+
 
 # print()
 # idfs = computeIDF([term_frequency])
