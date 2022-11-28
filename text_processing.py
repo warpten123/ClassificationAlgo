@@ -158,22 +158,22 @@ text,processedText = [],[]
 fromPDF = PDFProcessing()
 n_docs = len(text) # number of text in text
 
-print("Initial Count of Words in File: " + str(n_docs))
-processedText = removeSpecialCharacters(fromPDF)
-processedText = toLowerCase(processedText)
-processedText = manual_tokenization(processedText)
-processedText = removeStopWords(processedText)
-# processedText = removeNumbers(processedText)
-print("After Preprocessing: " + str(len(processedText)))
-n_words_set = len(processedText) # number of unique words in text
+# print("Initial Count of Words in File: " + str(n_docs))
+# processedText = removeSpecialCharacters(fromPDF)
+# processedText = toLowerCase(processedText)
+# processedText = manual_tokenization(processedText)
+# processedText = removeStopWords(processedText)
+# # processedText = removeNumbers(processedText)
+# print("After Preprocessing: " + str(len(processedText)))
+# n_words_set = len(processedText) # number of unique words in text
 
-save_to_file("processedText.txt", processedText)
-term_frequency = term_frequency_calculation(processedText)
-# term_frequency = {k: v for k, v in term_frequency.items() if not k.isdigit()}
-print(term_frequency)
+# save_to_file("processedText.txt", processedText)
+# term_frequency = term_frequency_calculation(processedText)
+# # term_frequency = {k: v for k, v in term_frequency.items() if not k.isdigit()}
+# print(term_frequency)
 
 
-compute_tf = compute_tf(term_frequency, processedText)
+# compute_tf = compute_tf(term_frequency, processedText)
 
 
 # print()
