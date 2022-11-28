@@ -20,6 +20,11 @@ class TFIDF():
         "word": "",
         "value": 0
     }]
+    finalArr = [{
+        "average": 0,
+        "goal number":0,
+        "goal name": "",
+    }]
     ###
     def __init__(self, path):
         self.path = path
@@ -187,50 +192,75 @@ class TFIDF():
             writer.writeheader()
             writer.writerows(self.arr)
             f.close
+    def createFinalCSV(self):
+        name = "finalCSV" + ".csv"
+        with open(name, 'w+', encoding="utf-8") as f:
+            writer = csv.DictWriter(f,fieldnames=['average','goal number', "goal name"])
+            writer.writeheader()
+            writer.writerows(self.finalArr)
+
+    def populatefinalCSV(self,goals):
+        count = 0
+        for goal in goals:
+            count += 1
+            data = pd.read_csv("TF-IDF Files/" + goal + ".csv")
+            average = data['value'].mean()
+            self.finalArr.append({
+                "average": average,
+                "goal number": count,
+                "goal name": goal,
+            })
+        average  = 0
+
 
 # main program
 goals = [
-        "Goal 17"
+          "Goal 1","Goal 2", "Goal 3", "Goal 4", "Goal 5","Goal 6",
+           "Goal 7", "Goal 8", "Goal 9", "Goal 10", "Goal 11", "Goal 12",
+            "Goal 13", "Goal 14", "Goal 15", "Goal 16", "Goal 17",
 ]
 if __name__=='__main__':
     # with pdfplumber.open(r'Goal 2 - Supporting Texts.pdf') as pdf:
     #     for page in pdf.pages:
     #         extractFromPDF = page.extract_text()
     # print(len(extractFromPDF))
-    for goal in goals:
-        print("Current " + goal)
-        extractFromPDF = ""
-        tfidf = TFIDF(extractFromPDF)
-        extractFromPDF = tfidf.PDFProcessing(goal)
-        tfidf = TFIDF(extractFromPDF)
-        print(len(extractFromPDF))
-        # tfidf.print()
-        sentences = tfidf.sentence_tokenization()
-        # print(sentences)
-        word = tfidf.word_tokenization(sentences)
-        # print(word)
-        word = tfidf.removeEmptyArray(word)
-        # print(word)    
-        word = tfidf.removeValue(word)
-        # print(word)
-        pre_process = tfidf.pre_process(word)
-        # print(len(pre_process))
-        # print(pre_process)
-        word_set = tfidf.create_set(pre_process)
-        # print(word_set)
-        word_count = tfidf.count_dict(pre_process)
-        # print(word_count)
-        total_documents = len(pre_process)
-        # print(total_documents)
-        index_dict = {}
-        i = 0
-        for word in word_set:
-            index_dict[word] = i
-            i += 1
-        tfidf.encoded_corpus(pre_process, word_set, index_dict)
-        # for i in range(len(tfidf.arr)):
-        #     print(tfidf.arr[i])
-        tfidf.toCSV(goal)
-   
+    # for goal in goals:
+    #     print("Current " + goal)
+    #     extractFromPDF = ""
+    #     tfidf = TFIDF(extractFromPDF)
+    #     extractFromPDF = tfidf.PDFProcessing(goal)
+    #     tfidf = TFIDF(extractFromPDF)
+    #     print(len(extractFromPDF))
+    #     # tfidf.print()
+    #     sentences = tfidf.sentence_tokenization()
+    #     # print(sentences)
+    #     word = tfidf.word_tokenization(sentences)
+    #     # print(word)
+    #     word = tfidf.removeEmptyArray(word)
+    #     # print(word)    
+    #     word = tfidf.removeValue(word)
+    #     # print(word)
+    #     pre_process = tfidf.pre_process(word)
+    #     # print(len(pre_process))
+    #     # print(pre_process)
+    #     word_set = tfidf.create_set(pre_process)
+    #     # print(word_set)
+    #     word_count = tfidf.count_dict(pre_process)
+    #     # print(word_count)
+    #     total_documents = len(pre_process)
+    #     # print(total_documents)
+    #     index_dict = {}
+    #     i = 0
+    #     for word in word_set:
+    #         index_dict[word] = i
+    #         i += 1
+    #     tfidf.encoded_corpus(pre_process, word_set, index_dict)
+    #     # for i in range(len(tfidf.arr)):
+    #     #     print(tfidf.arr[i])
+    #     tfidf.toCSV(goal)
+    extractFromPDF = ""
+    tfidf = TFIDF(extractFromPDF)
+    tfidf.populatefinalCSV(goals)
+    tfidf.createFinalCSV()
     
 
