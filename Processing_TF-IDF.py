@@ -1,5 +1,6 @@
 from concurrent.futures import process
 from hashlib import new
+from pathlib import Path
 from multiprocessing.resource_sharer import stop
 import docx2txt #lib for reading docx files
 import re
@@ -7,9 +8,24 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-
+import pdfplumber
+import k_nearest_neighbor as knn
+import csv
+import glob
+import os
 class TFIDF():
+    #global array
+    arr = [{
+        "index": 0,
+        "word": "",
+        "value": 0
+    }]
+    finalArr = [{
+        "average": 0,
+        "goal number":0,
+        "goal name": "",
+    }]
+    ###
     def __init__(self, path):
         self.path = path
 
@@ -32,7 +48,7 @@ class TFIDF():
                 sentences.append(container)
                 container = ""
         return sentences
-
+    
     # word tokenization
     def word_tokenization(self, sentences):
         words = []
@@ -40,12 +56,10 @@ class TFIDF():
             words.append(sentences[i].split())
         return words
 
-
     # remove empty array in word
     def removeEmptyArray(self, word):
         word = [x for x in word if x != []]
         return word
-
 
     # remove the value in word from index 0 - 3
     def removeValue(self, word):
@@ -54,12 +68,10 @@ class TFIDF():
             word.pop(0)
         return word
 
+    # def toLowerCase(self, text):
+    #     print(text)
+    #     # convert into lowercase
 
-    def toLowerCase(self, text):
-        print(text)
-        # convert into lowercase
-
-        
     def removeStopWords(self, text):
         with open('stopwords.txt', 'r') as f:
             stop_words = f.read().splitlines()
@@ -67,19 +79,16 @@ class TFIDF():
         text = [x for x in text if x not in stop_words]
         return text
         
-
     def removeSpecialCharacters(self, text):
         # remove all special characters except / and -
         sym = re.sub(r'[^\w\s/-]', '', text)
         return sym
-
 
     def save_to_file(self, filename, lines):
         with open(filename, 'w') as f:
             for line in lines:
                 f.write(line)
                 f.write('\n')
-
 
     def pre_process(self, word):
         # loop each array in word
@@ -96,13 +105,12 @@ class TFIDF():
                 # remove all special characters
                 word[i][j] = self.removeSpecialCharacters(word[i][j])
                 # check if first index of the current index is digit then remove it
-                if word[i][j][0].isdigit():
+                if word[i][j].isdigit():
                     word[i][j] = ''
             # check if current index has empty string then remove it
             word[i] = [x for x in word[i] if x != '']
         return word
 
-    
     # use set to create a set of unique values
     def create_set(self, pre_process):
         word_set = set()
@@ -110,7 +118,6 @@ class TFIDF():
             for j in range(len(pre_process[i])):
                 word_set.add(pre_process[i][j])
         return word_set
-
 
     def count_dict(self, sentences):
         word_count = {}
@@ -121,14 +128,12 @@ class TFIDF():
                     word_count[word] += 1
         return word_count
 
-
     # Term Frequency
     def termfreq(self, document, word):
         N = len(document)
         occurance = len([token for token in document if token == word])
         return occurance/N
 
-    
     # Inverse Document Frequency
     def inverse_doc_freq(self, word, total_documents):
         try:
@@ -137,24 +142,16 @@ class TFIDF():
             word_occurance = 1
         return np.log(total_documents/word_occurance)
 
-
     def tf_idf(self, sentence, word_set, index_dict):
-        # index_dict = {}
-        # i = 0
-        # for word in word_set:
-        #     index_dict[word] = i
-        #     i += 1
-
-        tf_idf_vec = np.zeros((len(word_set),))
-
         for word in sentence:
             tf = self.termfreq(sentence, word)
             idf = self.inverse_doc_freq(word, len(sentence))
             value = tf*idf
-            print(index_dict[word], word, value, tf, idf)
-            tf_idf_vec[index_dict[word]] = value
-        return tf_idf_vec
-
+            self.arr.append({
+                "index": index_dict[word],
+                "word": word,
+                "value": value
+            })
 
     #TF-IDF Encoded text corpus
     def encoded_corpus(self, pre_process, word_set, index_dict):
@@ -162,7 +159,7 @@ class TFIDF():
         for sent in pre_process:
             vec = self.tf_idf(sent, word_set, index_dict)
             vectors.append(vec)
-            print(vec, sent)
+            # print(vec, sent)
         return vectors
 
     def plot_vectors(self, vectors):
@@ -171,54 +168,99 @@ class TFIDF():
             plt.plot(vectors[i], label = "sentence" + str(i))
         plt.legend()
         plt.show()
+        
+    def PDFProcessing(self,goalName):
+        count = 0 
+        directory = (glob.glob("Data Set/" + goalName + "/*.pdf"))
+        extractedText = " "
+        finalText = " "
+        for file in directory:
+            with pdfplumber.open(file) as pdf:
+                count += 1 
+                print("Count PDF #: " + str(count))
+                for page in pdf.pages:
+                    extractedText =  page.extract_text()
+            finalText = finalText + extractedText
+            extractedText = ""
+        return finalText
+    
+    def toCSV(self,fileName):
+        direc = 'Data Set/' + fileName + "/"
+        name = fileName + ".csv"
+        with open(direc + name, 'w+',encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames = ['index', 'word', 'value'])
+            writer.writeheader()
+            writer.writerows(self.arr)
+            f.close
+    def createFinalCSV(self):
+        name = "finalCSV" + ".csv"
+        with open(name, 'w+', encoding="utf-8") as f:
+            writer = csv.DictWriter(f,fieldnames=['average','goal number', "goal name"])
+            writer.writeheader()
+            writer.writerows(self.finalArr)
 
-    
-    
-    
+    def populatefinalCSV(self,goals):
+        count = 0
+        for goal in goals:
+            count += 1
+            data = pd.read_csv("TF-IDF Files/" + goal + ".csv")
+            average = data['value'].mean()
+            self.finalArr.append({
+                "average": average,
+                "goal number": count,
+                "goal name": goal,
+            })
+        average  = 0
+
 
 # main program
+goals = [
+          "Goal 1","Goal 2", "Goal 3", "Goal 4", "Goal 5","Goal 6",
+           "Goal 7", "Goal 8", "Goal 9", "Goal 10", "Goal 11", "Goal 12",
+            "Goal 13", "Goal 14", "Goal 15", "Goal 16", "Goal 17",
+]
 if __name__=='__main__':
-    texts_from_file = docx2txt.process("Introduction.docx")
-    # print(texts_from_file[0])
-    # initialize new class
-    tfidf = TFIDF(texts_from_file)
-    tfidf.print()
-    sentences = tfidf.sentence_tokenization()
-    print(sentences)
-    word = tfidf.word_tokenization(sentences)
-    print(word)
-    word = tfidf.removeEmptyArray(word)
-    print(word)    
-    word = tfidf.removeValue(word)
-    print(word)
-    pre_process = tfidf.pre_process(word)
-    print(pre_process)
-    word_set = tfidf.create_set(pre_process)
-    print(word_set)
-    word_count = tfidf.count_dict(pre_process)
-    print(word_count)
-    total_documents = len(pre_process)
-    print(total_documents)
-    index_dict = {}
-    i = 0
-    for word in word_set:
-        index_dict[word] = i
-        i += 1
-    vector = tfidf.encoded_corpus(pre_process, word_set, index_dict)
-    # loop through vectors
-    for i in range(len(vector)):
-        print('Vector[',i,']\n')
-        print(vector[i])
-        print('\n')
-    # tfidf.plot_vectors(vector)
-
-
-
-    # def plot_vector(self, vectors):
-    #     sns.set_style('whitegrid')
-    #     plt.figure(figsize=(10,10))
-    #     plt.plot(vectors)
-    #     plt.show()
-
+    # with pdfplumber.open(r'Goal 2 - Supporting Texts.pdf') as pdf:
+    #     for page in pdf.pages:
+    #         extractFromPDF = page.extract_text()
+    # print(len(extractFromPDF))
+    # for goal in goals:
+    #     print("Current " + goal)
+    #     extractFromPDF = ""
+    #     tfidf = TFIDF(extractFromPDF)
+    #     extractFromPDF = tfidf.PDFProcessing(goal)
+    #     tfidf = TFIDF(extractFromPDF)
+    #     print(len(extractFromPDF))
+    #     # tfidf.print()
+    #     sentences = tfidf.sentence_tokenization()
+    #     # print(sentences)
+    #     word = tfidf.word_tokenization(sentences)
+    #     # print(word)
+    #     word = tfidf.removeEmptyArray(word)
+    #     # print(word)    
+    #     word = tfidf.removeValue(word)
+    #     # print(word)
+    #     pre_process = tfidf.pre_process(word)
+    #     # print(len(pre_process))
+    #     # print(pre_process)
+    #     word_set = tfidf.create_set(pre_process)
+    #     # print(word_set)
+    #     word_count = tfidf.count_dict(pre_process)
+    #     # print(word_count)
+    #     total_documents = len(pre_process)
+    #     # print(total_documents)
+    #     index_dict = {}
+    #     i = 0
+    #     for word in word_set:
+    #         index_dict[word] = i
+    #         i += 1
+    #     tfidf.encoded_corpus(pre_process, word_set, index_dict)
+    #     # for i in range(len(tfidf.arr)):
+    #     #     print(tfidf.arr[i])
+    #     tfidf.toCSV(goal)
+    extractFromPDF = ""
+    tfidf = TFIDF(extractFromPDF)
+    tfidf.populatefinalCSV(goals)
+    tfidf.createFinalCSV()
     
 
