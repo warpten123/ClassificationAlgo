@@ -36,6 +36,7 @@ def getEuclideanDistance (pointOne, pointTwo, length):
     for x in range(length):
         distance += pow((pointOne[x] - pointTwo[x]),2)
     return math.sqrt(distance)
+
 def getNeighbors():
     print("data set")
 def getResponse():
@@ -45,8 +46,21 @@ def getAccuracy():
 
 data1 = [2, 2, 2, 'a']
 data2 = [4, 4, 4, 'b']
-distance = getEuclideanDistance(data1, data2, 3)
-dataSet(r'finalCSV.csv',0.66,trainingSet,testSet)
-print('Training Set: ' + repr(len(trainingSet)))
-print('Test Set: ' + repr(len(testSet)))
+data = pd.read_csv("finalCSV.csv")
+newCol = ['euclidean distance']
+
+
+
+# distance = getEuclideanDistance(data['average'].tolist(), data['goal number'].tolist(), 3)
+ave = data['average'].tolist()
+goal_Num = data['goal number'].tolist()
+dist = []
+for x in range(len(data)):
+    distance = getEuclideanDistance(data['average'].tolist(), data['goal number'].tolist(), 3)
+    print(distance)
+
+# dataSet(r'finalCSV.csv',0.66,trainingSet,testSet)
+# print("Distance: " + str(distance))
+# print('Training Set: ' + repr(len(trainingSet)))
+# print('Test Set: ' + repr(len(testSet)))
 

@@ -2,7 +2,7 @@ from concurrent.futures import process
 from hashlib import new
 from pathlib import Path
 from multiprocessing.resource_sharer import stop
-import docx2txt #lib for reading docx files
+import docx2txt  # lib for reading docx files
 import re
 import pandas as pd
 import numpy as np
@@ -13,6 +13,8 @@ import k_nearest_neighbor as knn
 import csv
 import glob
 import os
+
+
 class TFIDF():
     #global array
     arr = [{
@@ -22,10 +24,12 @@ class TFIDF():
     }]
     finalArr = [{
         "average": 0,
-        "goal number":0,
+        "goal number": 0,
         "goal name": "",
+        "euclidean distance": ""
     }]
     ###
+
     def __init__(self, path):
         self.path = path
 
@@ -39,16 +43,16 @@ class TFIDF():
         sentences = []
         container = ""
         for i in range(len(self.path)):
-            if(self.path[i] != '.' and self.path[i] != '!' and self.path[i] != '?'
-            and self.path[i] != '\n'and self.path[i] != '\xa0'and self.path[i] != '\t'):
+            if (self.path[i] != '.' and self.path[i] != '!' and self.path[i] != '?'
+                    and self.path[i] != '\n' and self.path[i] != '\xa0' and self.path[i] != '\t'):
                 container = container + self.path[i]
-                if(i == len(self.path)-1):
+                if (i == len(self.path)-1):
                     sentences.append(container)
             else:
                 sentences.append(container)
                 container = ""
         return sentences
-    
+
     # word tokenization
     def word_tokenization(self, sentences):
         words = []
@@ -75,10 +79,10 @@ class TFIDF():
     def removeStopWords(self, text):
         with open('stopwords.txt', 'r') as f:
             stop_words = f.read().splitlines()
-        # if text is in stop_words, remove it 
+        # if text is in stop_words, remove it
         text = [x for x in text if x not in stop_words]
         return text
-        
+
     def removeSpecialCharacters(self, text):
         # remove all special characters except / and -
         sym = re.sub(r'[^\w\s/-]', '', text)
@@ -153,7 +157,7 @@ class TFIDF():
                 "value": value
             })
 
-    #TF-IDF Encoded text corpus
+    # TF-IDF Encoded text corpus
     def encoded_corpus(self, pre_process, word_set, index_dict):
         vectors = []
         for sent in pre_process:
@@ -165,41 +169,43 @@ class TFIDF():
     def plot_vectors(self, vectors):
         # plot the vectors with labels
         for i in range(len(vectors)):
-            plt.plot(vectors[i], label = "sentence" + str(i))
+            plt.plot(vectors[i], label="sentence" + str(i))
         plt.legend()
         plt.show()
-        
-    def PDFProcessing(self,goalName):
-        count = 0 
-        directory = (glob.glob("Data Set/" + goalName + "/*.pdf"))
+
+    def PDFProcessing(self, goalName):
+        count = 0
+        directory = (glob.glob("../Data Set/" + goalName + "/*.pdf"))
         extractedText = " "
         finalText = " "
         for file in directory:
             with pdfplumber.open(file) as pdf:
-                count += 1 
+                count += 1
                 print("Count PDF #: " + str(count))
                 for page in pdf.pages:
-                    extractedText =  page.extract_text()
+                    extractedText = page.extract_text()
             finalText = finalText + extractedText
             extractedText = ""
         return finalText
-    
-    def toCSV(self,fileName):
+
+    def toCSV(self, fileName):
         direc = 'Data Set/' + fileName + "/"
         name = fileName + ".csv"
-        with open(direc + name, 'w+',encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames = ['index', 'word', 'value'])
+        with open(direc + name, 'w+', encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=['index', 'word', 'value'])
             writer.writeheader()
             writer.writerows(self.arr)
             f.close
+
     def createFinalCSV(self):
         name = "finalCSV" + ".csv"
         with open(name, 'w+', encoding="utf-8") as f:
-            writer = csv.DictWriter(f,fieldnames=['average','goal number', "goal name"])
+            writer = csv.DictWriter(
+                f, fieldnames=['average', 'goal number', "goal name", "euclidean distance"])
             writer.writeheader()
             writer.writerows(self.finalArr)
 
-    def populatefinalCSV(self,goals):
+    def populatefinalCSV(self, goals):
         count = 0
         for goal in goals:
             count += 1
@@ -210,57 +216,68 @@ class TFIDF():
                 "goal number": count,
                 "goal name": goal,
             })
-        average  = 0
+        average = 0
+
+    def extractNames():
+        print("")
+
+    def extractResearchTitle():
+        print("")
+
+    def extractResearches():
+        print("")
 
 
+# create function to automatically extract research name, date og ang researche
 # main program
 goals = [
-          "Goal 1","Goal 2", "Goal 3", "Goal 4", "Goal 5","Goal 6",
-           "Goal 7", "Goal 8", "Goal 9", "Goal 10", "Goal 11", "Goal 12",
-            "Goal 13", "Goal 14", "Goal 15", "Goal 16", "Goal 17",
-]
-if __name__=='__main__':
-    # with pdfplumber.open(r'Goal 2 - Supporting Texts.pdf') as pdf:
-    #     for page in pdf.pages:
-    #         extractFromPDF = page.extract_text()
-    # print(len(extractFromPDF))
+    "Goal 1",]
+if __name__ == '__main__':
+    with pdfplumber.open(r'goal 1_1.pdf') as pdf:
+        for page in pdf.pages:
+            extractFromPDF = page.extract_text()
+    print((extractFromPDF))
+    tfidf = TFIDF(extractFromPDF)
+    sentences = tfidf.sentence_tokenization()
+    word = tfidf.word_tokenization(sentences)
+    pre_process = tfidf.pre_process(word)
+    print(pre_process)
     # for goal in goals:
     #     print("Current " + goal)
     #     extractFromPDF = ""
     #     tfidf = TFIDF(extractFromPDF)
     #     extractFromPDF = tfidf.PDFProcessing(goal)
     #     tfidf = TFIDF(extractFromPDF)
-    #     print(len(extractFromPDF))
+    #     print("Before: " + str(len(extractFromPDF)))
     #     # tfidf.print()
     #     sentences = tfidf.sentence_tokenization()
     #     # print(sentences)
     #     word = tfidf.word_tokenization(sentences)
     #     # print(word)
     #     word = tfidf.removeEmptyArray(word)
-    #     # print(word)    
+    #     # print(word)
     #     word = tfidf.removeValue(word)
     #     # print(word)
     #     pre_process = tfidf.pre_process(word)
-    #     # print(len(pre_process))
-    #     # print(pre_process)
-    #     word_set = tfidf.create_set(pre_process)
-    #     # print(word_set)
-    #     word_count = tfidf.count_dict(pre_process)
-    #     # print(word_count)
-    #     total_documents = len(pre_process)
-    #     # print(total_documents)
-    #     index_dict = {}
-    #     i = 0
-    #     for word in word_set:
-    #         index_dict[word] = i
-    #         i += 1
-    #     tfidf.encoded_corpus(pre_process, word_set, index_dict)
-    #     # for i in range(len(tfidf.arr)):
-    #     #     print(tfidf.arr[i])
-    #     tfidf.toCSV(goal)
-    extractFromPDF = ""
-    tfidf = TFIDF(extractFromPDF)
-    tfidf.populatefinalCSV(goals)
-    tfidf.createFinalCSV()
-    
-
+    #     print("After: " + str(len(pre_process)))
+    # print(len(pre_process))
+    # print(pre_process)
+    # word_set = tfidf.create_set(pre_process)
+    # # print(word_set)
+    # word_count = tfidf.count_dict(pre_process)
+    # # print(word_count)
+    # total_documents = len(pre_process)
+    # # print(total_documents)
+    # index_dict = {}
+    # i = 0
+    # for word in word_set:
+    #     index_dict[word] = i
+    #     i += 1
+    # tfidf.encoded_corpus(pre_process, word_set, index_dict)
+    # # for i in range(len(tfidf.arr)):
+    # #     print(tfidf.arr[i])
+    # tfidf.toCSV(goal)
+    # extractFromPDF = ""
+    # tfidf = TFIDF(extractFromPDF)
+    # tfidf.populatefinalCSV(goals)
+    # tfidf.createFinalCSV()

@@ -1,28 +1,26 @@
 from concurrent.futures import process
 from hashlib import new
 from multiprocessing.resource_sharer import stop
-import docx2txt #lib for reading docx files
+import docx2txt  # lib for reading docx files
 import re
 import pandas as pd
 import numpy as np
-import PyPDF2 
+import PyPDF2
 import pdfplumber
 
 import csv
 
 import math
 
-def PDFProcessing():
-    fist_page = ""
-    with pdfplumber.open(r'15_Why-it-Matters_Goal15__Life-on-Land_3p.pdf') as pdf:
-        for page in pdf.pages:
-            first_page = page.extract_text()
-        return first_page
 
 def extractNames():
     print("extracting names")
+
+
 def extractResearchTitle():
     print("extract research title")
+
+
 def extractDepartment():
     print("extract department")
 
@@ -35,31 +33,37 @@ def manual_tokenization(text):
     container = ""
     newText = []
     for i in range(len(text)):
-        if(text[i] != ' ' and text[i] != '\t'):
+        if (text[i] != ' ' and text[i] != '\t'):
             container = container + text[i]
-            if(i == len(text)-1):
+            if (i == len(text)-1):
                 newText.append(text[i])
         else:
             newText.append(container)
             container = ""
-   
+
     return newText
+
 
 def text_tokenization(text):
     text = texts_from_file.split()
     return text
 
+
 def toLowerCase(text):
     text = [word.lower() for word in text]
     return text
-    
+
+
 def removeStopWords(text):
     with open('stopwords.txt', 'r') as f:
         stop_words = f.read().splitlines()
     text = [word for word in text if word not in stop_words]
     return text
+
+
 def removeSpecialCharacters(text):
     return re.sub(r"[^a-zA-Z0-9]+", ' ', text)
+
 
 def save_to_file(filename, lines):
     with open(filename, 'w') as f:
@@ -67,38 +71,40 @@ def save_to_file(filename, lines):
             f.write(line)
             f.write('\n')
 
+
 def stemming(processedText):
     # manual stemming
     # if word ends with ing or ed, ly, s, es, ion, er, ness, ful, al, ment, ist, ness, ness, remove it
-    #wtf
+    # wtf
     for i in range(len(processedText)):
-        if(processedText[i].endswith('ing') or processedText[i].endswith('ed')):
+        if (processedText[i].endswith('ing') or processedText[i].endswith('ed')):
             processedText[i] = processedText[i][:-3]
-        elif(processedText[i].endswith('ly')):
+        elif (processedText[i].endswith('ly')):
             processedText[i] = processedText[i][:-2]
-        elif(processedText[i].endswith('s')):
+        elif (processedText[i].endswith('s')):
             processedText[i] = processedText[i][:-1]
-        elif(processedText[i].endswith('es')):
+        elif (processedText[i].endswith('es')):
             processedText[i] = processedText[i][:-2]
-        elif(processedText[i].endswith('ion')):
+        elif (processedText[i].endswith('ion')):
             processedText[i] = processedText[i][:-3]
-        elif(processedText[i].endswith('er')):
+        elif (processedText[i].endswith('er')):
             processedText[i] = processedText[i][:-2]
-        elif(processedText[i].endswith('ness')):
+        elif (processedText[i].endswith('ness')):
             processedText[i] = processedText[i][:-4]
-        elif(processedText[i].endswith('ful')):
+        elif (processedText[i].endswith('ful')):
             processedText[i] = processedText[i][:-3]
-        elif(processedText[i].endswith('al')):
+        elif (processedText[i].endswith('al')):
             processedText[i] = processedText[i][:-2]
-        elif(processedText[i].endswith('ment')):
+        elif (processedText[i].endswith('ment')):
             processedText[i] = processedText[i][:-4]
-        elif(processedText[i].endswith('ist')):
+        elif (processedText[i].endswith('ist')):
             processedText[i] = processedText[i][:-3]
-        elif(processedText[i].endswith('ness')):
+        elif (processedText[i].endswith('ness')):
             processedText[i] = processedText[i][:-4]
-        elif(processedText[i].endswith('ness')):
+        elif (processedText[i].endswith('ness')):
             processedText[i] = processedText[i][:-4]
     return processedText
+
 
 def term_frequency_calculation(processedText):
     # term frequency calculation
@@ -120,17 +126,31 @@ def compute_tf(wordDict, bagOfWords):
     for word, count in wordDict.items():
         tfDict[word] = count / float(bagOfWordsCount)
     return tfDict
-def removeNumbers(text):
-    result = ''.join([i for i in text if not i.isdigit()])
-    return result
+
+
+def removeNumbers(diction={}):
+    for k in tuple(diction.keys()):
+        if k.isdigit():
+            del diction[k]
+    return diction
 # def sentence_creation(text):
+
+
+def cleanRawFrequency(termFrequency={}):
+    fromStopWords = removeStopWords(termFrequency.keys())
+    for k in tuple(termFrequency.keys()):
+        if k not in fromStopWords:
+            del termFrequency[k]
+
+    return termFrequency
+
 
 def computeIDF(term_frequency):
     N = len(term_frequency)
     print(N)
     idf_dict = {}
 
-    idf_dict = dict.fromkeys(term_frequency[0].keys(),0)
+    idf_dict = dict.fromkeys(term_frequency[0].keys(), 0)
     # print(idf_dict)
 
     # loop in term_frequency
@@ -146,17 +166,14 @@ def computeIDF(term_frequency):
     except:
         word_occurance = 1
         return np.log(2/word_occurance)
-  
-   
 
     print(idf_dict)
 
+    # set the
 
-    # set the 
-
-text,processedText = [],[]
-fromPDF = PDFProcessing()
-n_docs = len(text) # number of text in text
+# text,processedText = [],[]
+# fromPDF = PDFProcessing()
+# n_docs = len(text) # number of text in text
 
 # print("Initial Count of Words in File: " + str(n_docs))
 # processedText = removeSpecialCharacters(fromPDF)
@@ -181,19 +198,12 @@ n_docs = len(text) # number of text in text
 # print(idfs)
 
 
-
-
-
-
-
 # processedText = stemming(processedText)
 # term_frequency = term_frequency_calculation(processedText)
 # print(calculate_tfidf(term_frequency, processedText))
 # print(matching_score(processedText, processedText))
 # print(processedText)
 # processedText = text_tokenization(processedText)
-
-
 
 
 # def calculate_tfidf(term_frequency, processedText):
@@ -220,23 +230,10 @@ n_docs = len(text) # number of text in text
 #     return matching_score
 
 
-
-
 # lowercase the content from text
-
-
-
-
-
 
 
 # check for repeating words in text and save it as a map<word,count>
 # text = dict([(word, text.count(word)) for word in set(text)])
 # print(text)
 # print(str(len(text)))
-    
-
-
-
-
-
