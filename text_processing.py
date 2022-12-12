@@ -136,6 +136,7 @@ def removeNumbers(diction={}):
 # def sentence_creation(text):
 
 
+
 def cleanRawFrequency(termFrequency={}):
     fromStopWords = removeStopWords(termFrequency.keys())
     for k in tuple(termFrequency.keys()):

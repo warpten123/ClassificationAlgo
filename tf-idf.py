@@ -10,6 +10,7 @@ import os
 import math
 import numpy as np
 from fpdf import FPDF
+from collections import ChainMap
 # class word:
 #     def __init__(self, word, count):
 #         self.word = word
@@ -34,9 +35,10 @@ class Processing():
         filename = str(index) + ".csv"
         direc = 'Term/' + goals + "/"
         with open(direc + filename, 'w') as csvFile:
-            w = csv.DictWriter(csvFile, dict.keys())
-            w.writeheader()
-            w.writerow(dict)
+            for list in dict:
+                w = csv.DictWriter(csvFile, list.keys())
+                w.writeheader()
+                w.writerow(list)
 
     def fromPDFFolders(self, goalName):
         tf_idf = {}
@@ -82,24 +84,46 @@ class Processing():
         return populatedDict
 
     def term_frequency(self, populatedDict):
+
         for dic in populatedDict:
             populatedDict[dic] = populatedDict[dic] / len(populatedDict)
         return populatedDict
 
-    def inverse_frequency(self, features, dict1, dict2, dict3):
+    def inverse_frequency(self, features,  listOfDict=[{}]):
         idf = features
-        number_of_documents = self.countNumberofDocs()
+        number_of_documents = 17
         number_of_word = 0
-        for f in features:
-            if dict1.__contains__(f):
-                number_of_word += 1
-            if dict2.__contains__(f):
-                number_of_word += 1
-            if dict3.__contains__(f):
-                number_of_word += 1
-            idf[f] = math.log(number_of_documents / number_of_word + 1)
+        count = 0
+        for col in features:
+            for f in listOfDict:
+                if f.__contains__(col):
+                    number_of_word += 1
+            idf[col] = math.log10(number_of_documents / number_of_word)
             number_of_word = 0
         return idf
+
+    def calculateTFIDF(self, listofDict, idf, tf_idf):
+        temp = {}
+        count = 1
+        # for features in idf:
+        #     for list in listofDict:
+        #         temp = list
+        #         print(temp)
+        #         if list.__contains__(features):
+        #             temp[features] = temp[features] * idf[features]
+        #         else:
+        #             temp[features] = 0.0
+        # tf_idf.append(temp)
+
+        for list in listofDict:
+            temp = list
+            for features in idf:
+                if temp.__contains__(features):
+                    temp[features] = temp[features] * idf[features]
+            tf_idf.append(temp)
+
+        return tf_idf
+        # return tf_idf
 
     def computeTF_IDF(self, tf, idf):
         tf_idf = tf
@@ -119,9 +143,9 @@ class Processing():
                 count += 1
         return count
 
-    def mergeDictionaries(self, dict1, dict2, dict3):
-        dict3 = {**dict1, **dict2}
-        return dict3
+    def mergeDictionaries(self, listofDict):
+        finalDict = {**listofDict}
+        return finalDict
 
     def csvToDict(self, number):
         diction = {}
@@ -138,7 +162,7 @@ class Processing():
     def convertingToDP(self, featureSet, tf_idf):
         df = pd.DataFrame.from_dict(tf_idf)
         df2 = df.replace(np.nan, 0)
-        df2.to_csv('Goal 2 TF IDF.csv')
+        df2.to_csv('TFIDF.csv')
         return df2
 
     def mainProcessing(self, preProcesssedText, goal, index):
@@ -191,26 +215,70 @@ class Processing():
         for x in f:
             pdf.cell(200, 10, txt=x, ln=1, align='C')
         pdf.output("Training Set/" + goal + " Training Set" + ".pdf")
+
+    def mergeAllDict(self, l):
+        d = {}
+        for dictionary in l:
+            d.update(dictionary)
+        return d
+
     ### END NEW TF IDF###
-
-
 if __name__ == '__main__':
-    goals = ['Goal 1', 'Goal 2']
-    # for goal in goals:
-    #     processedText = ""
-    #     processedText = Processing(processedText)
-    #     TFIDF = Processing(processedText)
-    #     processedText = TFIDF.fromPDFFolders(goal)
+    goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
+             'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
+             'Goal 13',
+             'Goal 14', 'Goal 15', 'Goal 16', 'Goal 17'
+             ]
     rawText = ""
-    test = ""
     TFIDF = Processing(rawText)
+    tf = [{}]  # create list of dicts
+    count = 1
+    final_features = {}
+    idf = {}
+    tf_idf = [{}]
+    temp = {}
+    merge = {}
+    print(len(tf))
     # preprocessedText = TFIDF.getFromPDF()
     for goal in goals:
         rawText = TFIDF.extractAllPDF(goal)
-        print(goal + "=> Before Processing: " + str(len(rawText)))
+        # print(goal + "=> Before Processing: " + str(len(rawText)))
         preprocessedText = TFIDF.preProcessing(rawText)
-        print(goal + "=> After Processing: " + str(len(preprocessedText)))
+        # print(goal + "=> After Processing: " + str(len(preprocessedText)))
         TFIDF.listToPDF(preprocessedText, goal)
+        temp = TFIDF.populateClass(preprocessedText)
+        temp = TFIDF.term_vectors(preprocessedText, temp)
+        temp = TFIDF.term_frequency(temp)
+        tf.append(temp)
+        count += 1
+    merge = TFIDF.mergeAllDict(tf)
+    idf = TFIDF.inverse_frequency(merge, tf)
+
+    tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
+    tf_idf = TFIDF.convertingToDP(merge, tf_idf)
+    print(len(tf_idf))
+    # finalTF_IDF = TFIDF.convertingToDP(merge, finalTF_IDF)
+    # print(len(finalTF_IDF))
+    # print(tf)
+    # tf.append(TFIDF.term_frequency(tf[count]))
+    # final_features = TFIDF.mergeAllDict(tf[count])
+    # with open('your_file.txt', 'w') as f:
+    #     for line in tf:
+    #         for key in line:
+    #             f.write("%s\n" % key)
+    # for v in final_features:
+    #     final_features[v] = 0.0
+    # idf = TFIDF.inverse_frequency(final_features, tf)
+    # print(tf[2])
+
+    # print(final_features)
+    # final_features = TFIDF.mergeAllDict(tf)
+    # for v in final_features:
+    #     final_features[v] = 0.0
+    # print(len(final_features))
+    # idf = TFIDF.inverse_frequency(final_features, tf)
+    # print(idf)
+    # print(final_features)
     # print(preprocessedText)
     # test = TFIDF.getFromPDF()
     # test = list(test.split(" "))
