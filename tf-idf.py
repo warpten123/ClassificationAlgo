@@ -11,10 +11,14 @@ import math
 import numpy as np
 from fpdf import FPDF
 from collections import ChainMap
+import nltk
 # class word:
 #     def __init__(self, word, count):
 #         self.word = word
 #         self.count = count
+
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 
 class Processing():
@@ -222,8 +226,15 @@ class Processing():
             d.update(dictionary)
         return d
 
+    def lemmatization(self, text):
+        lemmatizer = WordNetLemmatizer()
+
+        return lemmatizer.lemmatize(text)
+
+
     ### END NEW TF IDF###
 if __name__ == '__main__':
+
     goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
              'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
              'Goal 13',
@@ -243,8 +254,8 @@ if __name__ == '__main__':
     for goal in goals:
         rawText = TFIDF.extractAllPDF(goal)
         # print(goal + "=> Before Processing: " + str(len(rawText)))
-        preprocessedText = TFIDF.preProcessing(rawText)
-        # print(goal + "=> After Processing: " + str(len(preprocessedText)))
+        preprocessedText = TFIDF.lemmatization(rawText)
+        preprocessedText = TFIDF.preProcessing(preprocessedText)
         TFIDF.listToPDF(preprocessedText, goal)
         temp = TFIDF.populateClass(preprocessedText)
         temp = TFIDF.term_vectors(preprocessedText, temp)
@@ -253,11 +264,8 @@ if __name__ == '__main__':
         count += 1
     merge = TFIDF.mergeAllDict(tf)
     idf = TFIDF.inverse_frequency(merge, tf)
-
     tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
     tf_idf = TFIDF.convertingToDP(merge, tf_idf)
-    print(len(tf_idf))
-    # finalTF_IDF = TFIDF.convertingToDP(merge, finalTF_IDF)
     # print(len(finalTF_IDF))
     # print(tf)
     # tf.append(TFIDF.term_frequency(tf[count]))
