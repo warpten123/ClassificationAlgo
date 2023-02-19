@@ -8,6 +8,9 @@ import pandas as pd
 import numpy as np
 import csv as csv
 import random
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
 # for data set
 trainingSet = []
 testSet = []
@@ -58,13 +61,16 @@ def getAccuracy():
     print("accuracy of the model")
 
 
-data1 = [2, 2, 2, 'a']
-data2 = [4, 4, 4, 'b']
+data1 = [2, 6, 3]
+data2 = [5, 6, 7]
 data = pd.read_csv("TFIDF.csv")
 newCol = ['euclidean distance']
+plt.scatter(data1, data2)
+plt.show()
 # print(data.values.tolist())
-result = manhattan_distance(data1, data2)
-print(result)
+# result = manhattan_distance(data1, data2)
+
+# print(result)
 
 # distance = getEuclideanDistance(data['average'].tolist(), data['goal number'].tolist(), 3)
 # ave = data['average'].tolist()

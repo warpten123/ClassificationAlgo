@@ -253,7 +253,6 @@ if __name__ == '__main__':
     # preprocessedText = TFIDF.getFromPDF()
     for goal in goals:
         rawText = TFIDF.extractAllPDF(goal)
-        # print(goal + "=> Before Processing: " + str(len(rawText)))
         preprocessedText = TFIDF.lemmatization(rawText)
         preprocessedText = TFIDF.preProcessing(preprocessedText)
         TFIDF.listToPDF(preprocessedText, goal)
