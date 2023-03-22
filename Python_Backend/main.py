@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import k_nearest_neighbor as knn
 import information_extraction as inform
 import TFIDF_FINAL as tfidf
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/api', methods=['GET'])
