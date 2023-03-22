@@ -231,40 +231,43 @@ class Processing():
 
         return lemmatizer.lemmatize(text)
 
-
-    ### END NEW TF IDF###
-if __name__ == '__main__':
-
-    goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
+    def createTFIDF():
+        goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
              'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
              'Goal 13',
              'Goal 14', 'Goal 15', 'Goal 16', 'Goal 17'
              ]
-    rawText = ""
-    TFIDF = Processing(rawText)
-    tf = [{}]  # create list of dicts
-    count = 1
-    final_features = {}
-    idf = {}
-    tf_idf = [{}]
-    temp = {}
-    merge = {}
-    print(len(tf))
-    # preprocessedText = TFIDF.getFromPDF()
-    for goal in goals:
-        rawText = TFIDF.extractAllPDF(goal)
-        preprocessedText = TFIDF.lemmatization(rawText)
-        preprocessedText = TFIDF.preProcessing(preprocessedText)
-        TFIDF.listToPDF(preprocessedText, goal)
-        temp = TFIDF.populateClass(preprocessedText)
-        temp = TFIDF.term_vectors(preprocessedText, temp)
-        temp = TFIDF.term_frequency(temp)
-        tf.append(temp)
-        count += 1
-    merge = TFIDF.mergeAllDict(tf)
-    idf = TFIDF.inverse_frequency(merge, tf)
-    tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
-    tf_idf = TFIDF.convertingToDP(merge, tf_idf)
+        rawText = ""
+        TFIDF = Processing(rawText)
+        tf = [{}]  # create list of dicts
+        count = 1
+        final_features = {}
+        idf = {}
+        tf_idf = [{}]
+        temp = {}
+        merge = {}
+        print(len(tf))
+        # preprocessedText = TFIDF.getFromPDF()
+        for goal in goals:
+            rawText = TFIDF.extractAllPDF(goal)
+            preprocessedText = TFIDF.lemmatization(rawText)
+            preprocessedText = TFIDF.preProcessing(preprocessedText)
+            TFIDF.listToPDF(preprocessedText, goal)
+            temp = TFIDF.populateClass(preprocessedText)
+            temp = TFIDF.term_vectors(preprocessedText, temp)
+            temp = TFIDF.term_frequency(temp)
+            tf.append(temp)
+            count += 1
+        merge = TFIDF.mergeAllDict(tf)
+        idf = TFIDF.inverse_frequency(merge, tf)
+        tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
+        tf_idf = TFIDF.convertingToDP(merge, tf_idf)
+        ### END NEW TF IDF###
+        
+# if __name__ == '__main__':
+
+    # TFIDF = Processing()
+    # TFIDF.createTFIDF()
     # print(len(finalTF_IDF))
     # print(tf)
     # tf.append(TFIDF.term_frequency(tf[count]))

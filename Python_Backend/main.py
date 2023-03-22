@@ -13,6 +13,7 @@ def returnAscii():
     inputchr = str(request.args['query'])
     answer = str(ord(inputchr))
     d['output'] = answer
+    request.headers.add('Access-Control-Allow-Origin', '*')
     return d
 
 
