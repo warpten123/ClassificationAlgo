@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import k_nearest_neighbor as knn
-import information_extraction as inform
-import TFIDF_FINAL as tfidf
+# import k_nearest_neighbor as knn
+# import information_extraction as inform
+# import TFIDF_FINAL as tfidf
 
 
 app = Flask(__name__)
 CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app, resources={
+            r"/returnAscii": {"origins": "*"}})
 
 
 @app.route('/api', methods=['GET'])
@@ -15,34 +18,34 @@ def returnAscii():
     inputchr = str(request.args['query'])
     answer = str(ord(inputchr))
     d['output'] = answer
-    request.headers.add('Access-Control-Allow-Origin', '*')
+    # request.headers.add('Access-Control-Allow-Origin', '*')
     return d
 
 
-@app.route('/python/knn', methods=['GET'])
-def callKNN():
-    classification = knn.getResponse()
-    classification = str(request.args['algo'])
-    return classification
+# @app.route('/python/knn', methods=['GET'])
+# def callKNN():
+#     classification = knn.getResponse()
+#     classification = str(request.args['algo'])
+#     return classification
 
 
-@app.route('/python/information_extraction', methods=['GET'])
-def callInformation():
-    extract = inform.Extract()
-    extract.autoNER()  # add pdf here
+# @app.route('/python/information_extraction', methods=['GET'])
+# def callInformation():
+#     extract = inform.Extract()
+#     extract.autoNER()  # add pdf here
 
 
-@app.route('/python/addPDF', methods=['POST'])
-def addPDFToFlask():
-    # receive pdf from frontend
-    return ''
+# @app.route('/python/addPDF', methods=['POST'])
+# def addPDFToFlask():
+#     # receive pdf from frontend
+#     return ''
 
 
-def initDataSet():
-    init = tfidf.Processing()
-    init.createTFIDF()
+# def initDataSet():
+#     init = tfidf.Processing()
+#     init.createTFIDF()
 
 
 if __name__ == "__main__":
-    initDataSet()
+    # initDataSet()
     app.run(debug=True)
