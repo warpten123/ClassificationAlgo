@@ -39,7 +39,7 @@ def dataSet(filename, split, trainingSet=[], testSet=[]):
 def getEuclideanDistance(pointOne, pointTwo, length):
     distance = 0
     for x in range(length):
-        distance += pow((pointOne[x] - pointTwo[x]), 2)
+        distance += pow((float(pointOne[x]) - float(pointTwo[x])), 2)
     return math.sqrt(distance)
 
 
@@ -49,46 +49,66 @@ def manhattan_distance(instance1, instance2):
     return sum(absolute_differences)
 
 
-def getNeighbors(trainingSet, testInstance, k):
+def getKNeighbors(trainingSet, testInstance, k):
     distances = []
-    length = len(testInstance) - 1
+    length = len(testInstance)-1
     for x in range(len(trainingSet)):
-        dist = manhattan_distance(testInstance, trainingSet[x], length)
-        distances.sort(key=operator.itemgetter(1))
-        neighbors = []
+        dist = getEuclideanDistance(testInstance, trainingSet[x], length)
+        distances.append((trainingSet[x], dist))
+    distances.sort(key=operator.itemgetter(1))
+    neighbors = []
     for x in range(k):
         neighbors.append(distances[x][0])
     return neighbors
 
 
-def getResponse():
-    print("getting the votes made by the neighbors")
+def getResponse(neighbors):
+    classVotes = {}
+    for x in range(len(neighbors)):
+        response = neighbors[x][-1]
+        if response in classVotes:
+            classVotes[response] += 1
+        else:
+            classVotes[response] = 1
+    sortedVotes = sorted(classVotes.items(),
+                         key=operator.itemgetter(1), reverse=True)
+    return sortedVotes[0][0]
 
 
-def getAccuracy():
-    print("accuracy of the model")
+def getAccuracy(testSet, predictions):
+    correct = 0
+    for x in range(len(testSet)):
+        if testSet[x][-1] is predictions[x]:
+            correct += 1
+    return (correct/float(len(testSet))) * 100.0
 
 
-data1 = [2, 6, 3]
-data2 = [5, 6, 7]
-data = pd.read_csv("TFIDF.csv")
-newCol = ['euclidean distance']
-plt.scatter(data1, data2)
-plt.show()
-# print(data.values.tolist())
-# result = manhattan_distance(data1, data2)
+def main():  # prepare data
+    trainingSet = []
+    testSet = []
+    split = 0.67
+    dataSet('iris.data', split, trainingSet, testSet)
+    # generate predictions
+    predictions = []
+    k = 3
+    for x in range(len(testSet)):
+        neighbors = getKNeighbors(trainingSet, testSet[x], k)
+        result = getResponse(neighbors)
+        predictions.append(result)
+        print('> predicted=' + repr(result) +
+              ', actual=' + repr(testSet[x][-1]))
+    accuracy = getAccuracy(testSet, predictions)
+    print('Accuracy: ' + repr(accuracy) + '%')
 
-# print(result)
 
-# distance = getEuclideanDistance(data['average'].tolist(), data['goal number'].tolist(), 3)
-# ave = data['average'].tolist()
-# goal_Num = data['goal number'].tolist()
-# dist = []
-# for x in range(len(data)):
-#     distance = getEuclideanDistance(data['average'].tolist(), data['goal number'].tolist(), 3)
-#     print(distance)
-
-# dataSet(r'finalCSV.csv',0.66,trainingSet,testSet)
-# print("Distance: " + str(distance))
-# print('Training Set: ' + repr(len(trainingSet)))
-# print('Test Set: ' + repr(len(testSet)))
+main()
+# trainingSet = []
+# testSet = []
+# dataSet(r'iris.data', 0.66, trainingSet, testSet)``
+# print('Train: ' + repr(len(trainingSet)))
+# print('Test: ' + repr(len(testSet)))
+# trainSet = [[2, 2, 2, 'a'], [4, 4, 4, 'b']]
+# testInstance = [5, 5, 5]
+# k = 1
+# neighbors = getKNeighbors(trainSet, testInstance, 1)
+# print(neighbors)
