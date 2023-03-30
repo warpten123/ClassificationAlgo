@@ -10,7 +10,7 @@ import csv as csv
 import random
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-
+import operator
 # for data set
 trainingSet = []
 testSet = []
@@ -49,8 +49,16 @@ def manhattan_distance(instance1, instance2):
     return sum(absolute_differences)
 
 
-def getNeighbors():
-    print("data set")
+def getNeighbors(trainingSet, testInstance, k):
+    distances = []
+    length = len(testInstance) - 1
+    for x in range(len(trainingSet)):
+        dist = manhattan_distance(testInstance, trainingSet[x], length)
+        distances.sort(key=operator.itemgetter(1))
+        neighbors = []
+    for x in range(k):
+        neighbors.append(distances[x][0])
+    return neighbors
 
 
 def getResponse():
