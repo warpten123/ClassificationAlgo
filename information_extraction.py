@@ -8,7 +8,6 @@ from nltk.corpus import wordnet
 import pdfplumber
 from nltk.tag import StanfordPOSTagger
 
-
 # nltk.download('punkt')
 # nltk.download('averaged_perceptron_tagger')
 # nltk.download('maxent_ne_chunker')
@@ -19,7 +18,6 @@ You can also find the surname Jones here.
 '''
 person_list = []
 person_names = person_list
-
 
 class Extract():
     def __init__(self):
@@ -36,7 +34,7 @@ class Extract():
 
     def extractFromPDF(self):
         extractedText = " "
-        with pdfplumber.open("../EUL_ A Digital Research Repository System.pdf") as pdf:
+        with pdfplumber.open("EUL_ A Digital Research Repository System.pdf") as pdf:
             first_page = pdf.pages[0]
             extractedText = first_page.extract_text()
         return extractedText
@@ -51,36 +49,14 @@ class Extract():
         doc = nlp(text)
         for ent in doc.ents:
             print(ent.text, "|", ent.label_, "|", spacy.explain(ent.label_))
-
-
-# text = """
-# "EUL: A Digital Research Repository System A Thesis Presented to
-# The Faculty of the School of Computer Studies
-# Department of the
-# University of San Jose-Recoletos
-# Cebu City, Philippines
-# In Partial Fulfillment
-# Of the Requirements for Thesis 1
-# Members
-# Cristopher Bohol
-# Paul Joshua Premacio
-# Thesis Adviser
-# Dr. Lorna Miro
-# Date 2022
-# "
-# """
-extract = Extract()
-extractedText = extract.extractFromPDF()
-extract.autoNER(extractedText)
-# postTagged = extract.posTagging(extractedText)
-# extract.extractNames(extractedText)
-
-# names = extract.get_human_names(extractedText)
-# for person in person_list:
-#     person_split = person.split(" ")
-#     for name in person_split:
-#         if wordnet.synsets(name):
-#             if (name in person):
-#                 person_names.remove(person)
-#                 break
-# print(person_names)
+            
+class mainExtract():
+    def main():
+        extract = Extract()
+        extractedText = extract.extractFromPDF()
+        print(extractedText)
+        extract.autoNER(extractedText)
+        postTagged = extract.posTagging(extractedText)
+        extract.extractNames(extractedText)
+        
+mainExtract.main()
