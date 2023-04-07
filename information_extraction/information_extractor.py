@@ -1,5 +1,6 @@
 from document_extractor import DocumentExtractor
-
+import spacy
+from dateutil.parser import parse as date_parse
 class InformationExtraction:
     def __init__(self, document_path):
         self.document_path = document_path
@@ -13,75 +14,90 @@ class InformationExtraction:
         else:
             print('Invalid file format. Please upload a PDF file.')
 
-    def match_keywords(self, lines, keywords):
-        """
-        Helper function to match keywords in a list of lines from extracted text.
+    def word_tokenize(text):
+        words = []
+        for sentence in text:
+            words.extend(sentence.split())
+        return words
 
-        Args:
-            lines (list): List of lines from extracted text.
-            keywords (list): List of keywords to match.
+    def pos_tag(tokens):
+        tokens = text.split() # split text into words
+        pos_tags = []
+        for token in tokens:
+            if token in ['A', 'An', 'The', 'Of', 'Thesis', 'Adviser', 'Date']:
+                pos_tags.append((token, 'DT'))
+            elif token.endswith(':'):
+                pos_tags.append((token[:-1], 'NNP'))
+                pos_tags.append((':', ':'))
+            elif token in [',', '.']:
+                pos_tags.append((token, 'PUNCT'))
+            else:
+                pos_tags.append((token, 'NN'))
+        return pos_tags
+    
+    def process_extracted_text(self, input_text):
+        print(input_text)
+        extracted_info = {}
 
-        Returns:
-            str: Extracted value for the matched keyword.
-        """
-        i = 0
-        value = ""
-        while i < len(lines):
-            if any(keyword in lines[i].lower() for keyword in keywords):
-                value += " " + lines[i].strip()
-                i += 1
-                while i < len(lines) and not any(keyword in lines[i].lower() for keyword in keywords):
-                    value += " " + lines[i].strip()
-                    i += 1
+        # Extract title
+        title = input_text[0]
+        extracted_info['title'] = title if title else None
+
+        # Extract college/department
+        for line in input_text:
+            if 'Faculty of' in line:
+                extracted_info['college_department'] = line.split('Faculty of')[-1].strip()
                 break
-            i += 1
-        return value.strip()
 
-    def process_extracted_text(self, extracted_text):
-        """
-        Process the extracted text to identify and store information.
+        # Combine input text into a single string
+        input_text = ' '.join(input_text)
 
-        Args:
-            extracted_text (list): List of lines containing the extracted text.
+        # Load spaCy model
+        nlp = spacy.load("en_core_web_sm")
 
-        Returns:
-            dict: Dictionary containing extracted information.
-        """
-        # Split the extracted text into lines
-        lines = extracted_text
-        print(lines)
-        # Process the extracted text to identify categories
-        title_keywords = ['thesis', 'dissertation', 'research paper', 'project report']
-        college_department_keywords = ['computer science', 'engineering', 'information technology']
-        authors_keywords = ['by', 'authored by', 'written by']
-        adviser_keywords = ['advised by', 'supervised by', 'Thesis Adviser']
-        published_date_keywords = ['submitted on', 'date', 'published on']
+        # Process input text with spaCy
+        doc = nlp(input_text)
 
-        # Initialize variables to store extracted information
-        title = ""
-        college_department = ""
-        authors = ""
-        adviser = ""
-        published_date = ""
+        # Extract title
+        extracted_info['title'] = doc.ents[0].text if doc.ents else None
 
-        # Match keywords and store extracted values
-        title = self.match_keywords(lines, title_keywords)
-        college_department = self.match_keywords(lines, college_department_keywords)
-        authors = self.match_keywords(lines, authors_keywords)
-        adviser = self.match_keywords(lines, adviser_keywords)
-        print(adviser)
-        published_date = self.match_keywords(lines, published_date_keywords)
+        # Extract college/department
+        for sent in doc.sents:
+            if "Faculty of" in sent.text:
+                extracted_info['college_department'] = sent.text.replace("Faculty of", "").strip()
+                break
 
-        # Return the extracted information as a dictionary
-        return {
-            'title': title,
-            'college_department': college_department,
-            'authors': authors,
-            'adviser': adviser,
-            'published_date': published_date
-        }
+        # Extract authors
+        extracted_info['authors'] = [ent.text for ent in doc.ents if ent.label_ == 'PERSON']
+        print(extracted_info['authors'][0])
 
+        # Extract adviser
+        extracted_info['adviser'] = None
+        if extracted_info['authors']:
+            adviser = extracted_info['authors'].pop()
+            extracted_info['adviser'] = adviser
 
+        # Extract published date
+        extracted_info['published_date'] = self.extract_published_date(input_text)
+
+        return extracted_info
+
+    def extract_published_date(self, input_text):
+        extracted_date = None
+
+        # Extract published date using date parsing library
+        for line in input_text.split('\n'):
+            try:
+                # Attempt to parse date from line
+                parsed_date = date_parse(line, fuzzy=True)
+                if parsed_date:
+                    extracted_date = parsed_date.strftime("%B %Y")
+                    break
+            except ValueError:
+                pass
+
+        return extracted_date if extracted_date else None
+    
 document_path = 'EUL_ A Digital Research Repository System.pdf' 
 ie = InformationExtraction(document_path)
 information = ie.extract_information()
