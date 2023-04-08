@@ -102,7 +102,7 @@ class InformationExtraction:
 
         return extracted_date if extracted_date else None
     
-document_path = 'Final_RECall_CS_Thesis_Paper.pdf' 
+document_path = 'EUL_ A Digital Research Repository System.pdf' 
 ie = InformationExtraction(document_path)
 information = ie.extract_information()
 if information is not None:

@@ -74,10 +74,38 @@ class DocumentExtractor:
             print("File does not exist.")
             return None
         
-    def extract_paragraphs_from_text(self, text):
-        paragraphs = re.split(r'\n+', text)  # split on one or more newline characters
-        paragraphs = [p.strip() for p in paragraphs if p.strip()]  # remove leading/trailing whitespaces and filter out empty paragraphs
-        return paragraphs
+    def extract_paragraphs_from_text(self, input_text):
+        # Split input text into paragraphs based on newline characters
+        paragraphs = input_text.split('\n')
+
+        # Initialize list to store processed paragraphs
+        processed_paragraphs = []
+
+        # Initialize variable to store current paragraph
+        current_paragraph = ""
+
+        # Loop through paragraphs and process them
+        for paragraph in paragraphs:
+            # If paragraph is not empty or whitespace-only
+            if paragraph.strip():
+                # If current paragraph is not empty, add space before next paragraph
+                if current_paragraph:
+                    current_paragraph += ' '
+
+                # Append current paragraph with current line
+                current_paragraph += paragraph.strip()
+            else:
+                # If current paragraph is not empty, add it to processed_paragraphs
+                if current_paragraph:
+                    processed_paragraphs.append(current_paragraph)
+                    current_paragraph = ""
+
+        # If current paragraph is not empty after loop, add it to processed_paragraphs
+        if current_paragraph:
+            processed_paragraphs.append(current_paragraph)
+
+        # Return extracted paragraphs
+        return processed_paragraphs
     
     def extract_text_from_document(self):
         if self.document_path.endswith('.pdf'):
