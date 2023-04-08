@@ -37,6 +37,8 @@ class InformationExtraction:
     
     def process_extracted_text(self, input_text):
         print(input_text)
+        for i, paragraph in enumerate(input_text, 1):
+            print(f'Paragraph {i}: {paragraph}')
         extracted_info = {}
 
         # Extract title
@@ -82,6 +84,7 @@ class InformationExtraction:
 
         return extracted_info
 
+    
     def extract_published_date(self, input_text):
         extracted_date = None
 
@@ -98,7 +101,7 @@ class InformationExtraction:
 
         return extracted_date if extracted_date else None
     
-document_path = 'EUL_ A Digital Research Repository System.pdf' 
+document_path = 'Final_RECall_CS_Thesis_Paper.pdf' 
 ie = InformationExtraction(document_path)
 information = ie.extract_information()
 if information is not None:
