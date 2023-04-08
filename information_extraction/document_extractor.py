@@ -26,6 +26,9 @@ class DocumentExtractor:
             image = page.to_image(resolution=300)
             image_file = 'temp_image.png'
             image.save(image_file, format='png')
+            
+            # Specify the path to Tesseract executable
+            pytesseract.pytesseract.tesseract_cmd = r"E:\\Programs\\tes\\tesseract.exe"
 
             # Perform OCR using pytesseract
             ocr_text = pytesseract.image_to_string(image_file)

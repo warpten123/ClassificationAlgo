@@ -1,2 +1,0 @@
-
-            str: Full file path.
