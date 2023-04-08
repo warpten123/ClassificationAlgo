@@ -1,8 +1,6 @@
 from document_extractor import DocumentExtractor
 import spacy
 from dateutil.parser import parse as date_parse
-import os
-from urllib.parse import quote, unquote
 class InformationExtraction:
     def __init__(self, document_path):
         self.document_path = document_path
@@ -104,33 +102,9 @@ class InformationExtraction:
 
         return extracted_date if extracted_date else None
     
-    def generate_file_path(base_directory, file_name_with_extension):
-        # base_directory = os.path.abspath(base_directory)
-        
-        # URL-encode the file name
-        file_name_encoded = quote(file_name_with_extension)
-        
-        # Generate the absolute file path by concatenating the base directory and file name
-        file_path = os.path.join(base_directory, file_name_encoded)
-        
-        # Normalize the file path to replace forward slashes with backslashes
-        normalized_file_path = os.path.normpath(file_path)
-        
-        # Decode percent-encoded characters in the file path
-        decoded_file_path = unquote(normalized_file_path)
-        
-        return decoded_file_path
-
-# Example usage
-base_directory = r"../assets/upload"
-file_name_with_extension = 'EUL_ A Digital Research Repository System.pdf'
-# Call the function to generate the relative file path
-relative_file_path = InformationExtraction.generate_file_path(base_directory, file_name_with_extension)
-# Update the document path with the file path using \\?\
-# document_path = r'\\?\{}'.format(os.path.abspath(relative_file_path).replace(':', ''))
-ie = InformationExtraction(relative_file_path)
+document_path = 'Final_RECall_CS_Thesis_Paper.pdf' 
+ie = InformationExtraction(document_path)
 information = ie.extract_information()
-print(ie.document_path)
 if information is not None:
     print('Extracted Information:')
     print(information)
