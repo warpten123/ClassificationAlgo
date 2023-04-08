@@ -34,7 +34,7 @@ class Extract():
 
     def extractFromPDF(self):
         extractedText = " "
-        with pdfplumber.open("EUL_ A Digital Research Repository System.pdf") as pdf:
+        with pdfplumber.open("Final_RECall_CS_Thesis_Paper.pdf") as pdf:
             first_page = pdf.pages[0]
             extractedText = first_page.extract_text()
         return extractedText

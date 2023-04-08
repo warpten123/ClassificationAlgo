@@ -3,7 +3,9 @@ import pdfplumber
 import textract
 import re
 import PyPDF2
-
+import pytesseract
+import os
+from urllib.parse import quote, unquote
 class DocumentExtractor:
     def __init__(self, document_path):
         self.document_path = document_path
@@ -22,42 +24,38 @@ class DocumentExtractor:
         for i, paragraph in enumerate(paragraphs, 1):
             print(f'Paragraph {i}: {paragraph}')
         return paragraphs
+    
+    def extract_paragraphs_from_pdf(self):
+        print(self.document_path)
+        # Check if the file exists
+        if os.path.exists(self.document_path):
+            # Check if the file is readable
+            if os.access(self.document_path, os.R_OK):
+                # Open PDF file in binary mode
+                with open(self.document_path, 'rb') as file:
+                    # Create a PDF reader object
+                    pdf_reader = PyPDF2.PdfReader(file)
+                    # Extract text from all pages in the PDF
+                    pdf_text = ''
+                    for page in pdf_reader.pages:
+                        pdf_text += page.extract_text()
 
-    def extract_paragraphs_from_text(self,input_text):
-        # Split input text into paragraphs based on newline characters
-        paragraphs = input_text.split('\n')
+                    # Perform OCR using pytesseract
+                    ocr_text = pytesseract.image_to_string(pdf_text)
 
-        # Initialize list to store processed paragraphs
-        processed_paragraphs = []
+                    # Extract paragraphs from OCR text
+                    paragraphs = self.extract_paragraphs_from_text(ocr_text)
 
-        # Initialize variable to store current paragraph
-        current_paragraph = ""
-
-        # Loop through paragraphs and process them
-        for paragraph in paragraphs:
-            # If paragraph is not empty or whitespace-only
-            if paragraph.strip():
-                # If current paragraph is not empty, add space before next paragraph
-                if current_paragraph:
-                    current_paragraph += ' '
-
-                # Append current paragraph with current line
-                current_paragraph += paragraph.strip()
+                return paragraphs
             else:
-                # If current paragraph is not empty, add it to processed_paragraphs
-                if current_paragraph:
-                    processed_paragraphs.append(current_paragraph)
-                    current_paragraph = ""
-
-        # If current paragraph is not empty after loop, add it to processed_paragraphs
-        if current_paragraph:
-            processed_paragraphs.append(current_paragraph)
-
-        # Return extracted paragraphs
-        return processed_paragraphs
-
+                print("File exists but is not readable.")
+                return None
+        else:
+            print("File does not exist.")
+            return None
+    
     def extract_text_from_document(self):
         if self.document_path.endswith('.pdf'):
-            return self.extract_text_from_pdf()
+            return self.extract_paragraphs_from_pdf()
         else:
             return None
