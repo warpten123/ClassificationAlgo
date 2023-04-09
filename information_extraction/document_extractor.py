@@ -1,20 +1,22 @@
-import docx
 import pdfplumber
-import textract
-import re
-import PyPDF2
 import pytesseract
 import os
 from urllib.parse import quote, unquote
 from PIL import Image
-import io
 class DocumentExtractor:
     def __init__(self, document_path):
         self.document_path = document_path
 
     def extract_text_from_pdf(self):
+        # Get the directory containing the script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        # Get the parent directory of the script directory
+        parent_dir = os.path.dirname(script_dir)
+        # Construct the full path to the PDF file
+        pdf_path = os.path.join(parent_dir, "assets", "upload", self.document_path)
+        
         # Open PDF file in binary mode
-        with open(self.document_path, 'rb') as pdf_file:
+        with open(pdf_path, 'rb') as pdf_file:
             # Create a PDFPlumber object
             pdf_reader = pdfplumber.open(pdf_file)
             # Extract text from the first page of the PDF
@@ -44,35 +46,6 @@ class DocumentExtractor:
             os.remove(image_file)
 
             return paragraphs
-    
-    def extract_paragraphs_from_pdf(self):
-        print(self.document_path)
-        # Check if the file exists
-        if os.path.exists(self.document_path):
-            # Check if the file is readable
-            if os.access(self.document_path, os.R_OK):
-                # Open PDF file in binary mode
-                with open(self.document_path, 'rb') as file:
-                    # Create a PDF reader object
-                    pdf_reader = PyPDF2.PdfReader(file)
-                    # Extract text from all pages in the PDF
-                    pdf_text = ''
-                    for page in pdf_reader.pages:
-                        pdf_text += page.extract_text()
-
-                    # Perform OCR using pytesseract
-                    ocr_text = pytesseract.image_to_string(pdf_text)
-
-                    # Extract paragraphs from OCR text
-                    paragraphs = self.extract_paragraphs_from_text(ocr_text)
-
-                return paragraphs
-            else:
-                print("File exists but is not readable.")
-                return None
-        else:
-            print("File does not exist.")
-            return None
         
     def extract_paragraphs_from_text(self, input_text):
         # Split input text into paragraphs based on newline characters
