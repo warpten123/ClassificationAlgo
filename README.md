@@ -44,3 +44,38 @@ This ensures that the dependencies installed in the `pipenv` environment are use
 Alternatively, you can also use `poetry`, another popular Python package management tool, which follows a similar approach but uses a different format (`pyproject.toml` and `poetry.lock`) for specifying dependencies and versions.
 
 Using `pipenv` or `poetry` can help you automatically generate a list of dependencies to be installed based on your project's code, ensuring consistent and reproducible builds across different environments.
+
+# Setup for OCR
+
+### ImageMagick
+
+The error message suggests that the ImageMagick library, which is required by the pdfplumber library to handle image extraction from PDFs, is not installed on your system.
+
+You can follow the instructions provided in the link mentioned in the error message (https://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows) to install ImageMagick on Windows.
+
+Here are the general steps to install ImageMagick on Windows:
+
+Download the ImageMagick installer for Windows from the official ImageMagick website (https://imagemagick.org/script/download.php#windows).
+Run the installer and follow the installation instructions.
+Make sure to select the "Install legacy utilities (e.g. convert)" option during the installation process.
+Once the installation is complete, add the ImageMagick installation directory to the system's PATH environment variable. This can usually be done through the advanced system settings or environment variables settings in Windows.
+Restart any open command prompt or terminal windows to apply the changes.
+After installing ImageMagick, you should be able to use the pdfplumber library to extract text and images from PDFs without encountering the "MagickWand shared library not found" error.
+
+### Ghost
+
+Ghostscript is a dependency of ImageMagick and is required for handling PDFs. In order to fix this error, you need to make sure that Ghostscript is installed on your system and its executable is accessible.
+
+You can download and install Ghostscript from the official Ghostscript website (https://www.ghostscript.com/download/gsdnld.html) or through a package manager if you are using a package-based system like Ubuntu.
+
+After installing Ghostscript, you may need to add the directory containing the gswin64c.exe executable to your system's PATH environment variable, similar to how you added the ImageMagick installation directory to the PATH as mentioned in the previous response. This will allow ImageMagick to locate and use the Ghostscript executable when needed.
+
+Once Ghostscript is installed and configured correctly, you should be able to run your code without encountering the "FailedToExecuteCommand" error.
+
+# Links
+
+install tesseract
+-> https://github.com/UB-Mannheim/tesseract/wiki
+install imagemagick
+-> https://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows
+-> https://imagemagick.org/script/download.php#windows
