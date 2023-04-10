@@ -2,7 +2,6 @@ import math
 from concurrent.futures import process
 from hashlib import new
 from multiprocessing.resource_sharer import stop
-import docx2txt  # lib for reading docx files
 import re
 import pandas as pd
 import numpy as np

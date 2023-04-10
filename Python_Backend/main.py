@@ -1,4 +1,5 @@
 
+
 import sys
 import os
 from flask_cors import CORS
@@ -8,12 +9,9 @@ from flask import Flask, request, jsonify
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-
-from tfidf.TFIDF_FINAL import Processing
-from knn.k_nearest_neighbor import KNN
 from information_extraction.main import InformationExtraction
-
-
+from knn.k_nearest_neighbor import KNN
+from tfidf.TFIDF_FINAL import Processing
 # import k_nearest_neighbor as knn
 # import information_extraction as inform
 # import TFIDF_FINAL as tfidf
@@ -85,7 +83,7 @@ def callKNN():
 def getTFIDF(filename):
     tfidf = Processing(" ")
     rawtext = tfidf.insertNewData(filename)
-    return jsonify(rawtext)
+    return {'RESULT': rawtext}
 
 
 # @app.route('/python/tfidf,' methods=['GET'])
