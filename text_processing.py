@@ -72,10 +72,7 @@ def save_to_file(filename, lines):
             f.write('\n')
 
 
-def stemming(processedText):
-    # manual stemming
-    # if word ends with ing or ed, ly, s, es, ion, er, ness, ful, al, ment, ist, ness, ness, remove it
-    # wtf
+def stemming(processedText):#notused, but might be useful later
     for i in range(len(processedText)):
         if (processedText[i].endswith('ing') or processedText[i].endswith('ed')):
             processedText[i] = processedText[i][:-3]
@@ -169,72 +166,3 @@ def computeIDF(term_frequency):
         return np.log(2/word_occurance)
 
     print(idf_dict)
-
-    # set the
-
-# text,processedText = [],[]
-# fromPDF = PDFProcessing()
-# n_docs = len(text) # number of text in text
-
-# print("Initial Count of Words in File: " + str(n_docs))
-# processedText = removeSpecialCharacters(fromPDF)
-# processedText = toLowerCase(processedText)
-# processedText = manual_tokenization(processedText)
-# processedText = removeStopWords(processedText)
-# # processedText = removeNumbers(processedText)
-# print("After Preprocessing: " + str(len(processedText)))
-# n_words_set = len(processedText) # number of unique words in text
-
-# save_to_file("processedText.txt", processedText)
-# term_frequency = term_frequency_calculation(processedText)
-# # term_frequency = {k: v for k, v in term_frequency.items() if not k.isdigit()}
-# print(term_frequency)
-
-
-# compute_tf = compute_tf(term_frequency, processedText)
-
-
-# print()
-# idfs = computeIDF([term_frequency])
-# print(idfs)
-
-
-# processedText = stemming(processedText)
-# term_frequency = term_frequency_calculation(processedText)
-# print(calculate_tfidf(term_frequency, processedText))
-# print(matching_score(processedText, processedText))
-# print(processedText)
-# processedText = text_tokenization(processedText)
-
-
-# def calculate_tfidf(term_frequency, processedText):
-#     # calculate tf-idf
-#     # tf = term frequency
-#     # idf = inverse document frequency
-#     # tf-idf = tf * idf
-#     # store the word and its tf-idf in a dictionary
-#     # return the dictionary
-#     tf_idf = {}
-#     for word in term_frequency:
-#         tf = term_frequency[word]
-#         idf = processedText.count(word)
-#         tf_idf[word] = tf * idf
-#     return tf_idf
-
-# def matching_score(query, processedText):
-#     # calculate the matching score
-#     # store the word and its matching score in a dictionary
-#     # return the dictionary
-#     matching_score = {}
-#     for word in query:
-#         matching_score[word] = processedText.count(word)
-#     return matching_score
-
-
-# lowercase the content from text
-
-
-# check for repeating words in text and save it as a map<word,count>
-# text = dict([(word, text.count(word)) for word in set(text)])
-# print(text)
-# print(str(len(text)))

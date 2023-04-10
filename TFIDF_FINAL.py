@@ -1,6 +1,5 @@
 import text_processing as preProc
 import pdfplumber
-import re
 import csv
 import pandas as pd
 import glob
@@ -12,6 +11,10 @@ import numpy as np
 from fpdf import FPDF
 from collections import ChainMap
 import nltk
+from PyPDF4 import PdfFileReader
+import re
+import io
+
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -21,9 +24,9 @@ class Processing():
     def __init__(self, path):
         self.path = path
 
-    def getFromPDF(self):
+    def getFromPDF(self, string):
         finalText = " "
-        with pdfplumber.open(r'Goal 1 Training Set.pdf') as pdf:
+        with pdfplumber.open(string) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF
@@ -62,6 +65,7 @@ class Processing():
         text = preProc.removeSpecialCharacters(text)
         text = preProc.manual_tokenization(text)
         text = preProc.removeStopWords(text)
+        # text = preProc.toLowerCase(text)
         return text
 
     def populateClass(self, text):
@@ -77,6 +81,7 @@ class Processing():
             for dic in populatedDict:
                 if (dic == word):
                     populatedDict[dic] = populatedDict[dic] + 1
+
         return populatedDict
 
     def term_frequency(self, populatedDict):
@@ -111,7 +116,7 @@ class Processing():
         return tf_idf
         # return tf_idf
 
-    def computeTF_IDF(self, tf, idf):
+    def computeTF_IDF(self, tf, idf):  # not used
         tf_idf = tf
         for word in tf:
             if idf.__contains__(word):
@@ -148,7 +153,7 @@ class Processing():
         df2.to_csv('TFIDF.csv')
         return df2
 
-    def extractAllPDF(self, goal):
+    def extractAllPDF(self, goal):  # main extracting method
         count = 0
         directory = (glob.glob("../Data Set/" + goal + "/*.pdf"))
         extractedText = " "
@@ -159,7 +164,22 @@ class Processing():
                 print("Count PDF #: " + str(count))
                 for page in pdf.pages:
                     extractedText = page.extract_text()
-                    print("length: " + str(len(extractedText)))
+                    print("length in page: " + str(len(extractedText)))
+                    finalText = finalText + extractedText
+        return finalText
+
+    def extractPDFNEW(self, goal):  # main extracting method
+        count = 0
+        directory = (glob.glob("../Data Set/" + goal + "/*.pdf"))
+        extractedText = " "
+        finalText = " "
+        for file in directory:
+            with pdfplumber.open(file) as pdf:
+                count += 1
+                print("Count PDF #: " + str(count))
+                for page in pdf.pages:
+                    extractedText = page.extract_text()
+                    print("length in page: " + str(len(extractedText)))
                     finalText = finalText + extractedText
         return finalText
 
@@ -182,8 +202,11 @@ class Processing():
 
     def lemmatization(self, text):
         lemmatizer = WordNetLemmatizer()
-
-        return lemmatizer.lemmatize(text)
+        temp = []
+        for str in text:
+            lemma = lemmatizer.lemmatize(str)
+            temp.append(lemma)
+        return temp
 
     def createTFIDF(self, rawText):
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
@@ -202,8 +225,8 @@ class Processing():
         print(len(tf))
         for goal in goals:
             rawText = TFIDF.extractAllPDF(goal)
-            preprocessedText = TFIDF.lemmatization(rawText)
-            preprocessedText = TFIDF.preProcessing(preprocessedText)
+            preprocessedText = TFIDF.preProcessing(rawText)
+            preprocessedText = TFIDF.lemmatization(preprocessedText)
             TFIDF.listToPDF(preprocessedText, goal)
             temp = TFIDF.populateClass(preprocessedText)
             temp = TFIDF.term_vectors(preprocessedText, temp)
@@ -213,10 +236,29 @@ class Processing():
         merge = TFIDF.mergeAllDict(tf)
         idf = TFIDF.inverse_frequency(merge, tf)
         tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
+        passOrig = tf_idf
         tf_idf = TFIDF.convertingToDP(merge, tf_idf)
+        return passOrig
+
+    def insertNewData(self):
+        # holy shit
+        length = 0
+        path = "EUL.pdf"
+        rawText = self.getFromPDF(path)
+        preprocessedText = self.preProcessing(rawText)
+        lemmatized = self.lemmatization(preprocessedText)
+        print(lemmatized)
+
+        return False
 
 
 if __name__ == '__main__':
+    initial_run = True
+    new_data = True
     rawText = ""
     TFIDF = Processing(rawText)
-    TFIDF.createTFIDF(rawText)
+    orig_tfIDF = TFIDF.createTFIDF(rawText)
+    initial_run = False
+    if (initial_run == False):
+        while (new_data != False):
+            new_data = TFIDF.insertNewData()
