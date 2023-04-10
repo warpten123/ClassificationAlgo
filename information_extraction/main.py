@@ -1,4 +1,4 @@
-from document_extractor import DocumentExtractor
+from information_extraction.document_extractor import DocumentExtractor
 import re
 import datetime
 from dateutil import parser as date_parser
@@ -28,19 +28,15 @@ class InformationExtraction:
             print('Invalid file format. Please upload a PDF file.')
 
     def process_extracted_text(self, input_text):
-        # Initialize dictionary to store extracted information
         information = {}
 
-        # Extract title
         information['title'] = self.extract_title(input_text)
 
         # Extract Department
         information['department'] = self.extract_department(input_text)
         
-        # # Extract person
         information['author'] = self.extract_person(input_text)
         
-        # # Extract Adviser
         # information['adviser'] = self.extract_adviser(input_text)
         
         # Extract published date
@@ -168,12 +164,3 @@ class InformationExtraction:
             return formatted_date
         else:
             return None
-
-path = ['PRACTICALRESEARCH.PINAKAFINAL-1.docx.pdf', 'EUL_ A Digital Research Repository System.pdf', 
-        'Final_RECall_CS_Thesis_Paper.pdf', 'GVC Project Documentation 2022.pdf']
-document_path = random.choice(path) 
-ie = InformationExtraction(document_path)
-information = ie.extract_information()
-if information is not None:
-    print('Extracted Information:')
-    print(information)

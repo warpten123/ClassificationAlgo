@@ -4,8 +4,13 @@ from flask_cors import CORS
 # import information_extraction as inform
 # import TFIDF_FINAL as tfidf
 import os
-import uuid
+import sys
 
+# Add the parent directory to the sys.path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+from information_extraction.main import InformationExtraction
 app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -40,6 +45,20 @@ def upload_file():
     # Return success response
     return {'status': 'success', 'message': 'File uploaded successfully.'}
 
+# Route for information extraction
+@app.route('/python/information_extraction/<filename>', methods=['GET'])
+def information_extraction_route(filename):
+    # Instantiate InformationExtraction class
+    info_extractor = InformationExtraction(filename)
+    output = info_extractor.extract_information()
+    
+    if output is not None:
+        print('Extracted Information:')
+        print(output)
+
+    # Return extracted information as JSON
+    return jsonify(output)
+
 # @app.route('/python/knn', methods=['GET'])
 # def callKNN():
 #     classification = knn.getResponse()
@@ -47,10 +66,7 @@ def upload_file():
 #     return classification
 
 
-# @app.route('/python/information_extraction', methods=['GET'])
-# def callInformation():
-#     extract = inform.Extract()
-#     extract.autoNER()  # add pdf here
+
 
 
 # @app.route('/python/addPDF', methods=['POST'])

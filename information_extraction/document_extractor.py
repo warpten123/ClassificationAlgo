@@ -3,6 +3,7 @@ import pytesseract
 import os
 from urllib.parse import quote, unquote
 from PIL import Image
+
 class DocumentExtractor:
     def __init__(self, document_path):
         self.document_path = document_path
