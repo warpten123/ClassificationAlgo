@@ -1,24 +1,24 @@
 
-
-import sys
-import os
-from flask_cors import CORS
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+import os
+import sys
+import requests
 
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
 from tfidf.TFIDF_FINAL import Processing
+from knn.k_nearest_neighbor import KNN
+from information_extraction.main import InformationExtraction
 # import k_nearest_neighbor as knn
 # import information_extraction as inform
 # import TFIDF_FINAL as tfidf
 
 # Add the parent directory to the sys.path
 
-
+uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -86,10 +86,16 @@ def getTFIDF(filename):
     return {'RESULT': rawtext}
 
 
+@app.route('/python/node', methods=['GET'])
+def getDataFromNode():
+    response = requests.get(uri + '/api/account/')
+    response_json = response.json()
+    return response_json[0]
+
+
 # @app.route('/python/tfidf,' methods=['GET'])
 # def callTFIDF():
 #     return True
-
 
 # @app.route('/python/addPDF', methods=['POST'])
 # def addPDFToFlask():
