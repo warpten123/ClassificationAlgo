@@ -1,0 +1,25 @@
+# .gitignore
+
+# Python virtual environment
+venv/
+myenv
+
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+
+# Log files
+*.log
+
+# Dependencies
+*.egg-info/
+.dist/
+build/
+*.egg
+*.pyc
+*.pyo
+*.pyd
+*.pyz
+*.pyw

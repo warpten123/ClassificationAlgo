@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+pdfplumber = "*"
+pytesseract = "*"
+pillow = "*"
+python-docx = "*"
+nltk = "*"
+spacy = "*"
+flask-cors = "*"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+seaborn = "*"
+PyPDF2 = "*"
+fpdf = "*"
+wordnet = "*"
+
+[dev-packages]
+
+
+[requires]
+python_version = "3.9"

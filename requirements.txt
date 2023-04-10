@@ -1,0 +1,16 @@
+pdfplumber
+pytesseract
+Pillow
+python-dateutil
+nameparser
+nltk
+spacy
+Flask
+flask_cors
+python-docx
+pandas
+numpy
+matplotlib
+seaborn
+PyPDF2
+fpdf
