@@ -1,12 +1,21 @@
 from document_extractor import DocumentExtractor
-import spacy
-import dateparser
 import re
 import datetime
 from dateutil import parser as date_parser
+import random
+from nameparser import HumanName
+import nltk
+from nltk import pos_tag, ne_chunk
+from nltk.tokenize import word_tokenize
+import spacy
+
+# nltk.download('maxent_ne_chunker')
+# nltk.download('words')
+
 class InformationExtraction:
     def __init__(self, document_path):
         self.document_path = document_path
+        self.nlp = spacy.load("en_core_web_sm")
         
     def extract_information(self):
         print(self.document_path)
@@ -22,14 +31,14 @@ class InformationExtraction:
         # Initialize dictionary to store extracted information
         information = {}
 
-        # # Extract title
-        # information['title'] = self.extract_title(input_text)
+        # Extract title
+        information['title'] = self.extract_title(input_text)
 
-        # # Extract Department
-        # information['department'] = self.extract_department(input_text)
+        # Extract Department
+        information['department'] = self.extract_department(input_text)
         
-        # # Extract author
-        # information['author'] = self.extract_author(input_text)
+        # # Extract person
+        information['author'] = self.extract_person(input_text)
         
         # # Extract Adviser
         # information['adviser'] = self.extract_adviser(input_text)
@@ -40,6 +49,72 @@ class InformationExtraction:
         # Return extracted information
         return information
 
+    def extract_title(self, input_text):
+        title = ''
+        if len(input_text) > 0:
+            title = input_text[0].strip()  # Extract the first item as the title
+        return title
+    
+    def extract_department(self, input_text):
+        departments = [
+            'School of Law', 'School of Business and Management', 
+            'School of Computer Studies', 'Senior High School', 
+            'School of Arts and Sciences', 'RITTC', 
+            'School of Allied Medical Sciences', 
+            'School of Engineering', 'School of Education'
+        ]
+        extracted_department = ''
+        for text in input_text:
+            for department in departments:
+                if department in text:
+                    extracted_department = department
+                    break
+
+            if extracted_department:
+                break
+
+        return extracted_department
+    
+    def extract_person(self, text_list):
+        names = []
+        name_formats = [
+            "First Name Last Name",
+            "Last Name, First Name",
+            "First Name Middle Name Last Name",
+            "Last Name, First Name Middle Name",
+            "Last Name, First Name Middle Initial",
+            "Title First Name Last Name",
+            "First Name Middle Initial Last Name",
+            "Last Name, First Initial Middle Initial"
+        ]
+
+        for text in text_list:
+            # Extract names using NLTK
+            nltk_results = ne_chunk(pos_tag(word_tokenize(text)))
+            for nltk_result in nltk_results:
+                if type(nltk_result) == nltk.tree.Tree:
+                    name = ''
+                    for nltk_result_leaf in nltk_result.leaves():
+                        name += nltk_result_leaf[0] + ' '
+                    names.append(name.strip())
+            
+            # Extract names using SpaCy
+            doc = self.nlp(text)
+            for ent in doc.ents:
+                if ent.label_ == 'PERSON' and ent.text not in names:
+                    if len(ent.text.split()) > 1:
+                        names.append(ent.text)
+            
+            # Extract names using regex based on name formats
+            for name_format in name_formats:
+                pattern = re.sub(r'[,\s]', r'\\s*', name_format)
+                pattern = re.sub(r'First Initial', r'[A-Z]\.', pattern)
+                pattern = re.sub(r'Middle Initial', r'[A-Z]', pattern)
+                pattern = re.sub(r'Title', r'.+', pattern)
+                matches = re.findall(pattern, text)
+                names.extend(matches)
+
+        return names
     
     def extract_published_date(self, input_text):   
         extracted_date = None
@@ -94,8 +169,9 @@ class InformationExtraction:
         else:
             return None
 
-    
-document_path = 'PRACTICALRESEARCH.PINAKAFINAL-1.docx.pdf' 
+path = ['PRACTICALRESEARCH.PINAKAFINAL-1.docx.pdf', 'EUL_ A Digital Research Repository System.pdf', 
+        'Final_RECall_CS_Thesis_Paper.pdf', 'GVC Project Documentation 2022.pdf']
+document_path = random.choice(path) 
 ie = InformationExtraction(document_path)
 information = ie.extract_information()
 if information is not None:

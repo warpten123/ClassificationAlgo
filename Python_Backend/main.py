@@ -3,7 +3,8 @@ from flask_cors import CORS
 # import k_nearest_neighbor as knn
 # import information_extraction as inform
 # import TFIDF_FINAL as tfidf
-
+import os
+import uuid
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +22,23 @@ def returnAscii():
     # request.headers.add('Access-Control-Allow-Origin', '*')
     return d
 
+@app.route('/upload-file', methods=['POST'])
+def upload_file():
+    # Extract file and research ID from request data
+    file = request.files['file']
+    research_id = request.form['research_id']
+    print(file)
+    print(research_id)
+
+    # Generate a unique filename
+    filename = f"{file.filename}"
+    print(filename)
+
+    # Save the uploaded file to /assets/upload directory
+    file.save(os.path.join('assets', 'upload', filename))
+
+    # Return success response
+    return {'status': 'success', 'message': 'File uploaded successfully.'}
 
 # @app.route('/python/knn', methods=['GET'])
 # def callKNN():

@@ -34,7 +34,7 @@ class Extract():
 
     def extractFromPDF(self):
         extractedText = " "
-        with pdfplumber.open("GVC Project Documentation 2022.pdf") as pdf:
+        with pdfplumber.open("../ClassificationAlgo/assets/upload/GVC Project Documentation 2022.pdf") as pdf:
             first_page = pdf.pages[0]
             extractedText = first_page.extract_text()
         return extractedText
