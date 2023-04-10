@@ -1,16 +1,26 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-# import k_nearest_neighbor as knn
-# import information_extraction as inform
-# import TFIDF_FINAL as tfidf
-import os
-import sys
 
-# Add the parent directory to the sys.path
+import sys
+import os
+from flask_cors import CORS
+from flask import Flask, request, jsonify
+
+
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
+
+from tfidf.TFIDF_FINAL import Processing
+from knn.k_nearest_neighbor import KNN
 from information_extraction.main import InformationExtraction
+
+
+# import k_nearest_neighbor as knn
+# import information_extraction as inform
+# import TFIDF_FINAL as tfidf
+
+# Add the parent directory to the sys.path
+
+
 app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -26,6 +36,7 @@ def returnAscii():
     d['output'] = answer
     # request.headers.add('Access-Control-Allow-Origin', '*')
     return d
+
 
 @app.route('/upload-file', methods=['POST'])
 def upload_file():
@@ -46,12 +57,14 @@ def upload_file():
     return {'status': 'success', 'message': 'File uploaded successfully.'}
 
 # Route for information extraction
+
+
 @app.route('/python/information_extraction/<filename>', methods=['GET'])
 def information_extraction_route(filename):
     # Instantiate InformationExtraction class
     info_extractor = InformationExtraction(filename)
     output = info_extractor.extract_information()
-    
+
     if output is not None:
         print('Extracted Information:')
         print(output)
@@ -59,27 +72,34 @@ def information_extraction_route(filename):
     # Return extracted information as JSON
     return jsonify(output)
 
-# @app.route('/python/knn', methods=['GET'])
-# def callKNN():
-#     classification = knn.getResponse()
-#     classification = str(request.args['algo'])
-#     return classification
+
+@app.route('/python/knn', methods=['GET'])
+def callKNN():
+    classification = KNN()
+    accuracy = classification.main()
+
+    return jsonify(accuracy)
 
 
+@app.route('/python/tfidf/<filename>', methods=['GET'])
+def getTFIDF(filename):
+    tfidf = Processing(" ")
+    rawtext = tfidf.insertNewData(filename)
+    return jsonify(rawtext)
 
+
+# @app.route('/python/tfidf,' methods=['GET'])
+# def callTFIDF():
+#     return True
 
 
 # @app.route('/python/addPDF', methods=['POST'])
 # def addPDFToFlask():
 #     # receive pdf from frontend
 #     return ''
-
-
 # def initDataSet():
 #     init = tfidf.Processing()
 #     init.createTFIDF()
-
-
 if __name__ == "__main__":
     # initDataSet()
     app.run(debug=True)

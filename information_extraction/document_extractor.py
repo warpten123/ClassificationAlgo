@@ -4,6 +4,7 @@ import os
 from urllib.parse import quote, unquote
 from PIL import Image
 
+
 class DocumentExtractor:
     def __init__(self, document_path):
         self.document_path = document_path
@@ -14,8 +15,9 @@ class DocumentExtractor:
         # Get the parent directory of the script directory
         parent_dir = os.path.dirname(script_dir)
         # Construct the full path to the PDF file
-        pdf_path = os.path.join(parent_dir, "assets", "upload", self.document_path)
-        
+        pdf_path = os.path.join(parent_dir, "assets",
+                                "upload", self.document_path)
+
         # Open PDF file in binary mode
         with open(pdf_path, 'rb') as pdf_file:
             # Create a PDFPlumber object
@@ -29,9 +31,9 @@ class DocumentExtractor:
             image = page.to_image(resolution=300)
             image_file = 'temp_image.png'
             image.save(image_file, format='png')
-            
+
             # Specify the path to Tesseract executable
-            pytesseract.pytesseract.tesseract_cmd = r"E:\\Programs\\tes\\tesseract.exe"
+            pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
             # Perform OCR using pytesseract
             ocr_text = pytesseract.image_to_string(image_file)
@@ -47,7 +49,7 @@ class DocumentExtractor:
             os.remove(image_file)
 
             return paragraphs
-        
+
     def extract_paragraphs_from_text(self, input_text):
         # Split input text into paragraphs based on newline characters
         paragraphs = input_text.split('\n')
@@ -80,7 +82,7 @@ class DocumentExtractor:
 
         # Return extracted paragraphs
         return processed_paragraphs
-    
+
     def extract_text_from_document(self):
         if self.document_path.endswith('.pdf'):
             return self.extract_text_from_pdf()
