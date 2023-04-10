@@ -8,15 +8,20 @@ import nltk
 from nltk import pos_tag, ne_chunk
 from nltk.tokenize import word_tokenize
 import spacy
-
+import pdfplumber
+import glob
+import os
+from tfidf.text_processing import PreProcessing
+from tfidf.tfidf_final import Processing
 # nltk.download('maxent_ne_chunker')
 # nltk.download('words')
+
 
 class InformationExtraction:
     def __init__(self, document_path):
         self.document_path = document_path
         self.nlp = spacy.load("en_core_web_sm")
-        
+
     def extract_information(self):
         print(self.document_path)
         extractor = DocumentExtractor(self.document_path)
@@ -34,11 +39,11 @@ class InformationExtraction:
 
         # Extract Department
         information['department'] = self.extract_department(input_text)
-        
+
         information['author'] = self.extract_person(input_text)
-        
+
         # information['adviser'] = self.extract_adviser(input_text)
-        
+
         # Extract published date
         information['published_date'] = self.extract_published_date(input_text)
 
@@ -48,15 +53,16 @@ class InformationExtraction:
     def extract_title(self, input_text):
         title = ''
         if len(input_text) > 0:
-            title = input_text[0].strip()  # Extract the first item as the title
+            # Extract the first item as the title
+            title = input_text[0].strip()
         return title
-    
+
     def extract_department(self, input_text):
         departments = [
-            'School of Law', 'School of Business and Management', 
-            'School of Computer Studies', 'Senior High School', 
-            'School of Arts and Sciences', 'RITTC', 
-            'School of Allied Medical Sciences', 
+            'School of Law', 'School of Business and Management',
+            'School of Computer Studies', 'Senior High School',
+            'School of Arts and Sciences', 'RITTC',
+            'School of Allied Medical Sciences',
             'School of Engineering', 'School of Education'
         ]
         extracted_department = ''
@@ -70,7 +76,7 @@ class InformationExtraction:
                 break
 
         return extracted_department
-    
+
     def extract_person(self, text_list):
         names = []
         name_formats = [
@@ -93,14 +99,14 @@ class InformationExtraction:
                     for nltk_result_leaf in nltk_result.leaves():
                         name += nltk_result_leaf[0] + ' '
                     names.append(name.strip())
-            
+
             # Extract names using SpaCy
             doc = self.nlp(text)
             for ent in doc.ents:
                 if ent.label_ == 'PERSON' and ent.text not in names:
                     if len(ent.text.split()) > 1:
                         names.append(ent.text)
-            
+
             # Extract names using regex based on name formats
             for name_format in name_formats:
                 pattern = re.sub(r'[,\s]', r'\\s*', name_format)
@@ -111,27 +117,34 @@ class InformationExtraction:
                 names.extend(matches)
 
         return names
-    
-    def extract_published_date(self, input_text):   
+
+    def extract_published_date(self, input_text):
         extracted_date = None
         current_date = datetime.datetime.now()  # Get current date and time
         for text in input_text:
             # Extract date from text using regular expressions or other methods
-            extracted_date_str = re.findall(r'\b\d{1,2}/\d{4}\b', text)  # Example: Extracts MM/YYYY format
+            # Example: Extracts MM/YYYY format
+            extracted_date_str = re.findall(r'\b\d{1,2}/\d{4}\b', text)
             if extracted_date_str:
-                extracted_date = date_parser.parse(extracted_date_str[0], fuzzy=True)
+                extracted_date = date_parser.parse(
+                    extracted_date_str[0], fuzzy=True)
 
             # If extracted date is not found, try parsing the lines using date_formats
             if not extracted_date:
                 date_formats = [
-                    '%B %d, %Y',         # Month day, Year (e.g. March 20, 2020)
+                    # Month day, Year (e.g. March 20, 2020)
+                    '%B %d, %Y',
                     '%B %Y',             # Month Year (e.g. March 2020)
                     '%m/%Y',             # Month/Year (e.g. 03/2020)
-                    '%b %Y',             # Abbreviated Month Year (e.g. Mar 2020)
-                    '%m %Y',             # Month Year without slash (e.g. 03 2020)
+                    # Abbreviated Month Year (e.g. Mar 2020)
+                    '%b %Y',
+                    # Month Year without slash (e.g. 03 2020)
+                    '%m %Y',
                     'date %Y',           # Custom date format (e.g. date 2023)
-                    '%B %d, %Y',         # Custom date format (e.g. June 20, 2022)
-                    '%B %d, %Y %H:%M',   # Custom date format with time (e.g.June 20, 2022 12:34)
+                    # Custom date format (e.g. June 20, 2022)
+                    '%B %d, %Y',
+                    # Custom date format with time (e.g.June 20, 2022 12:34)
+                    '%B %d, %Y %H:%M',
                 ]
                 for line in text.split('\n'):
                     try:
@@ -155,7 +168,8 @@ class InformationExtraction:
             if extracted_date.month == current_date.month and extracted_date.year == current_date.year:
                 # If yes, format as Month day, Year (e.g. March 9, 2023)
                 if extracted_date.day > 9:
-                    formatted_date = extracted_date.strftime("%B %d, %Y").replace(" 0", " ")
+                    formatted_date = extracted_date.strftime(
+                        "%B %d, %Y").replace(" 0", " ")
                 else:
                     formatted_date = extracted_date.strftime("%B %d, %Y")
             else:
@@ -164,3 +178,59 @@ class InformationExtraction:
             return formatted_date
         else:
             return None
+
+    def main_DuplicateChecker(self):
+        extractedText = " "
+        finalText = " "
+        count = 0
+        extractPDF = Processing("")
+        booleanValues = []
+        isDuplicate = False
+        txt_fromUpload = extractPDF.getFromPDF(self.document_path)
+        preProssedFromUpload = self.preProcessing(txt_fromUpload)
+        directory = (glob.glob("assets/temp/" + "/*.pdf"))
+        for file in directory:
+            with pdfplumber.open(file) as pdf:
+                for page in pdf.pages:  # just one page though, loop for future proofing
+                    extractedText = page.extract_text()
+                    finalText = finalText + extractedText
+                    preProcessedFromLocal = self.preProcessing(finalText)
+                    isDuplicate = self.duplicate_logic(
+                        preProssedFromUpload, preProcessedFromLocal)
+                    booleanValues.append(isDuplicate)
+                    count += 1
+                    break
+            finalText = " "
+        if (True in booleanValues):
+            isDuplicate = True
+        print(isDuplicate)
+        return isDuplicate
+        # self.duplicate_logic(uploaded_Text)
+
+    def duplicate_logic(self, preProcessedFromUpload, preProcessedFromLocal):
+        isDuplicate = False
+        fromUpload = set(preProcessedFromUpload)
+        fromLocal = set(preProcessedFromLocal)
+        if (fromLocal == fromUpload):
+            isDuplicate = True
+        return isDuplicate
+
+    def preProcessing(self, raw_Text):
+        preProc = PreProcessing()
+        raw_Text = preProc.removeSpecialCharacters(raw_Text)
+        raw_Text = preProc.manual_tokenization(raw_Text)
+        raw_Text = preProc.removeStopWords(raw_Text)
+        raw_Text = preProc.toLowerCase(raw_Text)
+        return raw_Text
+
+    # def main_checkDuplicate(self, extracted_txt):
+    #     isDuplicate = False
+    #     raw_Text = self.extract_forDuplicate()
+    #     preProcessed_Text = self.preProcessing(raw_Text)
+    #     isDuplicate = self.duplicate_checker(preProcessed_Text)
+    #     return isDuplicate
+        # with open("assets/upload/" + self.document_path, 'rb') as pdf_file:
+        #     pdf_reader = pdfplumber.open(pdf_file)
+        #     page = pdf_reader.pages[0]
+        #     pdf_text = page.extract_text()
+        #     print(pdf_text)

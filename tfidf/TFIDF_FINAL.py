@@ -26,10 +26,11 @@ class Processing():
 
     def getFromPDF(self, filename):  # notused
         finalText = " "
-        with pdfplumber.open('assets/upload/' + filename) as pdf:
+        with pdfplumber.open('assets/temp/' + filename) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF
+                break
             extractFromPDF = ""
         return finalText
 
