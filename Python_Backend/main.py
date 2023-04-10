@@ -1,23 +1,18 @@
 
+
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import sys
 import requests
-
+import glob
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
-
-from tfidf.TFIDF_FINAL import Processing
-from knn.k_nearest_neighbor import KNN
 from information_extraction.main import InformationExtraction
-# import k_nearest_neighbor as knn
-# import information_extraction as inform
-# import TFIDF_FINAL as tfidf
-
-# Add the parent directory to the sys.path
-
+from knn.k_nearest_neighbor import KNN
+from tfidf.tfidf_final import Processing
 uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
 CORS(app)
@@ -93,17 +88,36 @@ def getDataFromNode():
     return response_json[0]
 
 
-# @app.route('/python/tfidf,' methods=['GET'])
-# def callTFIDF():
-#     return True
+def checkDataSet():
+    cont = False
+    csv = "TFIDF.csv"
+    directory = (glob.glob("tfidf/Results/" + "/*.csv"))
+    for file in directory:
+        if (file == "tfidf/Results\TFIDF.csv"):
+            cont = True
+    print("test")
+    return cont
 
-# @app.route('/python/addPDF', methods=['POST'])
-# def addPDFToFlask():
-#     # receive pdf from frontend
-#     return ''
-# def initDataSet():
-#     init = tfidf.Processing()
-#     init.createTFIDF()
+
+def initializeDataSet():
+    tfidf = Processing(" ")
+    tfidf.createTFIDF(" ")
+  
+
+
+@app.before_request
+def before_first_request_func():
+    print("fuck")
+    if (checkDataSet() != True):
+        initializeDataSet()
+
+
 if __name__ == "__main__":
     # initDataSet()
+
+    # check if data set has been cooked or not
+    # if data set has been cooked, ignoreq
+    # if not create TFIDF.
+    #check if file TFIDF.csv exists in folder Results
+    before_first_request_func()
     app.run(debug=True)

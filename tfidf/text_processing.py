@@ -6,41 +6,45 @@ import numpy as np
 import math
 
 
-def manual_tokenization(text):
-    container = ""
-    newText = []
-    for i in range(len(text)):
-        if (text[i] != ' ' and text[i] != '\t'):
-            container = container + text[i]
-            if (i == len(text)-1):
-                newText.append(text[i])
-        else:
-            newText.append(container)
-            container = ""
+class PreProcessing():
+    def manual_tokenization(self, text):
+        container = ""
+        newText = []
+        for i in range(len(text)):
+            if (text[i] != ' ' and text[i] != '\t'):
+                container = container + text[i]
+                if (i == len(text)-1):
+                    newText.append(text[i])
+            else:
+                newText.append(container)
+                container = ""
 
-    return newText
+        return newText
 
+    def toLowerCase(self, text):
+        text = [word.lower() for word in text]
+        return text
 
-def toLowerCase(text):
-    text = [word.lower() for word in text]
-    return text
+    def removeStopWords(self, text):
 
+        with open('tfidf/stopwords.txt', 'r') as f:
+            stop_words = f.read().splitlines()
+        text = [word for word in text if word not in stop_words]
+        return text
 
-def removeStopWords(text):
-    with open('tfidf/stopwords.txt', 'r') as f:
-        stop_words = f.read().splitlines()
-    text = [word for word in text if word not in stop_words]
-    return text
+    def removeSpecialCharacters(self, text):
+        return re.sub(r"[^a-zA-Z0-9]+", ' ', text)
 
+    def cleanRawFrequency(self, termFrequency={}):
+        fromStopWords = self.removeStopWords(termFrequency.keys())
+        for k in tuple(termFrequency.keys()):
+            if k not in fromStopWords:
+                del termFrequency[k]
 
-def removeSpecialCharacters(text):
-    return re.sub(r"[^a-zA-Z0-9]+", ' ', text)
+        return termFrequency
 
-
-def cleanRawFrequency(termFrequency={}):
-    fromStopWords = removeStopWords(termFrequency.keys())
-    for k in tuple(termFrequency.keys()):
-        if k not in fromStopWords:
-            del termFrequency[k]
-
-    return termFrequency
+    def removeNumbers(self, diction={}):
+        for k in tuple(diction.keys()):
+            if k.isdigit():
+                del diction[k]
+        return diction

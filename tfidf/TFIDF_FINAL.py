@@ -1,4 +1,4 @@
-import tfidf.text_processing as preProc
+
 import pdfplumber
 import re
 import csv
@@ -11,6 +11,9 @@ import math
 import numpy as np
 from fpdf import FPDF
 from collections import ChainMap
+# use this when running main.py in backend
+from tfidf.text_processing import PreProcessing
+# from text_processing as preProc uncomment this shit if you want to run this file only
 import nltk
 
 nltk.download('wordnet')
@@ -59,12 +62,15 @@ class Processing():
         return tf_idf
 
     def preProcessing(self, text):
+        preProc = PreProcessing()
         text = preProc.removeSpecialCharacters(text)
         text = preProc.manual_tokenization(text)
         text = preProc.removeStopWords(text)
+        text = preProc.toLowerCase(text)
         return text
 
     def populateClass(self, text):
+        preProc = PreProcessing()
         initialList = {}
         for t in text:
             initialList[t.lower()] = 0
@@ -133,7 +139,7 @@ class Processing():
         finalDict = {**listofDict}
         return finalDict
 
-    def csvToDict(self, number):
+    def csvToDict(self, number):  # not used
         diction = {}
         filename = "Term/Goal 2/" + str(number) + ".csv"
         with open(filename, 'r') as f:
@@ -145,21 +151,21 @@ class Processing():
     def convertingToDP(self, featureSet, tf_idf):
         df = pd.DataFrame.from_dict(tf_idf)
         df2 = df.replace(np.nan, 0)
-        df2.to_csv('tfidf/TFIDF.csv')
+        df2.to_csv('tfidf/Results/TFIDF.csv')
         return df2
 
     def extractAllPDF(self, goal):
         count = 0
-        directory = (glob.glob("../Data Set/" + goal + "/*.pdf"))
+        directory = (glob.glob("tfidf/Data Set/" + goal + "/*.pdf"))
         extractedText = " "
         finalText = " "
         for file in directory:
             with pdfplumber.open(file) as pdf:
                 count += 1
-                print("Count PDF #: " + str(count))
+                print(goal + " PDF #: " + str(count))
                 for page in pdf.pages:
                     extractedText = page.extract_text()
-                    print("length: " + str(len(extractedText)))
+                    print("Words Length: " + str(len(extractedText)))
                     finalText = finalText + extractedText
         return finalText
 
@@ -202,11 +208,10 @@ class Processing():
         tf_idf = [{}]
         temp = {}
         merge = {}
-        print(len(tf))
         for goal in goals:
             rawText = TFIDF.extractAllPDF(goal)
-            preprocessedText = TFIDF.lemmatization(rawText)
-            preprocessedText = TFIDF.preProcessing(preprocessedText)
+            preprocessedText = TFIDF.preProcessing(rawText)
+            preprocessedText = TFIDF.lemmatization(preprocessedText)
             TFIDF.listToPDF(preprocessedText, goal)
             temp = TFIDF.populateClass(preprocessedText)
             temp = TFIDF.term_vectors(preprocessedText, temp)
@@ -227,7 +232,9 @@ class Processing():
         lemmatized = self.lemmatization(preprocessedText)
         print(lemmatized)
         return lemmatized
-# if __name__ == '__main__':
-#     rawText = ""
-#     TFIDF = Processing(rawText)
-#     TFIDF.createTFIDF(rawText)
+
+
+if __name__ == '__main__':
+    rawText = ""
+    TFIDF = Processing(rawText)
+    TFIDF.createTFIDF(rawText)
