@@ -13,7 +13,8 @@ class Helper:
         print("FILE: " + str(filename))
         abstract = self.getFromPDFAbstract(filename)
         introduction = self.getFromPDFIntro(filename)
-        return {'abstract': abstract, 'introduction': introduction}
+        method = self.getFromPDFMethod(filename)
+        return {'abstract': abstract, 'introduction': introduction, 'method': method}
         # return self.getAbstract(rawText)
 
     def getFromPDFAbstract(self, filename):
@@ -52,6 +53,24 @@ class Helper:
                 finalText = " "
         return final_intro
 
+    def getFromPDFMethod(self, filename):
+        count = 1
+        finalText = " "
+        final_method = " "
+        with pdfplumber.open('assets/upload/' + filename) as pdf:
+            for page in pdf.pages:
+                extractFromPDF = page.extract_text()
+                finalText = finalText + extractFromPDF
+                checkAbs = self.getMethodology(finalText)
+                if (checkAbs):
+                    final_method = finalText
+                    final_method = self.cleanString(final_method)
+                    break
+                count += 1
+                final_method = " "
+                finalText = " "
+        return final_method
+
     def getAbstract(self, processedText, page):
         count = 0
         pageAbstract = 0
@@ -74,6 +93,16 @@ class Helper:
                 introduction = True
             count += 1
         return introduction
+
+    def getMethodology(self, processedText):
+        count = 0
+        methodology = False
+        if (("Research Methodology" in processedText or "RESEARCH METHODOLOGY" in processedText)
+                and ("TABLE OF CONTENTS" not in processedText and "Table of Contents" not in processedText)):
+            if (count == 0):
+                methodology = True
+            count += 1
+        return methodology
 
     def cleanString(self, text):
         if ("\n" in text):

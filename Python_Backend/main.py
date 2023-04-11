@@ -10,11 +10,10 @@ import glob
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
-
-from tfidf.extraction_helper import Helper
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
 from tfidf.tfidf_final import Processing
+from knn.k_nearest_neighbor import KNN
+from information_extraction.main import InformationExtraction
+from tfidf.extraction_helper import Helper
 
 uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
@@ -122,7 +121,7 @@ def getDataFromNode():
     return response_json[0]
 
 
-@app.route('/python/knn/extract_abstract/<filename>', methods=['GET'])
+@app.route('/python/knn/extract_forDataSet/<filename>', methods=['GET'])
 def extractAbstract(filename):
     helper = Helper()
     result = helper.main_logic(filename)
