@@ -21,6 +21,20 @@ class PreProcessing():
 
         return newText
 
+    def dot_tokenization(self, text):
+        container = ""
+        newText = []
+        for i in range(len(text)):
+            if (text[i] != '.' and text[i] != '\t'):
+                container = container + text[i]
+                if (i == len(text)-1):
+                    newText.append(text[i])
+            else:
+                newText.append(container)
+                container = ""
+
+        return newText
+
     def toLowerCase(self, text):
         text = [word.lower() for word in text]
         return text

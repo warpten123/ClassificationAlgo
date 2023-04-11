@@ -16,7 +16,7 @@ class DocumentExtractor:
         parent_dir = os.path.dirname(script_dir)
         # Construct the full path to the PDF file
         pdf_path = os.path.join(parent_dir, "assets",
-                                "temp", self.document_path)
+                                "upload", self.document_path)
 
         # Open PDF file in binary mode
         with open(pdf_path, 'rb') as pdf_file:

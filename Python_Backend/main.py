@@ -11,9 +11,11 @@ import glob
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
+from tfidf.extraction_helper import Helper
 from information_extraction.main import InformationExtraction
 from knn.k_nearest_neighbor import KNN
 from tfidf.tfidf_final import Processing
+
 uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
 CORS(app)
@@ -39,22 +41,50 @@ def upload_file():
     research_id = request.form['research_id']
     result = {}
     filename = f"{file.filename}"
-    file.save(os.path.join('assets', 'temp', filename))
-    # Save the uploaded file to /assets/upload directory
-   
-    info_extractor = InformationExtraction(filename)
-    output = info_extractor.extract_information()
-    if output is not None:
-        go = info_extractor.main_DuplicateChecker()
-        if(go == False):
-            result = {'status': 'success', 'message': 'File uploaded successfully.'}
-            file.save(os.path.join('assets', 'upload', filename))
-        else:
-            result = {'status': 'failed', 'message': 'Duplicate File'}
-   
+    path_directory = "assets/upload"
+    file.save(os.path.join('assets', 'upload', filename))
+    # file.save(os.path.join('assets', 'upload', filename))
+    # if not any(os.scandir(path_directory)):
+    #     file.save(os.path.join('assets', 'upload', filename))
+    #     result = {'status': 'success',
+    #               'message': 'File uploaded successfully.'}
+    # else:
+    #     file.save(os.path.join('assets', 'temp', filename))
+    #     info_extractor = InformationExtraction(filename)
+    #     output = info_extractor.extract_information()
+    #     if output is not None:
+    #         go = info_extractor.main_DuplicateChecker()
+    #         if (go == False):
+    #             result = {'status': 'success',
+    #                       'message': 'File uploaded successfully.'}
+    #             file.save(os.path.join('assets', 'upload', filename))
+    #         else:
+    #             result = {'status': 'failed', 'message': 'Duplicate File'}
+
+    # file.save(os.path.join('assets', 'temp', filename))
+    # # Save the uploaded file to /assets/upload directory
+
+    # info_extractor = InformationExtraction(filename)
+    # output = info_extractor.extract_information()
+    # if output is not None:
+    #     go = info_extractor.main_DuplicateChecker()
+    #     if(go == False):
+    #         result = {'status': 'success', 'message': 'File uploaded successfully.'}
+    #         file.save(os.path.join('assets', 'upload', filename))
+    #     else:
+    #         result = {'status': 'failed', 'message': 'Duplicate File'}
+
     return result
 
 # Route for information extraction
+
+
+@app.route('/python/information_extraction/<filename>', methods=['GET'])
+def information_extraction_route(filename):
+    # Instantiate InformationExtraction class
+    info_extractor = InformationExtraction(filename)
+    output = info_extractor.extract_information()
+    return jsonify(output)
 
 
 # @app.route('/python/information_extraction/<filename>', methods=['GET'])
@@ -64,25 +94,10 @@ def upload_file():
 #     output = info_extractor.extract_information()
 
 #     if output is not None:
-#         print('Extracted Information:')
-#         print(output)
+#         go = info_extractor.main_DuplicateChecker()
 
 #     # Return extracted information as JSON
-#     return jsonify(output)
-
-
-@app.route('/python/information_extraction/<filename>', methods=['GET'])
-def information_extraction_route(filename):
-    # Instantiate InformationExtraction class
-    info_extractor = InformationExtraction(filename)
-    output = info_extractor.extract_information()
-
-    if output is not None:
-        go = info_extractor.main_DuplicateChecker()
-
-    # Return extracted information as JSON
-    return jsonify(go)
-
+#     return jsonify(go)
 
 
 @app.route('/python/knn', methods=['GET'])
@@ -107,6 +122,13 @@ def getDataFromNode():
     return response_json[0]
 
 
+@app.route('/python/knn/extract_abstract/<filename>', methods=['GET'])
+def extractAbstract(filename):
+    helper = Helper()
+    abstract = helper.populateRules()
+    return {'abstract': abstract}
+
+
 def checkDataSet():
     cont = False
     csv = "TFIDF.csv"
@@ -114,14 +136,12 @@ def checkDataSet():
     for file in directory:
         if (file == "tfidf/Results\TFIDF.csv"):
             cont = True
-    print("test")
     return cont
 
 
 def initializeDataSet():
     tfidf = Processing(" ")
     tfidf.createTFIDF(" ")
-  
 
 
 @app.before_request
@@ -133,10 +153,9 @@ def before_first_request_func():
 
 if __name__ == "__main__":
 
-
     # check if data set has been cooked or not
     # if data set has been cooked, ignoreq
     # if not create TFIDF.
-    #check if file TFIDF.csv exists in folder Results
+    # check if file TFIDF.csv exists in folder Results
     before_first_request_func()
     app.run(debug=True)

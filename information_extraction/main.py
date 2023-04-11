@@ -188,9 +188,10 @@ class InformationExtraction:
         isDuplicate = False
         txt_fromUpload = extractPDF.getFromPDF(self.document_path)
         preProssedFromUpload = self.preProcessing(txt_fromUpload)
-        directory = (glob.glob("assets/temp/" + "/*.pdf"))
+        directory = (glob.glob("assets/upload/" + "/*.pdf"))
         for file in directory:
-            with pdfplumber.open(file) as pdf:
+            print(file)
+            with pdfplumber.open('rb', file) as pdf:
                 for page in pdf.pages:  # just one page though, loop for future proofing
                     extractedText = page.extract_text()
                     finalText = finalText + extractedText
