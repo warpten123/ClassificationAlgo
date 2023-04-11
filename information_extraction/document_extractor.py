@@ -32,8 +32,8 @@ class DocumentExtractor:
             image_file = 'temp_image.png'
             image.save(image_file, format='png')
 
-            # Specify the path to Tesseract executable
-            pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+            # Get the absolute path of the Tesseract executable
+            tesseract_path = os.path.join(os.getenv('PROGRAMFILES'), 'Tesseract-OCR', 'tesseract.exe')
 
             # Perform OCR using pytesseract
             ocr_text = pytesseract.image_to_string(image_file)
