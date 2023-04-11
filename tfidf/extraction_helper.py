@@ -11,12 +11,12 @@ class Helper:
 
     def main_logic(self, filename):
         print("FILE: " + str(filename))
-        abstract = self.getFromPDF(filename)
-        return abstract
+        abstract = self.getFromPDFAbstract(filename)
+        introduction = self.getFromPDFIntro(filename)
+        return {'abstract': abstract, 'introduction': introduction}
         # return self.getAbstract(rawText)
 
-    def getFromPDF(self, filename):
-        preProc = PreProcessing()
+    def getFromPDFAbstract(self, filename):
         count = 1
         finalText = " "
         final_abstract = " "
@@ -24,10 +24,8 @@ class Helper:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF
-                # processedText = preProc.manual_tokenization(finalText)
-                print("Count: " + str(count))
-                check = self.getAbstract(finalText, count)
-                if (check):
+                checkAbs = self.getAbstract(finalText, count)
+                if (checkAbs):
                     final_abstract = finalText
                     final_abstract = self.cleanString(final_abstract)
                     break
@@ -36,17 +34,46 @@ class Helper:
                 finalText = " "
         return final_abstract
 
+    def getFromPDFIntro(self, filename):
+        count = 1
+        finalText = " "
+        final_intro = " "
+        with pdfplumber.open('assets/upload/' + filename) as pdf:
+            for page in pdf.pages:
+                extractFromPDF = page.extract_text()
+                finalText = finalText + extractFromPDF
+                checkAbs = self.getIntroduction(finalText)
+                if (checkAbs):
+                    final_intro = finalText
+                    final_intro = self.cleanString(final_intro)
+                    break
+                count += 1
+                final_intro = " "
+                finalText = " "
+        return final_intro
+
     def getAbstract(self, processedText, page):
         count = 0
         pageAbstract = 0
         abstract = False
-        if (("ABSTRACT" in processedText or "Abstract" in processedText) and "TABLE OF CONTENTS" not in processedText):
+        if (("ABSTRACT" in processedText or "Abstract" in processedText)
+                and ("TABLE OF CONTENTS" not in processedText and "Table of Contents" not in processedText)):
             if (count == 0):
                 abstract = True
                 pageAbstract = page
             count += 1
             print("Abstract is in page: " + str(pageAbstract))
         return abstract
+
+    def getIntroduction(self, processedText):
+        count = 0
+        introduction = False
+        if (("INTRODUCTION" in processedText or "Introduction" in processedText)
+                and ("TABLE OF CONTENTS" not in processedText and "Table of Contents" not in processedText)):
+            if (count == 0):
+                introduction = True
+            count += 1
+        return introduction
 
     def cleanString(self, text):
         if ("\n" in text):

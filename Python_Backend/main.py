@@ -125,8 +125,8 @@ def getDataFromNode():
 @app.route('/python/knn/extract_abstract/<filename>', methods=['GET'])
 def extractAbstract(filename):
     helper = Helper()
-    abstract = helper.populateRules()
-    return {'abstract': abstract}
+    result = helper.main_logic(filename)
+    return result
 
 
 def checkDataSet():
