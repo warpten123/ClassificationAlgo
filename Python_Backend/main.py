@@ -1,6 +1,5 @@
 
 
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -10,6 +9,8 @@ import glob
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
+
+
 from tfidf.tfidf_final import Processing
 from knn.k_nearest_neighbor import KNN
 from information_extraction.main import InformationExtraction
@@ -42,6 +43,16 @@ def upload_file():
     filename = f"{file.filename}"
     path_directory = "assets/upload"
     file.save(os.path.join('assets', 'upload', filename))
+    # helper = Helper()
+    # go = helper.acceptanceChecker(filename)
+    # if (go != True):
+    #     result = {'status': 'failed',
+    #               'message': 'Chosen FIle Does Not Meet the Standard Requirement'}
+    # else:
+    #     file.save(os.path.join('assets', 'upload', filename))
+    #     result = {'status': 'success',
+    #               'message': 'File Uploaded Successfullu!'}
+
     # file.save(os.path.join('assets', 'upload', filename))
     # if not any(os.scandir(path_directory)):
     #     file.save(os.path.join('assets', 'upload', filename))

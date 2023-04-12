@@ -14,6 +14,7 @@ class Helper:
         abstract = self.getFromPDFAbstract(filename)
         introduction = self.getFromPDFIntro(filename)
         method = self.getFromPDFMethod(filename)
+        print(abstract)
         return {'abstract': abstract, 'introduction': introduction, 'method': method}
         # return self.getAbstract(rawText)
 
@@ -142,5 +143,23 @@ class Helper:
         print(list_of_rules)
         tags = [[tag for word, tag in sent] for sent in list_of_rules]
         return tags
+
+    def acceptanceChecker(self, filename):
+        count = 1
+        finalText = " "
+        final_method = " "
+        count = 0
+        upload = False
+        with pdfplumber.open('assets/upload/' + filename) as pdf:
+            count = len(pdf._pages)
+            for page in pdf.pages:
+                extractFromPDF = page.extract_text()
+                finalText = finalText + extractFromPDF
+            finalText = self.cleanString(finalText)
+        if (count < 5):
+            upload = False
+
+        # TODO GIAATAY GIDUKA NAKO
+        return upload
 
     # def getIntroduction(self,processedText,page):
