@@ -14,7 +14,6 @@ class Helper:
         abstract = self.getFromPDFAbstract(filename)
         introduction = self.getFromPDFIntro(filename)
         method = self.getFromPDFMethod(filename)
-        print(abstract)
         return {'abstract': abstract, 'introduction': introduction, 'method': method}
         # return self.getAbstract(rawText)
 

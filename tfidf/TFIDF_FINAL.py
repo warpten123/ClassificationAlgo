@@ -140,14 +140,11 @@ class Processing():
         finalDict = {**listofDict}
         return finalDict
 
-    def csvToDict(self, number):  # not used
-        diction = {}
-        filename = "Term/Goal 2/" + str(number) + ".csv"
-        with open(filename, 'r') as f:
-            reader = csv.DictReader(f)
-            for line in reader:
-                diction = line
-        return diction
+    def csvToDict(self):  # not used
+        with open('tfidf/Results/TFIDF.csv') as f:
+            a = [{k: float(v) for k, v in row.items()}
+                 for row in csv.DictReader(f, skipinitialspace=True)]
+        return a
 
     def convertingToDP(self, featureSet, tf_idf):
         df = pd.DataFrame.from_dict(tf_idf)
@@ -225,14 +222,21 @@ class Processing():
         tf_idf = TFIDF.convertingToDP(merge, tf_idf)
         return tf_idf
 
-    def insertNewData(self, path):
+    def insertNewData(self, result={}):
         # holy shit
         length = 0
-        rawText = self.getFromPDF(path)
-        preprocessedText = self.preProcessing(rawText)
-        lemmatized = self.lemmatization(preprocessedText)
-        print(lemmatized)
-        return lemmatized
+        newData = " "
+        preProc = PreProcessing()
+        for value in result:
+            newData = newData + result[value]
+        newData = self.preProcessing(newData)
+        newData = self.lemmatization(newData)
+        temp = self.populateClass(newData)
+        temp = self.term_vectors(newData, temp)
+        term_frequency = self.term_frequency(temp)
+        listOfDict = self.csvToDict()
+        idf = self.inverse_frequency(term_frequency, listOfDict)
+        print(idf)
 
 
 if __name__ == '__main__':

@@ -11,10 +11,10 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
 
-from tfidf.tfidf_final import Processing
-from knn.k_nearest_neighbor import KNN
-from information_extraction.main import InformationExtraction
 from tfidf.extraction_helper import Helper
+from information_extraction.main import InformationExtraction
+from knn.k_nearest_neighbor import KNN
+from tfidf.tfidf_final import Processing
 
 uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
@@ -33,7 +33,7 @@ def returnAscii():
     # request.headers.add('Access-Control-Allow-Origin', '*')
     return d
 
-
+ 
 @app.route('/upload-file', methods=['POST'])
 def upload_file():
     # Extract file and research ID from request data
@@ -135,7 +135,9 @@ def getDataFromNode():
 @app.route('/python/knn/extract_forDataSet/<filename>', methods=['GET'])
 def extractAbstract(filename):
     helper = Helper()
+    tfidf = Processing(" ")
     result = helper.main_logic(filename)
+    tfidf.insertNewData(result)
     return result
 
 
@@ -156,7 +158,6 @@ def initializeDataSet():
 
 @app.before_request
 def before_first_request_func():
-    print("fuck")
     if (checkDataSet() != True):
         initializeDataSet()
 
