@@ -12,7 +12,7 @@ import pdfplumber
 import glob
 import os
 from tfidf.text_processing import PreProcessing
-from tfidf.tfidf_final import Processing
+from tfidf.TFIDF_FINAL import Processing
 # nltk.download('maxent_ne_chunker')
 # nltk.download('words')
 

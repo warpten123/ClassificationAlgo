@@ -14,7 +14,7 @@ sys.path.append(parent_dir)
 from tfidf.extraction_helper import Helper
 from information_extraction.main import InformationExtraction
 from knn.k_nearest_neighbor import KNN
-from tfidf.tfidf_final import Processing
+from tfidf.TFIDF_FINAL import Processing
 
 uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
