@@ -143,22 +143,61 @@ class Helper:
         tags = [[tag for word, tag in sent] for sent in list_of_rules]
         return tags
 
-    def acceptanceChecker(self, filename):
+    def checkPages(self, filename):
         count = 1
         finalText = " "
         final_method = " "
         count = 0
         upload = False
         with pdfplumber.open('assets/upload/' + filename) as pdf:
-            count = len(pdf._pages)
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF
+                count += 1
             finalText = self.cleanString(finalText)
-        if (count < 5):
-            upload = False
+        print("Number of Pages: " + str(count))
+        return count
 
-        # TODO GIAATAY GIDUKA NAKO
-        return upload
+    def endorsementExtraction(self, filename):
+        finalText = " "
+        endorsement = " "
+        go = False
+        count = 0
+        with pdfplumber.open('assets/upload/' + filename) as pdf:
+            for page in pdf.pages:
+                extractFromPDF = page.extract_text()
+                finalText = finalText + extractFromPDF
+                print(finalText)
+                if (self.endorsementChecker(finalText)):
+                    go = True
+                    break
+                count += 1
+        if (go):
+            finalText = self.cleanString(finalText)
+            endorsement = finalText
+        return endorsement
+
+    def endorsementChecker(self, text):
+        endorsement = False
+        count = 0
+        if (("Endorsement" in text or "ENDORSEMENT" in text)
+           and ("TABLE OF CONTENTS" not in text or "Table of Contents" not in text)):
+            endorsement = True
+        else:
+            count += 1
+        return endorsement
+
+    def acceptanceChecker(self, filename):
+        go = False
+        endorsement = " "
+        if (self.checkPages(filename) >= 5):
+            endorsement = self.endorsementExtraction(filename)
+            if ("PASSED" in endorsement):
+                go = True
+            else:
+                os.remove("assets/upload/" + filename)
+        else:
+            os.remove("assets/upload/" + filename)
+        return go
 
     # def getIntroduction(self,processedText,page):

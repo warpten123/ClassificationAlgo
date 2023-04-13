@@ -1,5 +1,6 @@
 
 
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -10,12 +11,10 @@ import glob
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-
-from tfidf.extraction_helper import Helper
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
 from tfidf.TFIDF_FINAL import Processing
-
+from knn.k_nearest_neighbor import KNN
+from information_extraction.main import InformationExtraction
+from tfidf.extraction_helper import Helper
 uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
 CORS(app)
@@ -33,7 +32,7 @@ def returnAscii():
     # request.headers.add('Access-Control-Allow-Origin', '*')
     return d
 
- 
+
 @app.route('/upload-file', methods=['POST'])
 def upload_file():
     # Extract file and research ID from request data
@@ -42,6 +41,7 @@ def upload_file():
     result = {}
     filename = f"{file.filename}"
     path_directory = "assets/upload"
+    ## CAN ADD CHECKER HERE IN UPLOAD WHAT'S THE BETTER WAY? LAHI OR I SAGOL NALANG ARI? FOR NOW LAHI LANG NGA ENDPOINT
     file.save(os.path.join('assets', 'upload', filename))
     # helper = Helper()
     # go = helper.acceptanceChecker(filename)
@@ -137,8 +137,15 @@ def extractAbstract(filename):
     helper = Helper()
     tfidf = Processing(" ")
     result = helper.main_logic(filename)
-    tfidf.insertNewData(result)
-    return result
+    # tfidf.insertNewData(result)
+    return {'result': result}
+
+@app.route('/python/knn/check_acceptance/<filename>', methods=['GET'])
+def checkAcceptance(filename):
+    helper = Helper()
+    result = helper.acceptanceChecker(filename)
+    # tfidf.insertNewData(result)
+    return {'result': result}
 
 
 def checkDataSet():
