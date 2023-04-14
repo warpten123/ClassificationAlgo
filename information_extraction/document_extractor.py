@@ -42,8 +42,8 @@ class DocumentExtractor:
             paragraphs = self.extract_paragraphs_from_text(ocr_text)
 
             # Print extracted paragraphs
-            for i, paragraph in enumerate(paragraphs, 1):
-                print(f'Paragraph {i}: {paragraph}')
+            # for i, paragraph in enumerate(paragraphs, 1):
+            #     print(f'Paragraph {i}: {paragraph}')
 
             # Delete temporary image file
             os.remove(image_file)

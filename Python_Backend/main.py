@@ -1,6 +1,5 @@
 
 
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -10,6 +9,7 @@ import glob
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
+sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
 
 from tfidf.TFIDF_FINAL import Processing
 from knn.k_nearest_neighbor import KNN
@@ -42,7 +42,7 @@ def upload_file():
     result = {}
     filename = f"{file.filename}"
     path_directory = "assets/upload"
-    ## CAN ADD CHECKER HERE IN UPLOAD WHAT'S THE BETTER WAY? LAHI OR I SAGOL NALANG ARI? FOR NOW LAHI LANG NGA ENDPOINT
+    # CAN ADD CHECKER HERE IN UPLOAD WHAT'S THE BETTER WAY? LAHI OR I SAGOL NALANG ARI? FOR NOW LAHI LANG NGA ENDPOINT
     file.save(os.path.join('assets', 'upload', filename))
     # helper = Helper()
     # go = helper.acceptanceChecker(filename)
@@ -94,7 +94,11 @@ def upload_file():
 def information_extraction_route(filename):
     # Instantiate InformationExtraction class
     info_extractor = InformationExtraction(filename)
-    output = info_extractor.extract_information()
+    fromNode = getDataFromNode()
+    # for i in range(len(fromNode)):
+    #     print(fromNode[i]['school_id'])
+
+    output = info_extractor.extract_information(fromNode)
     return jsonify(output)
 
 
@@ -128,7 +132,7 @@ def getTFIDF(filename):
 
 @app.route('/python/node', methods=['GET'])
 def getDataFromNode():
-    response = requests.get(uri + '/api/account/')
+    response = requests.get(uri + '/api/account/getNames/listNames')
     response_json = response.json()
     return response_json[0]
 
@@ -141,6 +145,7 @@ def extractAbstract(filename):
     # tfidf.insertNewData(result)
     return {'result': result}
 
+
 @app.route('/python/knn/check_acceptance/<filename>', methods=['GET'])
 def checkAcceptance(filename):
     helper = Helper()
@@ -148,10 +153,11 @@ def checkAcceptance(filename):
     # tfidf.insertNewData(result)
     return {'result': result}
 
+
 @app.route('/python/knn/test_cosine', methods=['GET'])
 def test_cosine():
     helper = Helper()
-    result = helper.acceptanceChecker(filename)
+    result = helper.acceptanceChecker()
     # tfidf.insertNewData(result)
     return {'result': result}
 

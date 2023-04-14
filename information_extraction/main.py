@@ -13,8 +13,10 @@ import glob
 import os
 from tfidf.text_processing import PreProcessing
 from tfidf.TFIDF_FINAL import Processing
+from nltk.tokenize import WhitespaceTokenizer
 # nltk.download('maxent_ne_chunker')
 # nltk.download('words')
+import Python_Backend as backend
 
 
 class InformationExtraction:
@@ -22,33 +24,64 @@ class InformationExtraction:
         self.document_path = document_path
         self.nlp = spacy.load("en_core_web_sm")
 
-    def extract_information(self):
+    def extract_information(self, fromNode):
         print(self.document_path)
         extractor = DocumentExtractor(self.document_path)
         extracted_text = extractor.extract_text_from_document()
+        # for i, extracted_text in enumerate(extracted_text, 1):
+        #     print(f'Paragraph {i}: {extracted_text}')
+
         if extracted_text is not None:
-            information = self.process_extracted_text(extracted_text)
+            # information = self.process_extracted_text(extracted_text, fromNode)
+            information = self.process_extracted_text(extracted_text, fromNode)
             return information
         else:
             print('Invalid file format. Please upload a PDF file.')
 
-    def process_extracted_text(self, input_text):
+    def process_extracted_text(self, input_text, fromNode):
         information = {}
-
         information['title'] = self.extract_title(input_text)
-
         # Extract Department
         information['department'] = self.extract_department(input_text)
-
-        information['author'] = self.extract_person(input_text)
-
+        # information['author'] = self.extract_person(input_text)
         # information['adviser'] = self.extract_adviser(input_text)
-
+        information['authors'] = self.extract_names(input_text, fromNode)
         # Extract published date
         information['published_date'] = self.extract_published_date(input_text)
-
         # Return extracted information
         return information
+
+    def extract_names(self, extract_text, fromNode):
+        listOfLast = []
+        listOfFirst = []
+        count = 0
+        for i in range(len(fromNode)):
+            count += 1
+            print(count)
+            listOfFirst.append(fromNode[i]['first_name'])
+            listOfLast.append(fromNode[i]['last_name'])
+        return self.extract_names_logic(extract_text, listOfFirst, listOfFirst)
+
+    def extract_names_logic(self, input_text, first=list, last=list):
+        appendList = []
+        lastName = []
+        firstName = " "
+        preProc = PreProcessing()
+        tk = WhitespaceTokenizer()
+        for txt in input_text:
+            test = tk.tokenize(txt)
+            for str in test:
+                str = re.sub('[^A-Za-z0-9]+', '', str)
+                appendList.append(str.lower())
+            removeStopWords = preProc.removeStopWords(appendList)
+        for token in removeStopWords:
+            if (self.binarySearchAlgo(last, token)):
+                lastName.append(token)
+
+        return lastName
+
+        # for i in range(len(fromNode)):
+        #     print(fromNode[i]['school_id'])
 
     def extract_title(self, input_text):
         title = ''
@@ -76,6 +109,25 @@ class InformationExtraction:
                 break
 
         return extracted_department
+
+    def binarySearchAlgo(self, listFromAlgo, search):
+        listFromAlgo.sort()
+        lower = [x.lower() for x in listFromAlgo]
+        print(listFromAlgo)
+        start = 0
+        end = len(lower) - 1
+        middle = (int)(end / 2)
+        Found = False
+        while (start <= end):
+            middle = (int)(start + (end - start) / 2)
+            if (lower[middle] == search):
+                Found = True
+                break
+            elif (lower[middle] > search):
+                end = middle - 1
+            else:
+                start = middle + 1
+        return Found
 
     def extract_person(self, text_list):
         names = []

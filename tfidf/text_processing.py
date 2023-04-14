@@ -40,7 +40,6 @@ class PreProcessing():
         return text
 
     def removeStopWords(self, text):
-
         with open('tfidf/stopwords.txt', 'r') as f:
             stop_words = f.read().splitlines()
         text = [word for word in text if word not in stop_words]
