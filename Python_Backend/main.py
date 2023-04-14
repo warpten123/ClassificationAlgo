@@ -15,6 +15,7 @@ from tfidf.TFIDF_FINAL import Processing
 from knn.k_nearest_neighbor import KNN
 from information_extraction.main import InformationExtraction
 from tfidf.extraction_helper import Helper
+
 uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
 CORS(app)
@@ -142,6 +143,13 @@ def extractAbstract(filename):
 
 @app.route('/python/knn/check_acceptance/<filename>', methods=['GET'])
 def checkAcceptance(filename):
+    helper = Helper()
+    result = helper.acceptanceChecker(filename)
+    # tfidf.insertNewData(result)
+    return {'result': result}
+
+@app.route('/python/knn/test_cosine', methods=['GET'])
+def test_cosine():
     helper = Helper()
     result = helper.acceptanceChecker(filename)
     # tfidf.insertNewData(result)
