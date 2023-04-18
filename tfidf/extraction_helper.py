@@ -10,11 +10,12 @@ class Helper:
         return True
 
     def main_logic(self, filename):
-        print("FILE: " + str(filename))
+        appendedData = ""
         abstract = self.getFromPDFAbstract(filename)
         introduction = self.getFromPDFIntro(filename)
         method = self.getFromPDFMethod(filename)
-        return {'abstract': abstract, 'introduction': introduction, 'method': method}
+        appendedData = abstract + introduction + method
+        return {'abstract': abstract, 'introduction': introduction, 'method': method, 'appendedData': appendedData}
         # return self.getAbstract(rawText)
 
     def getFromPDFAbstract(self, filename):

@@ -1,22 +1,27 @@
+from collections import OrderedDict
+import Python_Backend as backend
 from information_extraction.document_extractor import DocumentExtractor
 import re
 import datetime
 from dateutil import parser as date_parser
 import random
+import numpy
 from nameparser import HumanName
 import nltk
 from nltk import pos_tag, ne_chunk
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 import spacy
 import pdfplumber
 import glob
 import os
+import collections
 from tfidf.text_processing import PreProcessing
 from tfidf.TFIDF_FINAL import Processing
 from nltk.tokenize import WhitespaceTokenizer
 # nltk.download('maxent_ne_chunker')
 # nltk.download('words')
-import Python_Backend as backend
+nltk.download('stopwords')
 
 
 class InformationExtraction:
@@ -276,6 +281,130 @@ class InformationExtraction:
         raw_Text = preProc.toLowerCase(raw_Text)
         return raw_Text
 
+    def calcualateRAKE(self, raw_text):
+        # text = "Excel is an amazing tool for data science. But a lot of data science professionals do not like Excel."
+        text = "Compatibility of systems of linear constraints over the set of natural numbers. Criteria of compatibility of a system of linear Diophantine equations, strict inequations, and nonstrict inequations are considered. Upper bounds for components of a minimal set of solutions and algorithms of construction of minimal generating set of solutions for all types of systems are given. These criteria and the corresponding algorithms for constructing a minimal supporting set of solutions can be used in solving all the considered types of systems and systems of mixed types."
+        raw_text = re.sub(r'[^a-zA-Z0-9\s]+', '', raw_text)
+        tk = WhitespaceTokenizer()
+        stop_words = set(stopwords.words('english'))
+        test = tk.tokenize(raw_text)
+        filtered_sentence = [w for w in test if not w.lower() in stop_words]
+
+        unique = [x.lower() for x in filtered_sentence]
+        phrases = self.getKeyPhrases(test, stop_words)
+        word_frequency = self.getWordFrequency(unique)
+
+        # features = list(word_frequency.keys())
+        degree_of_word = self.getDegreeofWord(word_frequency, phrases)
+        degree_score = self.getDegreeScore(
+            word_frequency, degree_of_word, phrases)
+        keyPhrases = self.extractKeyPhrases(phrases, degree_score)
+        return keyPhrases
+
+    def extractKeyPhrases(self, phrases, degree_score):
+        totalDict = {}
+        total = 0
+        tk = WhitespaceTokenizer()
+        for str in phrases:
+            token = tk.tokenize(str)
+            for x in degree_score:
+                if x in token:
+                    total = total + degree_score[x]
+            totalDict[str] = total
+            total = 0
+
+        totalDictSorted = sorted(totalDict, key=totalDict.get, reverse=True)
+        return totalDictSorted
+
+    def getKeyPhrases(self, rawText, stopWords=set):
+        count = 0
+        phrases = []
+        potential_phrase = ""
+        for str in rawText:
+            if str.lower() not in stopWords:
+                potential_phrase = potential_phrase + " " + str.lower()
+            else:
+                phrases.append(potential_phrase)
+                potential_phrase = ""
+        new_phrases = [x for x in phrases if x != '']
+        return new_phrases
+
+    def getWordFrequency(self, uniqueWords):
+        count = 0
+        term_frequency = {}
+        for unique in uniqueWords:
+            if not unique in term_frequency:
+                term_frequency[unique] = uniqueWords.count(unique)
+        return term_frequency
+
+    def getDegreeofWord(self, term_frequency, phrases):
+        degreeOfWord = {}
+        for t in term_frequency:
+            degreeOfWord[t] = 0
+        length = len(term_frequency)
+        rows = length
+        cols = length
+        matrix = []
+        # for i in range(rows):
+        #     row = []
+        #     for j in range(cols):
+        #         row.append(0)
+        #     matrix.append(row)
+        # matrix = numpy.zeros((len(term_frequency)-1, len(term_frequency)-1))
+        countRows = 0
+        countCols = 0
+        for i in term_frequency:
+            for j in term_frequency:
+                if (i == j):
+                    matrix.append(self.getSimilar(i, term_frequency))
+                else:
+                    matrix.append(self.getNextToken(phrases, i, j))
+                countCols += 1
+            countRows += 1
+
+        test = self.nest_list(matrix, length, length)
+        i = 0
+        listofDegree = []
+        for x in test:
+            listofDegree.append(sum(test[i]))
+            i += 1
+        j = 0
+        for t in degreeOfWord:
+            degreeOfWord[t] = listofDegree[j]
+            j += 1
+        return degreeOfWord
+        # self.getNextToken(phrases)
+
+    def getSimilar(self, text, term_frequency):
+        if (text in term_frequency):
+            return term_frequency[text]
+
+    def getNextToken(self, keyPhrases, i, j):
+        count = 0
+        for phrases in keyPhrases:
+            if i in phrases and j in phrases:
+                count += 1
+        return count
+
+    def nest_list(self, list1, rows, columns):
+        result = []
+        start = 0
+        end = columns
+        for i in range(rows):
+            result.append(list1[start:end])
+            start += columns
+            end += columns
+        return result
+
+    def getDegreeScore(self, term_frequency, degreeOfWord, phrases):
+        degree_of_scores = {}
+
+        for term in term_frequency:
+            for degree in degreeOfWord:
+                if (term == degree):
+                    degree_of_scores[term] = degreeOfWord[degree] / \
+                        term_frequency[term]
+        return degree_of_scores
     # def main_checkDuplicate(self, extracted_txt):
     #     isDuplicate = False
     #     raw_Text = self.extract_forDuplicate()

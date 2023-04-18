@@ -1,21 +1,20 @@
 
 
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import sys
 import requests
 import glob
-
+from collections import OrderedDict
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
-
-from tfidf.TFIDF_FINAL import Processing
-from knn.k_nearest_neighbor import KNN
-from information_extraction.main import InformationExtraction
 from tfidf.extraction_helper import Helper
-
+from information_extraction.main import InformationExtraction
+from knn.k_nearest_neighbor import KNN
+from tfidf.TFIDF_FINAL import Processing
 uri = 'http://127.0.0.1:3000'
 app = Flask(__name__)
 CORS(app)
@@ -138,12 +137,14 @@ def getDataFromNode():
 
 
 @app.route('/python/knn/extract_forDataSet/<filename>', methods=['GET'])
-def extractAbstract(filename):
+def extractForDataSet(filename):
     helper = Helper()
     tfidf = Processing(" ")
     result = helper.main_logic(filename)
+    # information = InformationExtraction(filename)
+    # keyPhrases = information.calcualateRAKE(result['appendedData'])
     # tfidf.insertNewData(result)
-    return {'result': result}
+    return jsonify(result)
 
 
 @app.route('/python/knn/check_acceptance/<filename>', methods=['GET'])
@@ -158,6 +159,14 @@ def checkAcceptance(filename):
 def test_cosine():
     helper = Helper()
     result = helper.acceptanceChecker()
+    # tfidf.insertNewData(result)
+    return {'result': result}
+
+
+@app.route('/python/information_extractor/keyphrases/<filename>', methods=['GET'])
+def key_phrases(filename):
+    information = InformationExtraction(filename)
+    result = information.calcualateRAKE()
     # tfidf.insertNewData(result)
     return {'result': result}
 
