@@ -11,11 +11,12 @@ from collections import OrderedDict
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
-from tfidf.extraction_helper import Helper
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
 from tfidf.TFIDF_FINAL import Processing
+from knn.k_nearest_neighbor import KNN
+from information_extraction.main import InformationExtraction
+from tfidf.extraction_helper import Helper
 uri = 'http://127.0.0.1:3000'
+# uri = 'https://lazy-emu-89.loca.lt/'
 app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -141,10 +142,11 @@ def extractForDataSet(filename):
     helper = Helper()
     tfidf = Processing(" ")
     result = helper.main_logic(filename)
-    # information = InformationExtraction(filename)
-    # keyPhrases = information.calcualateRAKE(result['appendedData'])
+    
+    
+    # str = ' '.join(keyPhrases)
     # tfidf.insertNewData(result)
-    return jsonify(result)
+    return result
 
 
 @app.route('/python/knn/check_acceptance/<filename>', methods=['GET'])
@@ -165,10 +167,15 @@ def test_cosine():
 
 @app.route('/python/information_extractor/keyphrases/<filename>', methods=['GET'])
 def key_phrases(filename):
+    newList = []
+    helper = Helper()
+    result = helper.main_logic(filename)
     information = InformationExtraction(filename)
-    result = information.calcualateRAKE()
-    # tfidf.insertNewData(result)
-    return {'result': result}
+    keyPhrases = information.calcualateRAKE(result['abstract'])
+    for i in range(5):
+        newList.append(keyPhrases[i])
+    # str = ','.join(newList)
+    return newList
 
 
 def checkDataSet():

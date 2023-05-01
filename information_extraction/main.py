@@ -52,6 +52,7 @@ class InformationExtraction:
         # information['adviser'] = self.extract_adviser(input_text)
         information['authors'] = self.extract_names(input_text, fromNode)
         # Extract published date
+
         information['published_date'] = self.extract_published_date(input_text)
         # Return extracted information
         return information
@@ -62,15 +63,16 @@ class InformationExtraction:
         count = 0
         for i in range(len(fromNode)):
             count += 1
-            print(count)
             listOfFirst.append(fromNode[i]['first_name'])
             listOfLast.append(fromNode[i]['last_name'])
-        return self.extract_names_logic(extract_text, listOfFirst, listOfFirst)
+        return self.extract_names_logic(extract_text, listOfFirst, listOfLast)
 
     def extract_names_logic(self, input_text, first=list, last=list):
         appendList = []
-        lastName = []
-        firstName = " "
+        lastName = ""
+        fullName = {}
+        for index, x in enumerate(first):
+            fullName[x] = last[index]
         preProc = PreProcessing()
         tk = WhitespaceTokenizer()
         for txt in input_text:
@@ -79,10 +81,14 @@ class InformationExtraction:
                 str = re.sub('[^A-Za-z0-9]+', '', str)
                 appendList.append(str.lower())
             removeStopWords = preProc.removeStopWords(appendList)
-        for token in removeStopWords:
-            if (self.binarySearchAlgo(last, token)):
-                lastName.append(token)
 
+        for index, token in enumerate(removeStopWords):
+            result = self.binarySearchAlgo(fullName, token)
+            if (result != -1):
+                lastName = " " + token
+
+                # fullName[token] = first[result-1]
+        print("lastname: ", lastName)
         return lastName
 
         # for i in range(len(fromNode)):
@@ -101,7 +107,7 @@ class InformationExtraction:
             'School of Computer Studies', 'Senior High School',
             'School of Arts and Sciences', 'RITTC',
             'School of Allied Medical Sciences',
-            'School of Engineering', 'School of Education'
+            'School of Engineering', 'School of Education', 'College of Information Computer and Communications Technology'
         ]
         extracted_department = ''
         for text in input_text:
@@ -116,23 +122,24 @@ class InformationExtraction:
         return extracted_department
 
     def binarySearchAlgo(self, listFromAlgo, search):
-        listFromAlgo.sort()
-        lower = [x.lower() for x in listFromAlgo]
-        print(listFromAlgo)
+        sorted_items = sorted(listFromAlgo.items(), key=lambda x: x[1])
+        sorted_dict = dict(sorted_items)
+        lower = list(sorted_dict.values())
+        lower = [x.lower() for x in lower]
+        lower.sort()
         start = 0
         end = len(lower) - 1
-        middle = (int)(end / 2)
         Found = False
         while (start <= end):
-            middle = (int)(start + (end - start) / 2)
+            middle = (start + end) // 2
             if (lower[middle] == search):
-                Found = True
-                break
+                return middle
             elif (lower[middle] > search):
                 end = middle - 1
             else:
                 start = middle + 1
-        return Found
+
+        return -1
 
     def extract_person(self, text_list):
         names = []
@@ -283,7 +290,7 @@ class InformationExtraction:
 
     def calcualateRAKE(self, raw_text):
         # text = "Excel is an amazing tool for data science. But a lot of data science professionals do not like Excel."
-        text = "Compatibility of systems of linear constraints over the set of natural numbers. Criteria of compatibility of a system of linear Diophantine equations, strict inequations, and nonstrict inequations are considered. Upper bounds for components of a minimal set of solutions and algorithms of construction of minimal generating set of solutions for all types of systems are given. These criteria and the corresponding algorithms for constructing a minimal supporting set of solutions can be used in solving all the considered types of systems and systems of mixed types."
+
         raw_text = re.sub(r'[^a-zA-Z0-9\s]+', '', raw_text)
         tk = WhitespaceTokenizer()
         stop_words = set(stopwords.words('english'))
