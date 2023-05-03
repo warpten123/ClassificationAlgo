@@ -28,7 +28,7 @@ class KNN:
         with open(filename, 'r') as csvFile:
             lines = csv.reader(csvFile)
             dataset = list(lines)
-            print(dataset)
+
             print("\n")
             for x in range(len(dataset)-1):
                 for y in range(4):
@@ -83,7 +83,7 @@ class KNN:
     def main(self):  # prepare data
         trainingSet = []
         testSet = []
-        split = 0.1
+        split = 0.01
         self.dataSet('iris.data', split, trainingSet, testSet)
         # generate predictions
         predictions = []
@@ -92,10 +92,9 @@ class KNN:
             neighbors = self.getKNeighbors(trainingSet, testSet[x], k)
             result = self.getResponse(neighbors)
             predictions.append(result)
-            print('> predicted=' + repr(result) +
-                  ', actual=' + repr(testSet[x][-1]))
+
         accuracy = self.getAccuracy(testSet, predictions)
-        print("Accuracy: " + "{:.2f}".format(accuracy) + "%")
+        print("Classifier Accuracy: " + "{:.2f}".format(accuracy) + "%")
         return accuracy
 
 
