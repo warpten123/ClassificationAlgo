@@ -15,6 +15,7 @@ from tfidf.TFIDF_FINAL import Processing
 from knn.k_nearest_neighbor import KNN
 from information_extraction.main import InformationExtraction
 from tfidf.extraction_helper import Helper
+from knn.cosine import Cosine
 uri = 'http://127.0.0.1:3000'
 # uri = 'https://lazy-emu-89.loca.lt/'
 app = Flask(__name__)
@@ -191,6 +192,21 @@ def checkDataSet():
 def initializeDataSet():
     tfidf = Processing(" ")
     tfidf.createTFIDF(" ")
+
+@app.route('/python/classify/<filename>', methods=['GET'])
+def classify(filename):
+    helper = Helper()
+    cosine = Cosine()
+    appendedData = helper.main_logic(filename)
+    data = cosine.classifyResearch(appendedData['appendedData'])
+    # str = ','.join(newList)
+    return data
+
+
+
+
+
+
 
 
 @app.before_request

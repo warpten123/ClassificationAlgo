@@ -6,6 +6,8 @@ import pandas as pd
 import glob
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 import os
 import math
 import numpy as np
@@ -63,12 +65,47 @@ class Processing():
         return tf_idf
 
     def preProcessing(self, text):
-        preProc = PreProcessing()
-        text = preProc.removeSpecialCharacters(text)
-        text = preProc.manual_tokenization(text)
-        text = preProc.removeStopWords(text)
-        text = preProc.toLowerCase(text)
-        return text
+        stop_words = set(stopwords.words("english"))
+        lemmatizer = WordNetLemmatizer()
+        lemmatized_tokens = []
+        # Tokenize document
+        tokens = word_tokenize(text)
+
+        # Remove stopwords and punctuations, and convert to lowercase
+        filtered_tokens = [
+            token.lower() for token in tokens if token.isalnum() and token not in stop_words]
+
+        # Lemmatize tokens
+        lemmatized_tokens.append([lemmatizer.lemmatize(
+            token) for token in filtered_tokens])
+
+        # Join tokens back into a string
+        # preprocessed_doc = " ".join(lemmatized_tokens)
+        # preprocessed_docs.append(preprocessed_doc)
+
+        return lemmatized_tokens
+
+    def preprocess_documents(docs):
+        preprocessed_docs = []
+        stop_words = set(stopwords.words("english"))
+        lemmatizer = WordNetLemmatizer()
+        lemmatized_tokens = []
+        # Tokenize document
+        tokens = word_tokenize(doc)
+
+        # Remove stopwords and punctuations, and convert to lowercase
+        filtered_tokens = [
+            token.lower() for token in tokens if token.isalnum() and token not in stop_words]
+
+        # Lemmatize tokens
+        lemmatized_tokens.append([lemmatizer.lemmatize(
+            token) for token in filtered_tokens])
+
+        # Join tokens back into a string
+        # preprocessed_doc = " ".join(lemmatized_tokens)
+        # preprocessed_docs.append(preprocessed_doc)
+
+        return lemmatized_tokens
 
     def populateClass(self, text):
         preProc = PreProcessing()
@@ -209,7 +246,6 @@ class Processing():
         for goal in goals:
             rawText = TFIDF.extractAllPDF(goal)
             preprocessedText = TFIDF.preProcessing(rawText)
-            preprocessedText = TFIDF.lemmatization(preprocessedText)
             TFIDF.listToPDF(preprocessedText, goal)
             temp = TFIDF.populateClass(preprocessedText)
             temp = TFIDF.term_vectors(preprocessedText, temp)
@@ -219,6 +255,7 @@ class Processing():
         merge = TFIDF.mergeAllDict(tf)
         idf = TFIDF.inverse_frequency(merge, tf)
         tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
+
         tf_idf = TFIDF.convertingToDP(merge, tf_idf)
         return tf_idf
 
