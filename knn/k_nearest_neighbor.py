@@ -98,8 +98,8 @@ class KNN:
         return accuracy
 
 
-knn = KNN()
-knn.main()
+# knn = KNN()
+# knn.main()
 
 # trainingSet = []
 # testSet = []

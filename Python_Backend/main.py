@@ -199,8 +199,20 @@ def classify(filename):
     cosine = Cosine()
     appendedData = helper.main_logic(filename)
     data = cosine.classifyResearch(appendedData['appendedData'])
+    sorted_dict = dict(
+            sorted(data.items(), key=lambda item: item[1], reverse=True))
+
+    i = 1
+    finalClassify = {}
+    for top in sorted_dict:
+        if (i <= 3):
+            finalClassify[top] = sorted_dict[top]
+        if (i >= 4):
+            break
+        i += 1 
+    print(finalClassify)
     # str = ','.join(newList)
-    return data
+    return finalClassify
 
 
 
@@ -209,10 +221,10 @@ def classify(filename):
 
 
 
-@app.before_request
-def before_first_request_func():
-    if (checkDataSet() != True):
-        initializeDataSet()
+# @app.before_request
+# def before_first_request_func():
+#     if (checkDataSet() != True):
+#         initializeDataSet()
 
 
 if __name__ == "__main__":
@@ -221,5 +233,5 @@ if __name__ == "__main__":
     # if data set has been cooked, ignoreq
     # if not create TFIDF.
     # check if file TFIDF.csv exists in folder Results
-    before_first_request_func()
+    # before_first_request_func()
     app.run(debug=True)

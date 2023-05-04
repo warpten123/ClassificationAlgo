@@ -18,6 +18,9 @@ class Helper:
         return {'abstract': abstract, 'introduction': introduction, 'method': method, 'appendedData': appendedData}
         # return self.getAbstract(rawText)
 
+    def passDataToClassify(data):
+        return data
+
     def getFromPDFAbstract(self, filename):
         count = 1
         finalText = " "

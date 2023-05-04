@@ -121,7 +121,6 @@ class Cosine():
         for doc in final:
             values.append(doc.values())
         tf_idf = self.convertingToDP(final)
-        # newVector = calculateNewData(unique, newData, final)
         return values
 
     # def mergeAllDict(l):
@@ -174,6 +173,7 @@ class Cosine():
             counter += 1
         sorted_dict = dict(
             sorted(classifier.items(), key=lambda item: item[1], reverse=True))
+
         return sorted_dict
 
     def csvToDict(self):  # not used
@@ -182,27 +182,27 @@ class Cosine():
                  for row in csv.DictReader(f, skipinitialspace=True)]
         return a
 
-    def getDotProduct(self, dictList=[{}]):
+    # def getDotProduct(self, dictList=[{}]):
 
-        # t1 = []
-        # t2 = []
-        values = []
-        for doc in dictList:
-            values.append(doc.values())
-        val1 = values[2]
-        val2 = values[3]
-        print(sum(val1), sum(val2))
-        # for shit in val1:
-        #     t1.append(shit)
-        # for shit in val2:
-        #     t2.append(shit)
-        # dotProduct = 0
-        # magnitude = 0
-        # for i in range(len(t1)):
-        #     dotProduct = dotProduct + (t1[i] * t2[i])
-        # for i in range(len(t1)):
-        #     magnitude = magnitude + (math.pow(t1[i], 2))
-        # print(round((dotProduct / magnitude), 2), "%")
+    #     # t1 = []
+    #     # t2 = []
+    #     values = []
+    #     for doc in dictList:
+    #         values.append(doc.values())
+    #     val1 = values[2]
+    #     val2 = values[3]
+    #     print(sum(val1), sum(val2))
+    #     # for shit in val1:
+    #     #     t1.append(shit)
+    #     # for shit in val2:
+    #     #     t2.append(shit)
+    #     # dotProduct = 0
+    #     # magnitude = 0
+    #     # for i in range(len(t1)):
+    #     #     dotProduct = dotProduct + (t1[i] * t2[i])
+    #     # for i in range(len(t1)):
+    #     #     magnitude = magnitude + (math.pow(t1[i], 2))
+    #     # print(round((dotProduct / magnitude), 2), "%")
 
     def extractAllPDF(self, goal):
         count = 0
@@ -238,7 +238,7 @@ class Cosine():
 
 
 # test = Cosine()
-# test.classifyResearch()
-# a = csvToDict()
+# # test.classifyResearch()
+# a = test.csvToDict()
 
 # getDotProduct(a)

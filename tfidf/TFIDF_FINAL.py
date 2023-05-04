@@ -255,8 +255,7 @@ class Processing():
         merge = TFIDF.mergeAllDict(tf)
         idf = TFIDF.inverse_frequency(merge, tf)
         tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
-
-        tf_idf = TFIDF.convertingToDP(merge, tf_idf)
+        tf_idf = TFIDF.convertingToDP( tf_idf)
         return tf_idf
 
     def insertNewData(self, result={}):
