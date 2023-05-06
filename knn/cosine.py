@@ -1,6 +1,7 @@
 import csv
 import glob
 import math
+import os
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -12,6 +13,26 @@ import pdfplumber
 
 
 class Cosine():
+
+    def checkDataSet(self):
+        cont = False
+        csv = "TFIDF.csv"
+        directory = (
+            glob.glob("tfidf/Results/PreProcessed/" + "/*.txt"))
+        for file in directory:
+            if (file == "tfidf/Results/PreProcessed\checker.txt"):
+                cont = True
+        return cont
+
+    def checkLastData(self):
+        cont = False
+
+        directory = (
+            glob.glob(f"tfidf/Results/PreProcessed/" + "/*.txt"))
+        for file in directory:
+            if (file == "tfidf/Results/PreProcessed\PreProcessed 18.txt"):
+                cont = True
+        return cont
 
     def preprocess_documents(self, docs):
         preprocessed_docs = []
@@ -36,11 +57,17 @@ class Cosine():
 
         return lemmatized_tokens
 
-    def getUniqueWords(self, preProcessedDocs):
+    def getUniqueWords(self, preProcessedDocs, type):
         unique = {}
+        print(len(preProcessedDocs[0]))
+        print(len(preProcessedDocs[1]))
         for str in preProcessedDocs:
             for str2 in str:
                 unique[str2] = 0
+        # else:
+        #     for str in preProcessedDocs:
+        #         for token in str:
+        #             print(len(token))
         return unique
 
     def getTerm(self, unique, length, listOfTokens=list,):
@@ -101,19 +128,32 @@ class Cosine():
         return tf_idf
 
     def getTFIDF(self, documents):
+        print(self.check_if_list(documents))
         tv = [{}]
         tf = [{}]
         final = [{}]
-        preProcessedDocs = self.preprocess_documents(documents)
-        unique = self.getUniqueWords(preProcessedDocs)
-
+        index = 1
+        if (self.checkDataSet() == False):
+            preProcessedDocs = self.preprocess_documents(documents)
+            print(preProcessedDocs[0])
+            unique = self.getUniqueWords(preProcessedDocs, False)
+            for token in preProcessedDocs:
+                self.writeListToTxt(' '.join(token), index)
+                index += 1
+            self.addChecker()
+        else:
+            preProcessedDocs = documents
+            print(preProcessedDocs[0])
+            unique = self.getUniqueWords(preProcessedDocs, True)
         # print(unique)
+
         for listOfTokens in preProcessedDocs:
             tf.append(self.getTermFreq(
                 unique, len(listOfTokens), listOfTokens))
             tv.append(self.getTerm(unique, len(listOfTokens), listOfTokens))
         tf.pop(0)
         tv.pop(0)
+
         idf = self.inverse(unique, preProcessedDocs, tv)
         final = self.calculateTFIDF(tf, idf, final)
         final.pop(0)
@@ -128,6 +168,11 @@ class Cosine():
     #         for dictionary in l:
     #             d.update(dictionary)
     #         return d
+    def check_if_list(self, param):
+        if isinstance(param, list):
+            print("Parameter is a list")
+        else:
+            print("Parameter is not a list")
 
     def convertingToDP(self, tf_idf):
         df = pd.DataFrame.from_dict(tf_idf)
@@ -145,8 +190,6 @@ class Cosine():
                  "Goal 5: Gender Equality", "Goal 6: Clean Water and Sanitation",
                  "Goal 7: Affordable and Clean Energy", "Goal 8: Decent Work and Economic Growth",
                  "Goal 9: Industry, Innovation, and Infrastrucuture", "Goal 10: Reduced Inequalities", "Goal 11: Sustainable Cities and Communities", "Goal 12: Responsible Consumption and Production", "Goal 13: Climate Action", "Goal 14: Life Below Water", "Goal 15: Life on Land", "Goal 16: Peace, Justice and Strong Institutions", "Goal 17: Partnership for the Goals"
-
-
                  ]
         # for goal in goals:
         #     classifier[goal] = 0
@@ -164,12 +207,9 @@ class Cosine():
             magnitude = 0
             for i in range(len(t1)):
                 magnitude = magnitude + (math.pow(t1[i], 2))
-
             percent = round(
                 (dotProduct / magnitude) * 100, 2)
             classifier[goals[counter]] = percent
-            # print(goals[counter], " ", round(
-            #     (dotProduct / magnitude) * 100, 2), "%")
             counter += 1
         sorted_dict = dict(
             sorted(classifier.items(), key=lambda item: item[1], reverse=True))
@@ -182,28 +222,6 @@ class Cosine():
                  for row in csv.DictReader(f, skipinitialspace=True)]
         return a
 
-    # def getDotProduct(self, dictList=[{}]):
-
-    #     # t1 = []
-    #     # t2 = []
-    #     values = []
-    #     for doc in dictList:
-    #         values.append(doc.values())
-    #     val1 = values[2]
-    #     val2 = values[3]
-    #     print(sum(val1), sum(val2))
-    #     # for shit in val1:
-    #     #     t1.append(shit)
-    #     # for shit in val2:
-    #     #     t2.append(shit)
-    #     # dotProduct = 0
-    #     # magnitude = 0
-    #     # for i in range(len(t1)):
-    #     #     dotProduct = dotProduct + (t1[i] * t2[i])
-    #     # for i in range(len(t1)):
-    #     #     magnitude = magnitude + (math.pow(t1[i], 2))
-    #     # print(round((dotProduct / magnitude), 2), "%")
-
     def extractAllPDF(self, goal):
         count = 0
         directory = (glob.glob("tfidf/Data Set/" + goal + "/*.pdf"))
@@ -211,31 +229,81 @@ class Cosine():
         finalText = " "
         for file in directory:
             with pdfplumber.open(file) as pdf:
-                count += 1
                 for page in pdf.pages:
                     extractedText = page.extract_text()
                     finalText = finalText + extractedText
         return finalText
 
+    def writeListToTxt(self, training, index):
+        with open(r"tfidf/Results/PreProcessed/PreProcessed " + str(index) + ".txt", 'w', encoding="utf8") as fp:
+            fp.write(training)
+
+    def addChecker(self):
+        with open(r"tfidf/Results/PreProcessed/checker.txt", 'w', encoding="utf8") as fp:
+            fp.write("checker")
+
+    def readListFromTxt(self, index):
+        string = ""
+        with open(r"tfidf/Results/PreProcessed/PreProcessed " + str(index) + ".txt", 'r', encoding="utf8") as f:
+            for line in f:
+                string = string + line.strip()
+
+                # add current item to the list
+
+        return string
+
+    def removeNewData(self):
+        return os.remove("tfidf/Results/PreProcessed/" + "PreProcessed 18.txt")
+
+    def storeTraining(self, preProcessedDocs):
+        index = 1
+        for token in preProcessedDocs:
+            str1 = ' '.join(token)
+            self.writeListToTxt(str1, index)
+            index += 1
+            str1 = " "
+
+    def extractTraining(self):
+        index = 17
+        string = ""
+        extractedTraining = []
+        for i in range(index):
+            with open(r"tfidf/Results/PreProcessed/PreProcessed " + str(i+1) + ".txt", 'r', encoding="utf8") as f:
+                for line in f:
+                    string = line.split()
+                    extractedTraining.append(string)
+                    string = ""
+        return extractedTraining
+
     def classifyResearch(self, data):
         cont = True
         count = 0
+        index = 1
         trainingDocs = []
+        newDocs = []
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
                  'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
                  'Goal 13',
                  'Goal 14', 'Goal 15', 'Goal 16', 'Goal 17'
                  ]
-        for goal in goals:
-            trainingData = self.extractAllPDF(goal)
-            trainingDocs.append(trainingData)
-
+        print(self.checkDataSet())
+        if (self.checkDataSet() == False):
+            for goal in goals:
+                trainingData = self.extractAllPDF(goal)
+                trainingDocs.append(trainingData)
+        else:
+            trainingDocs = self.extractTraining()
+            newDocs.append(data)
+            newData = self.preprocess_documents(newDocs)
+            data = newData[0]
         trainingDocs.append(data)
         values = self.getTFIDF(trainingDocs)
         count += 1
-        del trainingDocs[-1]
+        if (self.checkLastData()):
+            self.removeNewData()
         return self.getCosine(values, count)
 
+    # def automatedTesting(self):
 
 # test = Cosine()
 # # test.classifyResearch()

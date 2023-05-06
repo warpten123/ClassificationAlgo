@@ -65,25 +65,31 @@ class Processing():
         return tf_idf
 
     def preProcessing(self, text):
-        stop_words = set(stopwords.words("english"))
-        lemmatizer = WordNetLemmatizer()
-        lemmatized_tokens = []
-        # Tokenize document
-        tokens = word_tokenize(text)
+        # stop_words = set(stopwords.words("english"))
+        # lemmatizer = WordNetLemmatizer()
+        # lemmatized_tokens = []
+        # # Tokenize document
+        # tokens = word_tokenize(text)
 
-        # Remove stopwords and punctuations, and convert to lowercase
-        filtered_tokens = [
-            token.lower() for token in tokens if token.isalnum() and token not in stop_words]
+        # # Remove stopwords and punctuations, and convert to lowercase
+        # filtered_tokens = [
+        #     token.lower() for token in tokens if token.isalnum() and token not in stop_words]
 
-        # Lemmatize tokens
-        lemmatized_tokens.append([lemmatizer.lemmatize(
-            token) for token in filtered_tokens])
+        # # Lemmatize tokens
+        # lemmatized_tokens.append([lemmatizer.lemmatize(
+        #     token) for token in filtered_tokens])
 
-        # Join tokens back into a string
-        # preprocessed_doc = " ".join(lemmatized_tokens)
-        # preprocessed_docs.append(preprocessed_doc)
+        # # Join tokens back into a string
+        # # preprocessed_doc = " ".join(lemmatized_tokens)
+        # # preprocessed_docs.append(preprocessed_doc)
 
-        return lemmatized_tokens
+        # return lemmatized_tokens
+        preProc = PreProcessing()
+        text = preProc.removeSpecialCharacters(text)
+        text = preProc.manual_tokenization(text)
+        text = preProc.removeStopWords(text)
+        text = preProc.toLowerCase(text)
+        return text
 
     def preprocess_documents(docs):
         preprocessed_docs = []
@@ -183,7 +189,7 @@ class Processing():
                  for row in csv.DictReader(f, skipinitialspace=True)]
         return a
 
-    def convertingToDP(self, featureSet, tf_idf):
+    def convertingToDP(self, tf_idf):
         df = pd.DataFrame.from_dict(tf_idf)
         df2 = df.replace(np.nan, 0)
         df2.to_csv('tfidf/Results/TFIDF.csv')
@@ -255,7 +261,7 @@ class Processing():
         merge = TFIDF.mergeAllDict(tf)
         idf = TFIDF.inverse_frequency(merge, tf)
         tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
-        tf_idf = TFIDF.convertingToDP( tf_idf)
+        tf_idf = TFIDF.convertingToDP(tf_idf)
         return tf_idf
 
     def insertNewData(self, result={}):

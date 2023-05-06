@@ -8,14 +8,11 @@ import sys
 import requests
 import glob
 from collections import OrderedDict
+
+
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
-from tfidf.TFIDF_FINAL import Processing
-from knn.k_nearest_neighbor import KNN
-from information_extraction.main import InformationExtraction
-from tfidf.extraction_helper import Helper
-from knn.cosine import Cosine
 uri = 'http://127.0.0.1:3000'
 # uri = 'https://lazy-emu-89.loca.lt/'
 app = Flask(__name__)
@@ -24,7 +21,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={
             r"/returnAscii": {"origins": "*"}})
 
-
+from knn.cosine import Cosine
+from tfidf.extraction_helper import Helper
+from information_extraction.main import InformationExtraction
+from knn.k_nearest_neighbor import KNN
+from tfidf.TFIDF_FINAL import Processing
 @app.route('/api', methods=['GET'])
 def returnAscii():
     d = {}
@@ -143,8 +144,7 @@ def extractForDataSet(filename):
     helper = Helper()
     tfidf = Processing(" ")
     result = helper.main_logic(filename)
-    
-    
+
     # str = ' '.join(keyPhrases)
     # tfidf.insertNewData(result)
     return result
@@ -193,6 +193,7 @@ def initializeDataSet():
     tfidf = Processing(" ")
     tfidf.createTFIDF(" ")
 
+
 @app.route('/python/classify/<filename>', methods=['GET'])
 def classify(filename):
     helper = Helper()
@@ -200,8 +201,7 @@ def classify(filename):
     appendedData = helper.main_logic(filename)
     data = cosine.classifyResearch(appendedData['appendedData'])
     sorted_dict = dict(
-            sorted(data.items(), key=lambda item: item[1], reverse=True))
-
+        sorted(data.items(), key=lambda item: item[1], reverse=True))
     i = 1
     finalClassify = {}
     for top in sorted_dict:
@@ -209,22 +209,16 @@ def classify(filename):
             finalClassify[top] = sorted_dict[top]
         if (i >= 4):
             break
-        i += 1 
+        i += 1
     print(finalClassify)
     # str = ','.join(newList)
     return finalClassify
 
 
-
-
-
-
-
-
-# @app.before_request
-# def before_first_request_func():
-#     if (checkDataSet() != True):
-#         initializeDataSet()
+@app.before_request
+def before_first_request_func():
+    if (checkDataSet() != True):
+        initializeDataSet()
 
 
 if __name__ == "__main__":
@@ -233,5 +227,5 @@ if __name__ == "__main__":
     # if data set has been cooked, ignoreq
     # if not create TFIDF.
     # check if file TFIDF.csv exists in folder Results
-    # before_first_request_func()
+    before_first_request_func()
     app.run(debug=True)
