@@ -172,7 +172,7 @@ def key_phrases(filename):
     helper = Helper()
     result = helper.main_logic(filename)
     information = InformationExtraction(filename)
-    keyPhrases = information.calcualateRAKE(result['abstract'])
+    keyPhrases = information.calcualateRAKE(result['appendedData'])
     for i in range(5):
         newList.append(keyPhrases[i])
     # str = ','.join(newList)
