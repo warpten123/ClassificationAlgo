@@ -20,12 +20,12 @@ CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={
             r"/returnAscii": {"origins": "*"}})
-
-from knn.cosine import Cosine
-from tfidf.extraction_helper import Helper
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
 from tfidf.TFIDF_FINAL import Processing
+from knn.k_nearest_neighbor import KNN
+from information_extraction.main import InformationExtraction
+from tfidf.extraction_helper import Helper
+from knn.cosine import Cosine
+
 @app.route('/api', methods=['GET'])
 def returnAscii():
     d = {}
