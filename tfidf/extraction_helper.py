@@ -167,7 +167,11 @@ class Helper:
         endorsement = " "
         go = False
         count = 0
+        limitPages = 5
+        currentPage = 0  # 1 to 5
         with pdfplumber.open('assets/upload/' + filename) as pdf:
+            # endorsement = pdf.pages[1]
+            # print(endorsement.extract_text())
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF
@@ -175,6 +179,10 @@ class Helper:
                 if (self.endorsementChecker(finalText)):
                     go = True
                     break
+                if (currentPage == limitPages):
+                    break
+                print(currentPage)
+                currentPage += 1
                 count += 1
         if (go):
             finalText = self.cleanString(finalText)
