@@ -25,6 +25,8 @@ class Helper:
         count = 1
         finalText = " "
         final_abstract = " "
+        limitPages = 10
+        currentPage = 0
         with pdfplumber.open('assets/upload/' + filename) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
@@ -34,7 +36,10 @@ class Helper:
                     final_abstract = finalText
                     final_abstract = self.cleanString(final_abstract)
                     break
+                if (currentPage == limitPages):
+                    break
                 count += 1
+                currentPage += 1
                 final_abstract = " "
                 finalText = " "
         return final_abstract
@@ -43,6 +48,8 @@ class Helper:
         count = 1
         finalText = " "
         final_intro = " "
+        limitPages = 10
+        currentPage = 0
         with pdfplumber.open('assets/upload/' + filename) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
@@ -52,8 +59,11 @@ class Helper:
                     final_intro = finalText
                     final_intro = self.cleanString(final_intro)
                     break
+                if (currentPage == limitPages):
+                    break
                 count += 1
                 final_intro = " "
+                currentPage += 1
                 finalText = " "
         return final_intro
 
@@ -61,6 +71,8 @@ class Helper:
         count = 1
         finalText = " "
         final_method = " "
+        limitPages = 10
+        currentPage = 0
         with pdfplumber.open('assets/upload/' + filename) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
@@ -71,6 +83,9 @@ class Helper:
                     final_method = self.cleanString(final_method)
                     break
                 count += 1
+                if (currentPage == limitPages):
+                    break
+                currentPage += 1
                 final_method = " "
                 finalText = " "
         return final_method
@@ -85,6 +100,7 @@ class Helper:
                 abstract = True
                 pageAbstract = page
             count += 1
+
             print("Abstract is in page: " + str(pageAbstract))
         return abstract
 
