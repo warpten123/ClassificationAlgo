@@ -183,7 +183,7 @@ class Helper:
         endorsement = " "
         go = False
         count = 0
-        limitPages = 5
+        limitPages = 10
         currentPage = 0  # 1 to 5
         with pdfplumber.open('assets/upload/' + filename) as pdf:
             # endorsement = pdf.pages[1]

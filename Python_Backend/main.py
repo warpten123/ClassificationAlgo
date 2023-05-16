@@ -13,8 +13,8 @@ from collections import OrderedDict
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
-# uri = 'http://127.0.0.1:3000'
-uri = 'https://neat-eggs-shake.loca.lt'
+uri = 'http://127.0.0.1:3000'
+# uri = 'https://neat-eggs-shake.loca.lt'
 app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -205,9 +205,9 @@ def classify(filename):
     i = 1
     finalClassify = {}
     for top in sorted_dict:
-        if (i <= 3):
+        if (i <= 4):
             finalClassify[top] = sorted_dict[top]
-        if (i >= 4):
+        if (i >= 5):
             break
         i += 1
     print(finalClassify)
