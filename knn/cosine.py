@@ -59,8 +59,7 @@ class Cosine():
 
     def getUniqueWords(self, preProcessedDocs, type):
         unique = {}
-        print(len(preProcessedDocs[0]))
-        print(len(preProcessedDocs[1]))
+
         for str in preProcessedDocs:
             for str2 in str:
                 unique[str2] = 0
@@ -128,14 +127,14 @@ class Cosine():
         return tf_idf
 
     def getTFIDF(self, documents):
-        print(self.check_if_list(documents))
+
         tv = [{}]
         tf = [{}]
         final = [{}]
         index = 1
         if (self.checkDataSet() == False):
             preProcessedDocs = self.preprocess_documents(documents)
-            print(preProcessedDocs[0])
+
             unique = self.getUniqueWords(preProcessedDocs, False)
             for token in preProcessedDocs:
                 self.writeListToTxt(' '.join(token), index)
@@ -143,7 +142,7 @@ class Cosine():
             self.addChecker()
         else:
             preProcessedDocs = documents
-            print(preProcessedDocs[0])
+
             unique = self.getUniqueWords(preProcessedDocs, True)
         # print(unique)
 
@@ -191,6 +190,7 @@ class Cosine():
                  "Goal 7: Affordable and Clean Energy", "Goal 8: Decent Work and Economic Growth",
                  "Goal 9: Industry, Innovation, and Infrastrucuture", "Goal 10: Reduced Inequalities", "Goal 11: Sustainable Cities and Communities", "Goal 12: Responsible Consumption and Production", "Goal 13: Climate Action", "Goal 14: Life Below Water", "Goal 15: Life on Land", "Goal 16: Peace, Justice and Strong Institutions", "Goal 17: Partnership for the Goals"
                  ]
+
         # for goal in goals:
         #     classifier[goal] = 0
         for val in oldDoc:
@@ -215,6 +215,20 @@ class Cosine():
             sorted(classifier.items(), key=lambda item: item[1], reverse=True))
 
         return sorted_dict
+
+    def get_cosine_matrix(self, oldDoc):
+        del oldDoc[-1]
+        test = []
+        count = 0
+        dotProduct = 0
+        magnitude = 0
+        for i in range(len(oldDoc)):
+            for j in range((len(oldDoc))):
+                dotProduct = dotProduct + (oldDoc[i] * oldDoc[j])
+                magnitude = magnitude + (math.pow(oldDoc[i], 2))
+                test.append(round(dotProduct/magnitude, 2))
+
+        return str(count)
 
     def csvToDict(self):  # not used
         with open('tfidf/Results/TFIDF.csv') as f:
@@ -286,7 +300,7 @@ class Cosine():
                  'Goal 13',
                  'Goal 14', 'Goal 15', 'Goal 16', 'Goal 17'
                  ]
-        print(self.checkDataSet())
+
         if (self.checkDataSet() == False):
             for goal in goals:
                 trainingData = self.extractAllPDF(goal)
@@ -301,6 +315,7 @@ class Cosine():
         count += 1
         if (self.checkLastData()):
             self.removeNewData()
+        # self.get_cosine_matrix(values)
         return self.getCosine(values, count)
 
     # def automatedTesting(self):

@@ -1,5 +1,6 @@
 
 
+
 from flask import Flask, request, jsonify
 from flask_ngrok import run_with_ngrok
 from flask_cors import CORS
@@ -13,14 +14,14 @@ from collections import OrderedDict
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
-from knn.cosine import Cosine
-from tfidf.extraction_helper import Helper
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
 from tfidf.TFIDF_FINAL import Processing
+from knn.k_nearest_neighbor import KNN
+from information_extraction.main import InformationExtraction
+from tfidf.extraction_helper import Helper
+from knn.cosine import Cosine
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
-# uri = 'http://127.0.0.1:3000'
-uri = 'http://192.168.143.57:3000'
+uri = 'http://127.0.0.1:3000'
+# uri = 'http://192.168.143.57:3000'
 app = Flask(__name__)
 # run_with_ngrok(app)
 CORS(app)
@@ -201,21 +202,30 @@ def initializeDataSet():
 def classify(filename):
     helper = Helper()
     cosine = Cosine()
+    knn = KNN()
     appendedData = helper.main_logic(filename)
     data = cosine.classifyResearch(appendedData['appendedData'])
-    sorted_dict = dict(
-        sorted(data.items(), key=lambda item: item[1], reverse=True))
-    i = 1
-    finalClassify = {}
-    for top in sorted_dict:
-        if (i <= 4):
-            finalClassify[top] = sorted_dict[top]
-        if (i >= 5):
-            break
-        i += 1
-    print(finalClassify)
+
+    predict = knn.knn_classifier(data, 5)
+    sorted_dict = dict(sorted(predict.items(), key=lambda item: item[1]))
+    
+    # i = 1
+    # finalClassify = {}
+    # for top in sorted_dict:
+    #     if (i <= 4):
+    #         finalClassify[top] = sorted_dict[top]
+    #     if (i >= 5):
+    #         break
+    #     i += 1
+    # print(finalClassify)
     # str = ','.join(newList)
-    return finalClassify
+    return sorted_dict
+
+
+@app.route('/python/testing_matrix/<filename>', methods=['GET'])
+def matrix(filename):
+    cosine = Cosine()
+    return cosine.get_cosine_matrix(filename)
 
 
 @app.before_request
