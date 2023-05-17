@@ -1,7 +1,7 @@
 
 
-
 from flask import Flask, request, jsonify
+from flask_ngrok import run_with_ngrok
 from flask_cors import CORS
 import os
 import sys
@@ -12,19 +12,22 @@ from collections import OrderedDict
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
+
+from knn.cosine import Cosine
+from tfidf.extraction_helper import Helper
+from information_extraction.main import InformationExtraction
+from knn.k_nearest_neighbor import KNN
+from tfidf.TFIDF_FINAL import Processing
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
-uri = 'http://127.0.0.1:3000'
-# uri = 'https://neat-eggs-shake.loca.lt'
+# uri = 'http://127.0.0.1:3000'
+uri = 'http://192.168.143.57:3000'
 app = Flask(__name__)
+# run_with_ngrok(app)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={
             r"/returnAscii": {"origins": "*"}})
-from tfidf.TFIDF_FINAL import Processing
-from knn.k_nearest_neighbor import KNN
-from information_extraction.main import InformationExtraction
-from tfidf.extraction_helper import Helper
-from knn.cosine import Cosine
+
 
 @app.route('/api', methods=['GET'])
 def returnAscii():

@@ -60,11 +60,13 @@ class InformationExtraction:
     def extract_names(self, extract_text, fromNode):
         listOfLast = []
         listOfFirst = []
+        listOfSchoolID = []
         count = 0
         for i in range(len(fromNode)):
             count += 1
             listOfFirst.append(fromNode[i]['first_name'])
             listOfLast.append(fromNode[i]['last_name'])
+            listOfSchoolID.append(fromNode[i]['school_id'])
         return self.extract_names_logic(extract_text, listOfFirst, listOfLast)
 
     def extract_names_logic(self, input_text, first=list, last=list):
