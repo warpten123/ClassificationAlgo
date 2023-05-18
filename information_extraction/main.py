@@ -23,6 +23,8 @@ from nltk.tokenize import WhitespaceTokenizer
 # nltk.download('words')
 nltk.download('stopwords')
 
+rawNames = []
+
 
 class InformationExtraction:
     def __init__(self, document_path):
@@ -58,15 +60,76 @@ class InformationExtraction:
         return information
 
     def extract_names(self, extract_text, fromNode):
+        rawNames.clear()
         listOfLast = []
         listOfFirst = []
         listOfSchoolID = []
+        listOfTokens = []
         count = 0
-        for i in range(len(fromNode)):
-            count += 1
-            listOfFirst.append(fromNode[i]['first_name'])
-            listOfLast.append(fromNode[i]['last_name'])
-            listOfSchoolID.append(fromNode[i]['school_id'])
+        index = 0
+        add = False
+        finalNames = []
+        tk = WhitespaceTokenizer()
+        for string in extract_text:
+            test = tk.tokenize(string)
+            print(test)
+            if (add):
+                listOfTokens.append(test)
+            if ("By" in test or "by" in test):
+                if (len(test) != 1):
+                    listOfTokens.append(test)
+                add = True
+            index += 1
+        print(listOfTokens)
+        for i in range(len(listOfTokens)):
+            if (self.check_dot(listOfTokens[i]) and not self.check_comma(listOfTokens[i])):
+                self.name_extractor_dot(listOfTokens[i])
+            elif (self.check_comma(listOfTokens[i])):
+                self.name_extractor_comma(listOfTokens[i])
+        updated_list = [item.strip() for item in rawNames]
+        return updated_list
+
+    def name_extractor_comma(self, list_of_names):
+        tempName = ""
+        for string in list_of_names:
+            tempName = tempName + " " + string
+        rawNames.append(tempName)
+
+    def name_extractor_dot(self, list_of_names):
+        print(list_of_names)
+        tempName = ""
+        previous_dot, dot = False, False
+        for string in list_of_names:
+            if ("." in string):
+                dot = True
+            if (dot == False):
+                tempName = tempName + " " + string
+                if (previous_dot):
+                    rawNames.append(tempName)
+                    tempName = ""
+                    previous_dot = False
+            else:
+                tempName = tempName + " " + string
+                dot = False
+                previous_dot = True
+
+    def check_comma(self, string):
+        contains_comma = any(
+            ',' in item for item in string)
+        return contains_comma
+
+    def check_dot(self, string):
+        contains_dot = any(
+            '.' in item for item in string)
+        return contains_dot
+
+        # for string in extract_text:
+        #     print(string)
+        # for i in range(len(fromNode)):
+        #     count += 1
+        #     listOfFirst.append(fromNode[i]['first_name'])
+        #     listOfLast.append(fromNode[i]['last_name'])
+        #     listOfSchoolID.append(fromNode[i]['school_id'])
         return self.extract_names_logic(extract_text, listOfFirst, listOfLast)
 
     def extract_names_logic(self, input_text, first=list, last=list):
@@ -291,8 +354,6 @@ class InformationExtraction:
         return raw_Text
 
     def calcualateRAKE(self, raw_text):
-        # text = "Excel is an amazing tool for data science. But a lot of data science professionals do not like Excel."
-
         raw_text = re.sub(r'[^a-zA-Z0-9\s]+', '', raw_text)
         tk = WhitespaceTokenizer()
         stop_words = set(stopwords.words('english'))
@@ -302,8 +363,6 @@ class InformationExtraction:
         unique = [x.lower() for x in filtered_sentence]
         phrases = self.getKeyPhrases(test, stop_words)
         word_frequency = self.getWordFrequency(unique)
-
-        # features = list(word_frequency.keys())
         degree_of_word = self.getDegreeofWord(word_frequency, phrases)
         degree_score = self.getDegreeScore(
             word_frequency, degree_of_word, phrases)

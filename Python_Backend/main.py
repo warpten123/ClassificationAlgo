@@ -19,7 +19,10 @@ from knn.k_nearest_neighbor import KNN
 from information_extraction.main import InformationExtraction
 from tfidf.extraction_helper import Helper
 from knn.cosine import Cosine
+from information_extraction.testing_extraction import Testing
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
+sys.path.insert(0, 'knn\testing.py')
+sys.path.insert(0, 'information_extraction\testing_extraction.py')
 uri = 'http://127.0.0.1:3000'
 # uri = 'http://192.168.143.57:3000'
 app = Flask(__name__)
@@ -204,8 +207,9 @@ def classify(filename):
     cosine = Cosine()
     knn = KNN()
     appendedData = helper.main_logic(filename)
+    # data = cosine.classifyResearch(appendedData['appendedData'])
+   
     data = cosine.classifyResearch(appendedData['appendedData'])
-
     predict = knn.knn_classifier(data, 5)
     sorted_dict = dict(sorted(predict.items(), key=lambda item: item[1]))
     
@@ -226,6 +230,12 @@ def classify(filename):
 def matrix(filename):
     cosine = Cosine()
     return cosine.get_cosine_matrix(filename)
+
+@app.route('/python/testing_extraction/', methods=['GET'])
+def testing_extraction():
+    test = Testing()
+    return test.main()
+
 
 
 @app.before_request

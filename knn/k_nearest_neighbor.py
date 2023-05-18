@@ -30,13 +30,9 @@ class KNN():
         goals = list(cosine_similarity.keys())
         nearest_labels = goals[:k]
         nearest_scores = cosine_similarityList[:k]
-
-        # Perform majority voting based on the weighted scores
         weighted_votes = Counter()
         for i, label in enumerate(nearest_labels):
             weighted_votes[label] += nearest_scores[i]
-        print(weighted_votes)
         predicted_label = weighted_votes.most_common(4)
         resultDictionary = dict((x, y) for x, y in predicted_label)
-
         return resultDictionary

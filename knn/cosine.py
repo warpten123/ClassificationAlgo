@@ -134,7 +134,6 @@ class Cosine():
         index = 1
         if (self.checkDataSet() == False):
             preProcessedDocs = self.preprocess_documents(documents)
-
             unique = self.getUniqueWords(preProcessedDocs, False)
             for token in preProcessedDocs:
                 self.writeListToTxt(' '.join(token), index)
@@ -142,7 +141,6 @@ class Cosine():
             self.addChecker()
         else:
             preProcessedDocs = documents
-
             unique = self.getUniqueWords(preProcessedDocs, True)
         # print(unique)
 
