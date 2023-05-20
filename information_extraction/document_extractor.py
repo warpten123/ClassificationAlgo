@@ -17,7 +17,6 @@ class DocumentExtractor:
         # Construct the full path to the PDF file
         pdf_path = os.path.join(parent_dir, "assets",
                                 "upload", self.document_path)
-
         # Open PDF file in binary mode
         with open(pdf_path, 'rb') as pdf_file:
             # Create a PDFPlumber object
@@ -25,27 +24,17 @@ class DocumentExtractor:
             # Extract text from the first page of the PDF
             page = pdf_reader.pages[0]
             pdf_text = page.extract_text()
-
             # Convert PDF page to image
             x0, y0, x1, y1 = page.cropbox or (0, 0, page.width, page.height)
             image = page.to_image(resolution=300)
             image_file = 'temp_image.png'
             image.save(image_file, format='png')
-
             # Specify the path to Tesseract executable
             tesseract_path = os.path.join(os.getenv('PROGRAMFILES'), 'Tesseract-OCR', 'tesseract.exe')
-
             # Perform OCR using pytesseract
             ocr_text = pytesseract.image_to_string(image_file)
-
             # Extract paragraphs from extracted text
             paragraphs = self.extract_paragraphs_from_text(ocr_text)
-
-            # Print extracted paragraphs
-            # for i, paragraph in enumerate(paragraphs, 1):
-            #     print(f'Paragraph {i}: {paragraph}')
-
-            # Delete temporary image file
             os.remove(image_file)
 
             return paragraphs

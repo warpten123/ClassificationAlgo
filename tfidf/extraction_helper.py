@@ -16,17 +16,15 @@ class Helper:
         method = self.getFromPDFMethod(filename)
         appendedData = abstract + introduction + method
         return {'abstract': abstract, 'introduction': introduction, 'method': method, 'appendedData': appendedData}
-        # return self.getAbstract(rawText)
+  
 
     def passDataToClassify(data):
         return data
 
     def getFromPDFAbstract(self, filename):
         count = 1
-        finalText = " "
-        final_abstract = " "
-        limitPages = 10
-        currentPage = 0
+        finalText,final_abstract = " ", " "
+        limitPages,currentPage = 10,0
         with pdfplumber.open('assets/upload/' + filename) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
@@ -46,10 +44,8 @@ class Helper:
 
     def getFromPDFIntro(self, filename):
         count = 1
-        finalText = " "
-        final_intro = " "
-        limitPages = 10
-        currentPage = 0
+        finalText,final_intro = " "," "
+        limitPages,currentPage = 10,0
         with pdfplumber.open('assets/upload/' + filename) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
@@ -100,8 +96,6 @@ class Helper:
                 abstract = True
                 pageAbstract = page
             count += 1
-
-            print("Abstract is in page: " + str(pageAbstract))
         return abstract
 
     def getIntroduction(self, processedText):

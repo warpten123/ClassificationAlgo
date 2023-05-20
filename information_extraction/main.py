@@ -35,11 +35,7 @@ class InformationExtraction:
         print(self.document_path)
         extractor = DocumentExtractor(self.document_path)
         extracted_text = extractor.extract_text_from_document()
-        # for i, extracted_text in enumerate(extracted_text, 1):
-        #     print(f'Paragraph {i}: {extracted_text}')
-
         if extracted_text is not None:
-            # information = self.process_extracted_text(extracted_text, fromNode)
             information = self.process_extracted_text(extracted_text, fromNode)
             return information
         else:
@@ -48,15 +44,9 @@ class InformationExtraction:
     def process_extracted_text(self, input_text, fromNode):
         information = {}
         information['title'] = self.extract_title(input_text)
-        # Extract Department
         information['department'] = self.extract_department(input_text)
-        # information['author'] = self.extract_person(input_text)
-        # information['adviser'] = self.extract_adviser(input_text)
         information['authors'] = self.extract_names(input_text, fromNode)
-        # Extract published date
-
         information['published_date'] = self.extract_published_date(input_text)
-        # Return extracted information
         return information
 
     def extract_names(self, extract_text, fromNode):
@@ -251,21 +241,15 @@ class InformationExtraction:
         extracted_date = None
         current_date = datetime.datetime.now()  # Get current date and time
         for text in input_text:
-            # Extract date from text using regular expressions or other methods
-            # Example: Extracts MM/YYYY format
             extracted_date_str = re.findall(r'\b\d{1,2}/\d{4}\b', text)
             if extracted_date_str:
                 extracted_date = date_parser.parse(
                     extracted_date_str[0], fuzzy=True)
-
-            # If extracted date is not found, try parsing the lines using date_formats
             if not extracted_date:
-                date_formats = [
-                    # Month day, Year (e.g. March 20, 2020)
+                date_formats = [          
                     '%B %d, %Y',
                     '%B %Y',             # Month Year (e.g. March 2020)
-                    '%m/%Y',             # Month/Year (e.g. 03/2020)
-                    # Abbreviated Month Year (e.g. Mar 2020)
+                    '%m/%Y',             # Month/Year (e.g. 03/2020)          
                     '%b %Y',
                     # Month Year without slash (e.g. 03 2020)
                     '%m %Y',
@@ -288,7 +272,6 @@ class InformationExtraction:
                             break
                     except ValueError:
                         pass
-
             if extracted_date:
                 break  # If date is extracted from any text, break the loop
 

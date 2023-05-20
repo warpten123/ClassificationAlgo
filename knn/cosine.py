@@ -35,38 +35,26 @@ class Cosine():
         return cont
 
     def preprocess_documents(self, docs):
-        preprocessed_docs = []
         stop_words = set(stopwords.words("english"))
         lemmatizer = WordNetLemmatizer()
         lemmatized_tokens = []
         for doc in docs:
             # Tokenize document
             tokens = word_tokenize(doc)
-
             # Remove stopwords and punctuations, and convert to lowercase
             filtered_tokens = [
                 token.lower() for token in tokens if token.isalnum() and token not in stop_words]
-
             # Lemmatize tokens
             lemmatized_tokens.append([lemmatizer.lemmatize(
                 token) for token in filtered_tokens])
-
-            # Join tokens back into a string
-            # preprocessed_doc = " ".join(lemmatized_tokens)
-            # preprocessed_docs.append(preprocessed_doc)
 
         return lemmatized_tokens
 
     def getUniqueWords(self, preProcessedDocs, type):
         unique = {}
-
         for str in preProcessedDocs:
             for str2 in str:
                 unique[str2] = 0
-        # else:
-        #     for str in preProcessedDocs:
-        #         for token in str:
-        #             print(len(token))
         return unique
 
     def getTerm(self, unique, length, listOfTokens=list,):
@@ -98,18 +86,14 @@ class Cosine():
         return term_vec
 
     def inverse(self, unique, preProcessedDocs, tf=[{}]):
-
         num_of_docs = len(preProcessedDocs)
-        idf = {}
-        finalIDF = {}
-        count = 0
+        idf, finalIDF = {}, {}
         for str in unique:
             idf[str] = 0
         for str in idf:
             for str2 in tf:
                 if str in str2:
                     idf[str] = idf[str] + str2[str]
-
         for str in idf:
             finalIDF[str] = math.log10(num_of_docs / idf[str])
         return finalIDF
@@ -127,14 +111,12 @@ class Cosine():
         return tf_idf
 
     def getTFIDF(self, documents):
-
-        tv = [{}]
-        tf = [{}]
-        final = [{}]
+        tv, tf, final = [{}], [{}], [{}]
         index = 1
         if (self.checkDataSet() == False):
             preProcessedDocs = self.preprocess_documents(documents)
             unique = self.getUniqueWords(preProcessedDocs, False)
+
             for token in preProcessedDocs:
                 self.writeListToTxt(' '.join(token), index)
                 index += 1
@@ -142,7 +124,6 @@ class Cosine():
         else:
             preProcessedDocs = documents
             unique = self.getUniqueWords(preProcessedDocs, True)
-        # print(unique)
 
         for listOfTokens in preProcessedDocs:
             tf.append(self.getTermFreq(
@@ -150,21 +131,26 @@ class Cosine():
             tv.append(self.getTerm(unique, len(listOfTokens), listOfTokens))
         tf.pop(0)
         tv.pop(0)
-
+        df = pd.DataFrame.from_dict(tv[17], orient='index', columns=['Value'])
+        print("new", df)
+        df2 = pd.DataFrame.from_dict(tf[17], orient='index', columns=['Value'])
+        print("new", df2)
         idf = self.inverse(unique, preProcessedDocs, tv)
+        df3 = pd.DataFrame.from_dict(idf, orient='index', columns=['Value'])
+        print(df3)
         final = self.calculateTFIDF(tf, idf, final)
         final.pop(0)
+        df4 = pd.DataFrame.from_dict(
+            final[17], orient='index', columns=['Value'])
+        print(df4)
         values = []
         for doc in final:
             values.append(doc.values())
         tf_idf = self.convertingToDP(final)
+        df = pd.DataFrame(values[17], columns=["Items"])
+        print(df)
         return values
 
-    # def mergeAllDict(l):
-    #         d = {}
-    #         for dictionary in l:
-    #             d.update(dictionary)
-    #         return d
     def check_if_list(self, param):
         if isinstance(param, list):
             print("Parameter is a list")
@@ -182,36 +168,30 @@ class Cosine():
         counter = 0
         classifier = {}
         del oldDoc[-1]
-        goals = ["Goal 1: No Poverty", "Goal 2: Zero Hunger",
-                 "Goal 3: Good Health and Well-Being", "Goal 4: Quality Education",
-                 "Goal 5: Gender Equality", "Goal 6: Clean Water and Sanitation",
-                 "Goal 7: Affordable and Clean Energy", "Goal 8: Decent Work and Economic Growth",
+        goals = ["Goal 1: No Poverty", "Goal 2: Zero Hunger", "Goal 3: Good Health and Well-Being", "Goal 4: Quality Education", "Goal 5: Gender Equality", "Goal 6: Clean Water and Sanitation", "Goal 7: Affordable and Clean Energy", "Goal 8: Decent Work and Economic Growth",
                  "Goal 9: Industry, Innovation, and Infrastrucuture", "Goal 10: Reduced Inequalities", "Goal 11: Sustainable Cities and Communities", "Goal 12: Responsible Consumption and Production", "Goal 13: Climate Action", "Goal 14: Life Below Water", "Goal 15: Life on Land", "Goal 16: Peace, Justice and Strong Institutions", "Goal 17: Partnership for the Goals"
                  ]
-
-        # for goal in goals:
-        #     classifier[goal] = 0
         for val in oldDoc:
             val2 = val
-            t1 = []
-            t2 = []
-            for shit in newVector:
-                t1.append(shit)
-            for shit in val2:
-                t2.append(shit)
-            dotProduct = 0
-            for i in range(len(t1)):
-                dotProduct = dotProduct + (t1[i] * t2[i])
-            magnitude = 0
-            for i in range(len(t1)):
-                magnitude = magnitude + (math.pow(t1[i], 2))
+            vector1, vector2 = [], []
+            dotProduct, magnitude, magnitude1, magnitude2 = 0, 0, 0, 0
+            for newvec in newVector:
+                vector1.append(newvec)
+            for oldVar in val2:
+                vector2.append(oldVar)
+            dotProduct = np.dot(vector1, vector2)
+            magnitude1 = math.sqrt(
+                sum(component ** 2 for component in newVector))
+            magnitude2 = math.sqrt(sum(component ** 2 for component in val2))
+            magnitude = magnitude1 * magnitude2
+            print(goals[counter], " ", dotProduct, magnitude)
             percent = round(
                 (dotProduct / magnitude) * 100, 2)
             classifier[goals[counter]] = percent
             counter += 1
         sorted_dict = dict(
             sorted(classifier.items(), key=lambda item: item[1], reverse=True))
-
+        print(sorted_dict)
         return sorted_dict
 
     def get_cosine_matrix(self, oldDoc):
@@ -235,7 +215,6 @@ class Cosine():
         return a
 
     def extractAllPDF(self, goal):
-        count = 0
         directory = (glob.glob("tfidf/Data Set/" + goal + "/*.pdf"))
         extractedText = " "
         finalText = " "
@@ -244,6 +223,7 @@ class Cosine():
                 for page in pdf.pages:
                     extractedText = page.extract_text()
                     finalText = finalText + extractedText
+
         return finalText
 
     def writeListToTxt(self, training, index):
@@ -288,17 +268,13 @@ class Cosine():
         return extractedTraining
 
     def classifyResearch(self, data):
-        cont = True
         count = 0
-        index = 1
-        trainingDocs = []
-        newDocs = []
+        trainingDocs, newDocs = [], []
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
                  'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
                  'Goal 13',
                  'Goal 14', 'Goal 15', 'Goal 16', 'Goal 17'
                  ]
-
         if (self.checkDataSet() == False):
             for goal in goals:
                 trainingData = self.extractAllPDF(goal)
@@ -308,18 +284,29 @@ class Cosine():
             newDocs.append(data)
             newData = self.preprocess_documents(newDocs)
             data = newData[0]
+            print("PreProcessed", data)
         trainingDocs.append(data)
         values = self.getTFIDF(trainingDocs)
         count += 1
         if (self.checkLastData()):
             self.removeNewData()
-        # self.get_cosine_matrix(values)
         return self.getCosine(values, count)
 
-    # def automatedTesting(self):
 
-# test = Cosine()
-# # test.classifyResearch()
-# a = test.csvToDict()
-
-# getDotProduct(a)
+##
+# dic = {}
+#   vector1 = [1, 4, 5, 6, 7, 5]
+#         vector2 = [7, 6, 5, 4, 2, 8]
+#         dotProduct = 0
+#         magnitude = 0
+#         dotProduct = np.dot(vector1, vector2)
+#         dic = {}
+#         magnitude1 = math.sqrt(sum(component ** 2 for component in vector2))
+#         magnitude2 = math.sqrt(sum(component ** 2 for component in vector1))
+#         magnitude = magnitude1 * magnitude2
+#         print(magnitude)
+#         dic['shit'] = dotProduct / magnitude
+#         return dic
+#
+#
+# ###

@@ -13,13 +13,12 @@ from collections import OrderedDict
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
-
-from tfidf.TFIDF_FINAL import Processing
-from knn.k_nearest_neighbor import KNN
-from information_extraction.main import InformationExtraction
-from tfidf.extraction_helper import Helper
-from knn.cosine import Cosine
 from information_extraction.testing_extraction import Testing
+from knn.cosine import Cosine
+from tfidf.extraction_helper import Helper
+from information_extraction.main import InformationExtraction
+from knn.k_nearest_neighbor import KNN
+from tfidf.TFIDF_FINAL import Processing
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
 sys.path.insert(0, 'knn\testing.py')
 sys.path.insert(0, 'information_extraction\testing_extraction.py')
@@ -207,12 +206,10 @@ def classify(filename):
     cosine = Cosine()
     knn = KNN()
     appendedData = helper.main_logic(filename)
-    # data = cosine.classifyResearch(appendedData['appendedData'])
-   
     data = cosine.classifyResearch(appendedData['appendedData'])
     predict = knn.knn_classifier(data, 5)
     sorted_dict = dict(sorted(predict.items(), key=lambda item: item[1]))
-    
+
     # i = 1
     # finalClassify = {}
     # for top in sorted_dict:
@@ -231,11 +228,11 @@ def matrix(filename):
     cosine = Cosine()
     return cosine.get_cosine_matrix(filename)
 
+
 @app.route('/python/testing_extraction/', methods=['GET'])
 def testing_extraction():
     test = Testing()
     return test.main()
-
 
 
 @app.before_request
