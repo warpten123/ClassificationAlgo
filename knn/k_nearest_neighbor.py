@@ -17,15 +17,14 @@ class KNN():
         for i, score in enumerate(sorted_scores):
             label = sorted_labels[i]
             index = label_mapping[label]
-            weighted_votes[index] += score
-            print(weighted_votes[index])
+            weighted_votes[index] += scor
         predicted_index = np.argmax(weighted_votes)
         predicted_label = list(label_mapping.keys())[list(
             label_mapping.values()).index(predicted_index)]
 
         return predicted_label
 
-    def knn_classifier(self, cosine_similarity, k):
+    def knn_classifier(self, cosine_similarity, k):  # the value of K is 5
         cosine_similarityList = list(cosine_similarity.values())
         goals = list(cosine_similarity.keys())
         nearest_labels = goals[:k]

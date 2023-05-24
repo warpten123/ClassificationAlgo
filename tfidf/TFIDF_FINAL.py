@@ -1,4 +1,5 @@
 
+import time
 import pdfplumber
 import re
 import csv
@@ -236,6 +237,7 @@ class Processing():
         return temp
 
     def createTFIDF(self, rawText):
+        start_time = time.time()
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
                  'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
                  'Goal 13',
@@ -262,6 +264,9 @@ class Processing():
         idf = TFIDF.inverse_frequency(merge, tf)
         tf_idf = TFIDF.calculateTFIDF(tf, idf, tf_idf)
         tf_idf = TFIDF.convertingToDP(tf_idf)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print("Execution time:", execution_time, "seconds")
         return tf_idf
 
     def insertNewData(self, result={}):

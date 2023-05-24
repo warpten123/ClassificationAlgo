@@ -2,6 +2,7 @@ import csv
 import glob
 import math
 import os
+import time
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -10,6 +11,8 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import pdfplumber
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class Cosine():
@@ -110,7 +113,7 @@ class Cosine():
 
         return tf_idf
 
-    def getTFIDF(self, documents):
+    def getTFIDF(self, documents, testing):
         tv, tf, final = [{}], [{}], [{}]
         index = 1
         if (self.checkDataSet() == False):
@@ -131,24 +134,15 @@ class Cosine():
             tv.append(self.getTerm(unique, len(listOfTokens), listOfTokens))
         tf.pop(0)
         tv.pop(0)
-        df = pd.DataFrame.from_dict(tv[17], orient='index', columns=['Value'])
-        print("new", df)
-        df2 = pd.DataFrame.from_dict(tf[17], orient='index', columns=['Value'])
-        print("new", df2)
         idf = self.inverse(unique, preProcessedDocs, tv)
-        df3 = pd.DataFrame.from_dict(idf, orient='index', columns=['Value'])
-        print(df3)
         final = self.calculateTFIDF(tf, idf, final)
         final.pop(0)
-        df4 = pd.DataFrame.from_dict(
-            final[17], orient='index', columns=['Value'])
-        print(df4)
         values = []
         for doc in final:
             values.append(doc.values())
-        tf_idf = self.convertingToDP(final)
+        if (testing == False):
+            tf_idf = self.convertingToDP(final)
         df = pd.DataFrame(values[17], columns=["Items"])
-        print(df)
         return values
 
     def check_if_list(self, param):
@@ -163,8 +157,20 @@ class Cosine():
         df2.to_csv('tfidf/Results/TFIDF.csv')
         return df2
 
+    def heatMap(self, tf_idf):
+        df = pd.DataFrame.from_dict(tf_idf)
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(df, cmap='Blues', annot=True, fmt='.2f')
+        plt.title('TF-IDF Visualization')
+        plt.xlabel('Words')
+        plt.ylabel('Documents')
+        plt.show()
+        # df2 = df.replace(np.nan, 0)
+        # df2.to_csv('tfidf/Results/TFIDF.csv')
+        # return df2
+
     def getCosine(self, oldDoc, count):
-        newVector = oldDoc[len(oldDoc)-1]
+        newVector, cosine = oldDoc[len(oldDoc)-1], []
         counter = 0
         classifier = {}
         del oldDoc[-1]
@@ -184,14 +190,13 @@ class Cosine():
                 sum(component ** 2 for component in newVector))
             magnitude2 = math.sqrt(sum(component ** 2 for component in val2))
             magnitude = magnitude1 * magnitude2
-            print(goals[counter], " ", dotProduct, magnitude)
+            cosine.append(round(dotProduct/magnitude, 5))
             percent = round(
                 (dotProduct / magnitude) * 100, 2)
             classifier[goals[counter]] = percent
             counter += 1
         sorted_dict = dict(
             sorted(classifier.items(), key=lambda item: item[1], reverse=True))
-        print(sorted_dict)
         return sorted_dict
 
     def get_cosine_matrix(self, oldDoc):
@@ -267,7 +272,8 @@ class Cosine():
                     string = ""
         return extractedTraining
 
-    def classifyResearch(self, data):
+    def classifyResearch(self, data, testing):
+        start_time = time.time()
         count = 0
         trainingDocs, newDocs = [], []
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
@@ -284,9 +290,13 @@ class Cosine():
             newDocs.append(data)
             newData = self.preprocess_documents(newDocs)
             data = newData[0]
-            print("PreProcessed", data)
+
         trainingDocs.append(data)
-        values = self.getTFIDF(trainingDocs)
+        values = self.getTFIDF(trainingDocs, testing)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        # print("Classify without training Execution time:",
+        #       execution_time, "seconds")
         count += 1
         if (self.checkLastData()):
             self.removeNewData()

@@ -1,3 +1,4 @@
+import time
 import pdfplumber
 import os
 from tfidf.text_processing import PreProcessing
@@ -10,21 +11,24 @@ class Helper:
         return True
 
     def main_logic(self, filename):
+        start_time = time.time()
         appendedData = ""
         abstract = self.getFromPDFAbstract(filename)
         introduction = self.getFromPDFIntro(filename)
         method = self.getFromPDFMethod(filename)
         appendedData = abstract + introduction + method
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print("Execution time:", execution_time, "seconds")
         return {'abstract': abstract, 'introduction': introduction, 'method': method, 'appendedData': appendedData}
-  
 
     def passDataToClassify(data):
         return data
 
     def getFromPDFAbstract(self, filename):
         count = 1
-        finalText,final_abstract = " ", " "
-        limitPages,currentPage = 10,0
+        finalText, final_abstract = " ", " "
+        limitPages, currentPage = 10, 0
         with pdfplumber.open('assets/upload/' + filename) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
@@ -44,8 +48,8 @@ class Helper:
 
     def getFromPDFIntro(self, filename):
         count = 1
-        finalText,final_intro = " "," "
-        limitPages,currentPage = 10,0
+        finalText, final_intro = " ", " "
+        limitPages, currentPage = 10, 0
         with pdfplumber.open('assets/upload/' + filename) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
@@ -210,6 +214,7 @@ class Helper:
         return endorsement
 
     def acceptanceChecker(self, filename):
+        start_time = time.time()
         go = False
         endorsement = " "
         if (self.checkPages(filename) >= 5):
@@ -220,6 +225,9 @@ class Helper:
                 os.remove("assets/upload/" + filename)
         else:
             os.remove("assets/upload/" + filename)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print("Execution time:", execution_time, "seconds")
         return go
 
     # def getIntroduction(self,processedText,page):

@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import time
 import Python_Backend as backend
 from information_extraction.document_extractor import DocumentExtractor
 import re
@@ -32,11 +33,16 @@ class InformationExtraction:
         self.nlp = spacy.load("en_core_web_sm")
 
     def extract_information(self, fromNode):
+        start_time = time.time()
+
         print(self.document_path)
         extractor = DocumentExtractor(self.document_path)
         extracted_text = extractor.extract_text_from_document()
         if extracted_text is not None:
             information = self.process_extracted_text(extracted_text, fromNode)
+            end_time = time.time()
+            execution_time = end_time - start_time
+            print("Execution Time Information Extraction: ", execution_time)
             return information
         else:
             print('Invalid file format. Please upload a PDF file.')
@@ -246,10 +252,10 @@ class InformationExtraction:
                 extracted_date = date_parser.parse(
                     extracted_date_str[0], fuzzy=True)
             if not extracted_date:
-                date_formats = [          
+                date_formats = [
                     '%B %d, %Y',
                     '%B %Y',             # Month Year (e.g. March 2020)
-                    '%m/%Y',             # Month/Year (e.g. 03/2020)          
+                    '%m/%Y',             # Month/Year (e.g. 03/2020)
                     '%b %Y',
                     # Month Year without slash (e.g. 03 2020)
                     '%m %Y',

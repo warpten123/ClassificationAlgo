@@ -1,6 +1,7 @@
 
 
 
+import time
 from flask import Flask, request, jsonify
 from flask_ngrok import run_with_ngrok
 from flask_cors import CORS
@@ -13,12 +14,13 @@ from collections import OrderedDict
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
-from information_extraction.testing_extraction import Testing
-from knn.cosine import Cosine
-from tfidf.extraction_helper import Helper
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
+from knn.testing import Testing
 from tfidf.TFIDF_FINAL import Processing
+from knn.k_nearest_neighbor import KNN
+from information_extraction.main import InformationExtraction
+from tfidf.extraction_helper import Helper
+from knn.cosine import Cosine
+
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
 sys.path.insert(0, 'knn\testing.py')
 sys.path.insert(0, 'information_extraction\testing_extraction.py')
@@ -52,47 +54,6 @@ def upload_file():
     path_directory = "assets/upload"
     # CAN ADD CHECKER HERE IN UPLOAD WHAT'S THE BETTER WAY? LAHI OR I SAGOL NALANG ARI? FOR NOW LAHI LANG NGA ENDPOINT
     file.save(os.path.join('assets', 'upload', filename))
-    # helper = Helper()
-    # go = helper.acceptanceChecker(filename)
-    # if (go != True):
-    #     result = {'status': 'failed',
-    #               'message': 'Chosen FIle Does Not Meet the Standard Requirement'}
-    # else:
-    #     file.save(os.path.join('assets', 'upload', filename))
-    #     result = {'status': 'success',
-    #               'message': 'File Uploaded Successfullu!'}
-
-    # file.save(os.path.join('assets', 'upload', filename))
-    # if not any(os.scandir(path_directory)):
-    #     file.save(os.path.join('assets', 'upload', filename))
-    #     result = {'status': 'success',
-    #               'message': 'File uploaded successfully.'}
-    # else:
-    #     file.save(os.path.join('assets', 'temp', filename))
-    #     info_extractor = InformationExtraction(filename)
-    #     output = info_extractor.extract_information()
-    #     if output is not None:
-    #         go = info_extractor.main_DuplicateChecker()
-    #         if (go == False):
-    #             result = {'status': 'success',
-    #                       'message': 'File uploaded successfully.'}
-    #             file.save(os.path.join('assets', 'upload', filename))
-    #         else:
-    #             result = {'status': 'failed', 'message': 'Duplicate File'}
-
-    # file.save(os.path.join('assets', 'temp', filename))
-    # # Save the uploaded file to /assets/upload directory
-
-    # info_extractor = InformationExtraction(filename)
-    # output = info_extractor.extract_information()
-    # if output is not None:
-    #     go = info_extractor.main_DuplicateChecker()
-    #     if(go == False):
-    #         result = {'status': 'success', 'message': 'File uploaded successfully.'}
-    #         file.save(os.path.join('assets', 'upload', filename))
-    #     else:
-    #         result = {'status': 'failed', 'message': 'Duplicate File'}
-
     return result
 
 # Route for information extraction
@@ -101,11 +62,12 @@ def upload_file():
 @app.route('/python/information_extraction/<filename>', methods=['GET'])
 def information_extraction_route(filename):
     # Instantiate InformationExtraction class
+   
     info_extractor = InformationExtraction(filename)
     fromNode = getDataFromNode()
     # for i in range(len(fromNode)):
     #     print(fromNode[i]['school_id'])
-
+  
     output = info_extractor.extract_information(fromNode)
     return jsonify(output)
 
@@ -206,7 +168,7 @@ def classify(filename):
     cosine = Cosine()
     knn = KNN()
     appendedData = helper.main_logic(filename)
-    data = cosine.classifyResearch(appendedData['appendedData'])
+    data = cosine.classifyResearch(appendedData['appendedData'], False)
     predict = knn.knn_classifier(data, 5)
     sorted_dict = dict(sorted(predict.items(), key=lambda item: item[1]))
 
@@ -229,10 +191,11 @@ def matrix(filename):
     return cosine.get_cosine_matrix(filename)
 
 
-@app.route('/python/testing_extraction/', methods=['GET'])
-def testing_extraction():
-    test = Testing()
-    return test.main()
+@app.route('/python/accuracy', methods=['GET'])
+def accuracy():
+    testing = Testing()
+
+    return testing.extractAllPDF()
 
 
 @app.before_request
