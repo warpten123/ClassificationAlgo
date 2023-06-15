@@ -116,6 +116,7 @@ class Cosine():
     def getTFIDF(self, documents, testing):
         tv, tf, final = [{}], [{}], [{}]
         index = 1
+
         if (self.checkDataSet() == False):
             preProcessedDocs = self.preprocess_documents(documents)
             unique = self.getUniqueWords(preProcessedDocs, False)
@@ -140,9 +141,10 @@ class Cosine():
         values = []
         for doc in final:
             values.append(doc.values())
+        self.test(values[0])
+
         if (testing == False):
             tf_idf = self.convertingToDP(final)
-        df = pd.DataFrame(values[17], columns=["Items"])
         return values
 
     def check_if_list(self, param):
@@ -154,6 +156,7 @@ class Cosine():
     def convertingToDP(self, tf_idf):
         df = pd.DataFrame.from_dict(tf_idf)
         df2 = df.replace(np.nan, 0)
+        df2.drop(df2.columns[0], axis=1, inplace=True)
         df2.to_csv('tfidf/Results/TFIDF.csv')
         return df2
 
@@ -169,13 +172,30 @@ class Cosine():
         # df2.to_csv('tfidf/Results/TFIDF.csv')
         # return df2
 
+    def TFIDFForConfusion(self, documents, testing):
+        tv, tf, final = [{}], [{}], [{}]
+        index = 1
+        preProcessedDocs = documents
+        unique = self.getUniqueWords(preProcessedDocs, True)
+
+        for listOfTokens in preProcessedDocs:
+            tf.append(self.getTermFreq(
+                unique, len(listOfTokens), listOfTokens))
+            tv.append(self.getTerm(unique, len(listOfTokens), listOfTokens))
+        tf.pop(0)
+        tv.pop(0)
+        idf = self.inverse(unique, preProcessedDocs, tv)
+        final = self.calculateTFIDF(tf, idf, final)
+        final.pop(0)
+        return final
+
     def getCosine(self, oldDoc, count):
         newVector, cosine = oldDoc[len(oldDoc)-1], []
         counter = 0
         classifier = {}
         del oldDoc[-1]
         goals = ["Goal 1: No Poverty", "Goal 2: Zero Hunger", "Goal 3: Good Health and Well-Being", "Goal 4: Quality Education", "Goal 5: Gender Equality", "Goal 6: Clean Water and Sanitation", "Goal 7: Affordable and Clean Energy", "Goal 8: Decent Work and Economic Growth",
-                 "Goal 9: Industry, Innovation, and Infrastrucuture", "Goal 10: Reduced Inequalities", "Goal 11: Sustainable Cities and Communities", "Goal 12: Responsible Consumption and Production", "Goal 13: Climate Action", "Goal 14: Life Below Water", "Goal 15: Life on Land", "Goal 16: Peace, Justice and Strong Institutions", "Goal 17: Partnership for the Goals"
+                 "Goal 9: Industry, Innovation, and Infrastructure", "Goal 10: Reduced Inequalities", "Goal 11: Sustainable Cities and Communities", "Goal 12: Responsible Consumption and Production", "Goal 13: Climate Action", "Goal 14: Life Below Water", "Goal 15: Life on Land", "Goal 16: Peace, Justice and Strong Institutions", "Goal 17: Partnership for the Goals"
                  ]
         for val in oldDoc:
             val2 = val
@@ -195,8 +215,10 @@ class Cosine():
                 (dotProduct / magnitude) * 100, 2)
             classifier[goals[counter]] = percent
             counter += 1
+
         sorted_dict = dict(
             sorted(classifier.items(), key=lambda item: item[1], reverse=True))
+
         return sorted_dict
 
     def get_cosine_matrix(self, oldDoc):
@@ -214,9 +236,10 @@ class Cosine():
         return str(count)
 
     def csvToDict(self):  # not used
-        with open('tfidf/Results/TFIDF.csv') as f:
+        with open('tfidf/Results/TFIDF.csv', encoding="utf8") as f:
             a = [{k: float(v) for k, v in row.items()}
                  for row in csv.DictReader(f, skipinitialspace=True)]
+        print("FROM CSV GOAL 1: ", a[0])
         return a
 
     def extractAllPDF(self, goal):
@@ -272,6 +295,24 @@ class Cosine():
                     string = ""
         return extractedTraining
 
+    def trainingPhase(self):
+        print("Starting Training")
+        trainingDocs = []
+        goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
+                 'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
+                 'Goal 13',
+                 'Goal 14', 'Goal 15', 'Goal 16', 'Goal 17'
+                 ]
+        for goal in goals:
+            trainingData = self.extractAllPDF(goal)
+            trainingDocs.append(trainingData)
+        self.getTFIDF(trainingDocs, False)
+        print("End Training")
+
+    def test(self, training):
+        with open(r"tfidf/Results/" + "test.txt", 'w', encoding="utf8") as fp:
+            fp.write(str(training))
+
     def classifyResearch(self, data, testing):
         start_time = time.time()
         count = 0
@@ -293,14 +334,21 @@ class Cosine():
 
         trainingDocs.append(data)
         values = self.getTFIDF(trainingDocs, testing)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        # print("Classify without training Execution time:",
-        #       execution_time, "seconds")
         count += 1
         if (self.checkLastData()):
             self.removeNewData()
-        return self.getCosine(values, count)
+        result = self.getCosine(values, count)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print("Classify Time: ", execution_time, " seconds")
+        return result
+        # a = self.csvToDict()
+        # values = []
+        # del a[-1]
+        # for i in range(len(a)):
+        #     values.append(a[i].values())
+        # self.getCosine(values, 0)
+        # return "test"
 
 
 ##

@@ -1,6 +1,5 @@
 
 
-
 import time
 from flask import Flask, request, jsonify
 from flask_ngrok import run_with_ngrok
@@ -14,17 +13,18 @@ from collections import OrderedDict
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
+
+sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
+sys.path.insert(0, 'knn\testing.py')
+sys.path.insert(0, 'information_extraction\testing_extraction.py')
+uri = 'http://127.0.0.1:3000'
 from knn.testing import Testing
 from tfidf.TFIDF_FINAL import Processing
 from knn.k_nearest_neighbor import KNN
 from information_extraction.main import InformationExtraction
 from tfidf.extraction_helper import Helper
 from knn.cosine import Cosine
-
-sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
-sys.path.insert(0, 'knn\testing.py')
-sys.path.insert(0, 'information_extraction\testing_extraction.py')
-uri = 'http://127.0.0.1:3000'
+from knn.tfidf_only_confusion import ONLY
 # uri = 'http://192.168.143.57:3000'
 app = Flask(__name__)
 # run_with_ngrok(app)
@@ -62,12 +62,12 @@ def upload_file():
 @app.route('/python/information_extraction/<filename>', methods=['GET'])
 def information_extraction_route(filename):
     # Instantiate InformationExtraction class
-   
+
     info_extractor = InformationExtraction(filename)
     fromNode = getDataFromNode()
     # for i in range(len(fromNode)):
     #     print(fromNode[i]['school_id'])
-  
+
     output = info_extractor.extract_information(fromNode)
     return jsonify(output)
 
@@ -191,10 +191,19 @@ def matrix(filename):
     return cosine.get_cosine_matrix(filename)
 
 
+@app.route('/python/testing_TFIDF/<filename>', methods=['GET'])
+def tfidf(filename):
+    testing = ONLY()
+    helper = Helper()
+    cosine = Cosine()
+    knn = KNN()
+    appendedData = helper.main_logic(filename)
+    return testing.getTFIDF(appendedData['appendedData'])
+
+
 @app.route('/python/accuracy', methods=['GET'])
 def accuracy():
     testing = Testing()
-
     return testing.extractAllPDF()
 
 

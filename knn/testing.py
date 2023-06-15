@@ -51,7 +51,6 @@ class Testing():
         return finalRes
 
     def accuracyTesting(self, finalRes, fileName):
-        print(fileName)
         goals = ["Goal 1: No Poverty", "Goal 2: Zero Hunger", "Goal 3: Good Health and Well-Being", "Goal 4: Quality Education",
                  "Goal 5: Gender Equality", "Goal 6: Clean Water and Sanitation", "Goal 7: Affordable and Clean Energy",
                  "Goal 8: Decent Work and Economic Growth", "Goal 9: Industry, Innovation, and Infrastrucuture",
@@ -72,14 +71,14 @@ class Testing():
         correctLabels['Test Set 5.pdf'] = ['Goal 11: Sustainable Cities and Communities', 'Goal 4: Quality Education',
                                            'Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture']
         correctLabels['Test Set 6.pdf'] = ['Goal 3: Good Health and Well-Being', 'Goal 4: Quality Education',
-                                           'Goal 8: Decent Work and Economic Growth',]
+                                           'Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture']
         correctLabels['Test Set 7.pdf'] = ['Goal 1: No Poverty', 'Goal 4: Quality Education',
                                            'Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture']
         correctLabels['Test Set 8.pdf'] = ['Goal 9: Industry, Innovation, and Infrastrucuture', 'Goal 4: Quality Education',
                                            'Goal 8: Decent Work and Economic Growth'],
         correctLabels['Test Set 9.pdf'] = ['Goal 1: No Poverty', 'Goal 4: Quality Education',
                                            'Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture']
-        correctLabels['Test Set 10.pdf'] = ['Goal 1: No Poverty', 'Goal 4: Quality Education',
+        correctLabels['Test Set 10.pdf'] = ['Goal 3: Good Health and Well-Being', 'Goal 4: Quality Education',
                                             'Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture']
         correctLabels['Test Set 11.pdf'] = ['Goal 4: Quality Education',
                                             'Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture']
@@ -111,4 +110,6 @@ class Testing():
                 correct = True
             else:
                 correct = False
+            print(fileName, "\nExpected Labels: ",
+                  correctLabels[fileName], "\nActual Results: ", keys, "\nResult: ", correct)
         return correct

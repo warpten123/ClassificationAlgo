@@ -83,7 +83,8 @@ class InformationExtraction:
             elif (self.check_comma(listOfTokens[i])):
                 self.name_extractor_comma(listOfTokens[i])
         updated_list = [item.strip() for item in rawNames]
-        return updated_list
+        str = ','.join(updated_list)
+        return str
 
     def name_extractor_comma(self, list_of_names):
         tempName = ""

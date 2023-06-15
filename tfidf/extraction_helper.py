@@ -11,15 +11,11 @@ class Helper:
         return True
 
     def main_logic(self, filename):
-        start_time = time.time()
         appendedData = ""
         abstract = self.getFromPDFAbstract(filename)
         introduction = self.getFromPDFIntro(filename)
         method = self.getFromPDFMethod(filename)
         appendedData = abstract + introduction + method
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print("Execution time:", execution_time, "seconds")
         return {'abstract': abstract, 'introduction': introduction, 'method': method, 'appendedData': appendedData}
 
     def passDataToClassify(data):
@@ -206,7 +202,7 @@ class Helper:
     def endorsementChecker(self, text):
         endorsement = False
         count = 0
-        if (("Endorsement" in text or "ENDORSEMENT" in text)
+        if ((("Endorsement" in text or "ENDORSEMENT" in text) or ("APPROVAL SHEET" in text or "Approval Sheet" in text))
            and ("TABLE OF CONTENTS" not in text or "Table of Contents" not in text)):
             endorsement = True
         else:
