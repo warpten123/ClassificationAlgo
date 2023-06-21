@@ -1,5 +1,7 @@
 
 
+
+import json
 import time
 from flask import Flask, request, jsonify
 from flask_ngrok import run_with_ngrok
@@ -17,14 +19,14 @@ sys.path.append(parent_dir)
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
 sys.path.insert(0, 'knn\testing.py')
 sys.path.insert(0, 'information_extraction\testing_extraction.py')
-uri = 'http://127.0.0.1:3000'
-from knn.testing import Testing
-from tfidf.TFIDF_FINAL import Processing
-from knn.k_nearest_neighbor import KNN
-from information_extraction.main import InformationExtraction
-from tfidf.extraction_helper import Helper
-from knn.cosine import Cosine
 from knn.tfidf_only_confusion import ONLY
+from knn.cosine import Cosine
+from tfidf.extraction_helper import Helper
+from information_extraction.main import InformationExtraction
+from knn.k_nearest_neighbor import KNN
+from tfidf.TFIDF_FINAL import Processing
+from knn.testing import Testing
+uri = 'http://127.0.0.1:3000'
 # uri = 'http://192.168.143.57:3000'
 app = Flask(__name__)
 # run_with_ngrok(app)
@@ -83,6 +85,14 @@ def information_extraction_route(filename):
 
 #     # Return extracted information as JSON
 #     return jsonify(go)
+
+@app.route('/python/knn/predict/<filename>', methods=['GET'])
+def getKNN(filename):
+    classification = KNN()
+    helper = Helper()
+    data = helper.main_logic(filename)
+    result = classification.testing(data['appendedData'])
+    return jsonify(result)
 
 
 @app.route('/python/knn', methods=['GET'])

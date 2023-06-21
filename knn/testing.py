@@ -102,6 +102,15 @@ class Testing():
                                             'Goal 8: Decent Work and Economic Growth', 'Goal 2: Zero Hunger']
         correctLabels['Test Set 21.pdf'] = ['Goal 8: Decent Work and Economic Growth', 'Goal 16: Peace, Justice and Strong Institutions',
                                             'Goal 3: Good Health and Well-Being', 'Goal 2: Zero Hunger']
+        correctLabels['Test Set 22.pdf'] = ['Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture',
+                                            'Goal 3: Good Health and Well-Being']
+        correctLabels['Test Set 23.pdf'] = ['Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture',
+                                            'Goal 3: Good Health and Well-Being']
+        correctLabels['Test Set 24.pdf'] = ['Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture',
+                                            'Goal 3: Good Health and Well-Being']
+        correctLabels['Test Set 25.pdf'] = ['Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture',
+                                            'Goal 3: Good Health and Well-Being']
+
         if (fileName in correctLabels):
             keys = list(finalRes.keys())
             keys2 = list(correctLabels[fileName])

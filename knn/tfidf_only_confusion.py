@@ -1,3 +1,4 @@
+import time
 from knn.cosine import Cosine
 
 
@@ -45,6 +46,7 @@ rules["Goal 17"] = ['partnerships', 'collaboration',
 
 class ONLY:
     def getTFIDF(self, data):
+        start_time = time.time()
         newDocs = []
         trainingDocs = cons.extractTraining()
         newDocs.append(data)
@@ -55,15 +57,14 @@ class ONLY:
         count = 1
         newDoc = listOfDict[len(listOfDict)-1]
         del listOfDict[-1]
-        return self.compare(newDoc)
+        result = self.compare(newDoc)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print("Execution time:", execution_time, "seconds")
+        return result
 
     def compare(self, dic):
-        # count = 1
-        # for goal in rules.values():
-        #     print(count)
-        #     if str in goal:
-        #         print(str, dic[str])
-        #     count += 1
+
         total_goal, temp = [], []
         total = 1
         testing, final, super_final_dict = {}, {}, {}
@@ -125,6 +126,7 @@ class ONLY:
         sorted_dict = dict(
             sorted(super_final_dict.items(), key=lambda item: item[1], reverse=True))
         print(sorted_dict)
+
         return sorted_dict
 
         # total += 1

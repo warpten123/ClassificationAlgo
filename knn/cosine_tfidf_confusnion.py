@@ -1,7 +1,52 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Example confusion matrix (17x17)
+
+# confusion_matrix = np.array([
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 1
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 2
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 3
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 4
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 5
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 6
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 7
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 8
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 9
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 10
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 11
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 12
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 13
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 14
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 15
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 16
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]   # 17
+#     # 1 2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17
+# ])
+
+# TFIDF ONLY
+confusion_matrix = np.array([
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 1
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0],  # 2
+    [2, 0, 2, 1, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0],  # 3
+    [0, 0, 0, 3, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0],  # 4
+    [0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0],  # 5
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 6
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 7
+    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 8
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 9
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 10
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 11
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 12
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 13
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 14
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 15
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 16
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]   # 17
+    # 1 2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17
+])
+
+
+# TFIDF COSINE
 # confusion_matrix = np.array([
 
 #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0],  # 1
@@ -23,60 +68,60 @@ import matplotlib.pyplot as plt
 #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # 17
 # ])
 
-# # Define SDG goals' names
-# sdg_goals = [
-#     "Goal 1",
-#     "Goal 2",
-#     "Goal 3",
-#     "Goal 4",
-#     "Goal 5",
-#     "Goal 6",
-#     "Goal 7",
-#     "Goal 8",
-#     "Goal 9",
-#     "Goal 10",
-#     "Goal 11",
-#     "Goal 12",
-#     "Goal 13",
-#     "Goal 14",
-#     "Goal 15",
-#     "Goal 16",
-#     "Goal 17",
-# ]
+# Define SDG goals' names
+sdg_goals = [
+    "Goal 1",
+    "Goal 2",
+    "Goal 3",
+    "Goal 4",
+    "Goal 5",
+    "Goal 6",
+    "Goal 7",
+    "Goal 8",
+    "Goal 9",
+    "Goal 10",
+    "Goal 11",
+    "Goal 12",
+    "Goal 13",
+    "Goal 14",
+    "Goal 15",
+    "Goal 16",
+    "Goal 17",
+]
 
-# # Create figure and axis
-# fig, ax = plt.subplots(figsize=(5, 5))
+# Create figure and axis
+fig, ax = plt.subplots(figsize=(5, 5))
 
-# # Create heatmap
-# heatmap = ax.imshow(confusion_matrix, cmap='Blues')
+# Create heatmap
+heatmap = ax.imshow(confusion_matrix, cmap='Blues')
 
-# # Set title and labels
-# ax.set_title("Confusion Matrix - TDIDF + Cosine Similarity")
-# ax.set_xlabel("Predicted Goals")
-# ax.set_ylabel("True Goals")
+# Set title and labels
+ax.set_title("Confusion Matrix - TDIDF ONLY")
+ax.set_xlabel("Expected Goals")
+ax.set_ylabel("Actual Goals")
 
-# # Set tick labels
-# ax.set_xticks(np.arange(len(sdg_goals)))
-# ax.set_yticks(np.arange(len(sdg_goals)))
-# ax.set_xticklabels(sdg_goals, rotation=90)
-# ax.set_yticklabels(sdg_goals)
+# Set tick labels
+ax.set_xticks(np.arange(len(sdg_goals)))
+ax.set_yticks(np.arange(len(sdg_goals)))
+ax.set_xticklabels(sdg_goals, rotation=90)
+ax.set_yticklabels(sdg_goals)
 
-# # Set threshold for text color
-# threshold = confusion_matrix.max() / 2
+# Set threshold for text color
+threshold = confusion_matrix.max() / 2
 
-# # Iterate over data and create text annotations
-# for i in range(len(sdg_goals)):
-#     for j in range(len(sdg_goals)):
-#         text_color = 'white' if confusion_matrix[i, j] > threshold else 'black'
-#         ax.text(j, i, confusion_matrix[i, j],
-#                 ha='center', va='center', color=text_color)
+# Iterate over data and create text annotations
+for i in range(len(sdg_goals)):
+    for j in range(len(sdg_goals)):
+        text_color = 'white' if confusion_matrix[i, j] > threshold else 'black'
+        ax.text(j, i, confusion_matrix[i, j],
+                ha='center', va='center', color=text_color)
 
-# # Add colorbar
-# cbar = plt.colorbar(heatmap)
+# Add colorbar
+cbar = plt.colorbar(heatmap)
 
-# # Show the plot
-# plt.tight_layout()
-# plt.show()
+# Show the plot
+plt.tight_layout()
+plt.show()
 # confusion_matrix[np.isnan(confusion_matrix)] = 0
 # accuracy = np.trace(confusion_matrix) / np.sum(confusion_matrix)
 # precision = np.diag(confusion_matrix) / np.where(np.sum(confusion_matrix,
@@ -244,7 +289,6 @@ import matplotlib.pyplot as plt
 
 
 # plt.show()
-import numpy as np
 
 # # Define the matrix
 # matrix = np.array([
@@ -322,76 +366,76 @@ import numpy as np
 # print(f"Total FN: {total_fn}")
 
 # Add a row of zeros for the missing row
-matrix = np.array([
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0],  # 1
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 2
-    [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 3
-    [0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],  # 4
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 5
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 6
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 7
-    [0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0],  # 8
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0],  # 9
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 10
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],  # 11
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 12
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 13
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 14
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],  # 15
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],  # 16
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]   # 17
-])
+# matrix = np.array([
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0],  # 1
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 2
+#     [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 3
+#     [0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],  # 4
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 5
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 6
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 7
+#     [0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0],  # 8
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0],  # 9
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 10
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],  # 11
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 12
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 13
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # 14
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],  # 15
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],  # 16
+#     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]   # 17
+# ])
 
-# Calculate TP, FP, TN, FN for each class
-TP = np.diag(matrix)
-FP = np.sum(matrix, axis=0) - TP
-FN = np.sum(matrix, axis=1) - TP
-TN = np.sum(matrix) - (TP + FP + FN)
-print(f"Total TP: {np.sum(TP)}")
-print(f"Total FP: {np.sum(FP)}")
-print(f"Total TN: {np.sum(TN)}")
-print(f"Total FN: {np.sum(FN)}")
-# Calculate precision, recall, and F1 score for each class
-denominator = TP + FP
-precision = np.where(denominator == 0, 0, TP / denominator)
-recall = np.where(TP + FN == 0, 0, TP / (TP + FN))
-f1_score = np.where((precision + recall) == 0, 0, 2 *
-                    (precision * recall) / (precision + recall))
-accuracy_per_class = np.diag(matrix) / np.sum(matrix, axis=1)
-accuracy_per_class[np.isnan(accuracy_per_class)] = 0
-average_accuracy = np.nanmean(accuracy_per_class)
-print(accuracy_per_class)
-non_zero_indices = np.nonzero(TP)  # Get the indices of non-zero TP values
-average_precision = np.mean(precision[non_zero_indices])
-average_recall = np.mean(recall[non_zero_indices])
-average_f1_score = np.mean(f1_score[non_zero_indices])
+# # Calculate TP, FP, TN, FN for each class
+# TP = np.diag(matrix)
+# FP = np.sum(matrix, axis=0) - TP
+# FN = np.sum(matrix, axis=1) - TP
+# TN = np.sum(matrix) - (TP + FP + FN)
+# print(f"Total TP: {np.sum(TP)}")
+# print(f"Total FP: {np.sum(FP)}")
+# print(f"Total TN: {np.sum(TN)}")
+# print(f"Total FN: {np.sum(FN)}")
+# # Calculate precision, recall, and F1 score for each class
+# denominator = TP + FP
+# precision = np.where(denominator == 0, 0, TP / denominator)
+# recall = np.where(TP + FN == 0, 0, TP / (TP + FN))
+# f1_score = np.where((precision + recall) == 0, 0, 2 *
+#                     (precision * recall) / (precision + recall))
+# accuracy_per_class = np.diag(matrix) / np.sum(matrix, axis=1)
+# accuracy_per_class[np.isnan(accuracy_per_class)] = 0
+# average_accuracy = np.nanmean(accuracy_per_class)
+# print(accuracy_per_class)
+# non_zero_indices = np.nonzero(TP)  # Get the indices of non-zero TP values
+# average_precision = np.mean(precision[non_zero_indices])
+# average_recall = np.mean(recall[non_zero_indices])
+# average_f1_score = np.mean(f1_score[non_zero_indices])
 
-print("Average Precision: ", average_precision)
-print("Average Recall: ", average_recall)
-print("Average F1 Score:", average_f1_score)
-# Create the tables
-class_labels = range(1, matrix.shape[0] + 1)
+# print("Average Precision: ", average_precision)
+# print("Average Recall: ", average_recall)
+# print("Average F1 Score:", average_f1_score)
+# # Create the tables
+# class_labels = range(1, matrix.shape[0] + 1)
 
-table1_data = np.array([TP, FP, TN, FN]).T
-table1_columns = ["TP", "FP", "TN", "FN"]
-table1_rows = [f"Goal {label}" for label in class_labels]
+# table1_data = np.array([TP, FP, TN, FN]).T
+# table1_columns = ["TP", "FP", "TN", "FN"]
+# table1_rows = [f"Goal {label}" for label in class_labels]
 
-table2_data = np.array([precision, recall, f1_score]).T
-table2_columns = ["Precision", "Recall", "F1 Score"]
-table2_rows = [f"Goal1 {label}" for label in class_labels]
+# table2_data = np.array([precision, recall, f1_score]).T
+# table2_columns = ["Precision", "Recall", "F1 Score"]
+# table2_rows = [f"Goal1 {label}" for label in class_labels]
 
-# Plot the tables
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+# # Plot the tables
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
-ax1.axis("off")
-ax1.table(cellText=table1_data, colLabels=table1_columns,
-          rowLabels=table1_rows, loc="center")
-ax1.set_title("Confusion Matrix")
+# ax1.axis("off")
+# ax1.table(cellText=table1_data, colLabels=table1_columns,
+#           rowLabels=table1_rows, loc="center")
+# ax1.set_title("Confusion Matrix")
 
-ax2.axis("off")
-ax2.table(cellText=table2_data, colLabels=table2_columns,
-          rowLabels=table2_rows, loc="center")
-ax2.set_title("Metrics")
+# ax2.axis("off")
+# ax2.table(cellText=table2_data, colLabels=table2_columns,
+#           rowLabels=table2_rows, loc="center")
+# ax2.set_title("Metrics")
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
