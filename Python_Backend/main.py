@@ -19,13 +19,6 @@ sys.path.append(parent_dir)
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
 sys.path.insert(0, 'knn\testing.py')
 sys.path.insert(0, 'information_extraction\testing_extraction.py')
-from knn.tfidf_only_confusion import ONLY
-from knn.cosine import Cosine
-from tfidf.extraction_helper import Helper
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
-from tfidf.TFIDF_FINAL import Processing
-from knn.testing import Testing
 uri = 'http://127.0.0.1:3000'
 # uri = 'http://192.168.143.57:3000'
 app = Flask(__name__)
@@ -34,7 +27,13 @@ CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={
             r"/returnAscii": {"origins": "*"}})
-
+from knn.tfidf_only_confusion import ONLY
+from knn.cosine import Cosine
+from tfidf.extraction_helper import Helper
+from information_extraction.main import InformationExtraction
+from knn.k_nearest_neighbor import KNN
+from tfidf.TFIDF_FINAL import Processing
+from knn.testing import Testing
 
 @app.route('/api', methods=['GET'])
 def returnAscii():
@@ -67,7 +66,7 @@ def information_extraction_route(filename):
 
     info_extractor = InformationExtraction(filename)
     fromNode = getDataFromNode()
-    # for i in range(len(fromNode)):
+    # for i in range(len(fromNode)):extractAllPDF
     #     print(fromNode[i]['school_id'])
 
     output = info_extractor.extract_information(fromNode)
@@ -86,13 +85,22 @@ def information_extraction_route(filename):
 #     # Return extracted information as JSON
 #     return jsonify(go)
 
-@app.route('/python/knn/predict/<filename>', methods=['GET'])
-def getKNN(filename):
+@app.route('/python/knn/testing/', methods=['GET']) ## AUTOMATED TESTING SA KNN 
+def getKNN():
+    classification = KNN()
+    # helper = Helper()
+    # data = helper.main_logic(filename)
+    classification.automated_testing()
+    return "test"
+
+
+@app.route('/python/knn/scatter_plot/<filename>', methods=['GET']) ## LEGIT NGA KNN I SPECIFY ANG VALUE SA K, KANANG SECOND PARAMTER
+def scatter_plot(filename):
     classification = KNN()
     helper = Helper()
     data = helper.main_logic(filename)
-    result = classification.testing(data['appendedData'])
-    return jsonify(result)
+    classification.testing(data['appendedData'], 1)
+    return "test"
 
 
 @app.route('/python/knn', methods=['GET'])
@@ -172,7 +180,7 @@ def initializeDataSet():
     tfidf.createTFIDF(" ")
 
 
-@app.route('/python/classify/<filename>', methods=['GET'])
+@app.route('/python/classify/<filename>', methods=['GET']) #TFIDF + COSINE i nvm na ang knn calssifier, cosine gihapon na
 def classify(filename):
     helper = Helper()
     cosine = Cosine()
@@ -201,7 +209,7 @@ def matrix(filename):
     return cosine.get_cosine_matrix(filename)
 
 
-@app.route('/python/testing_TFIDF/<filename>', methods=['GET'])
+@app.route('/python/testing_TFIDF/<filename>', methods=['GET'])## TFIDF ONLY
 def tfidf(filename):
     testing = ONLY()
     helper = Helper()
@@ -211,7 +219,7 @@ def tfidf(filename):
     return testing.getTFIDF(appendedData['appendedData'])
 
 
-@app.route('/python/accuracy', methods=['GET'])
+@app.route('/python/accuracy', methods=['GET']) ##TESTING FOR TFIDF + COSINE
 def accuracy():
     testing = Testing()
     return testing.extractAllPDF()

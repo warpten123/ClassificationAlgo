@@ -1,6 +1,25 @@
 # from collections import Counter
 # import numpy as np
+from collections import Counter
+import glob
+import os
+import re
+import time
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+import numpy as np
+import pdfplumber
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.neighbors import KNeighborsClassifier
+from knn.cosine import Cosine
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 
+from tfidf.extraction_helper import Helper
 
 # class KNN():
 #     def majority_voting(self, cosine_similarity):
@@ -24,31 +43,9 @@
 
 #         return predicted_label
 
-#     def knn_classifier(self, cosine_similarity, k):  # the value of K is 5
-#         cosine_similarityList = list(cosine_similarity.values())
-#         goals = list(cosine_similarity.keys())
-#         nearest_labels = goals[:k]
-#         nearest_scores = cosine_similarityList[:k]
-#         weighted_votes = Counter()
-#         for i, label in enumerate(nearest_labels):
-#             weighted_votes[label] += nearest_scores[i]
-#         predicted_label = weighted_votes.most_common(4)
-#         resultDictionary = dict((x, y) for x, y in predicted_label)
-#         return resultDictionary
 
 #     def knn_rework(self)
-import re
-import time
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.neighbors import KNeighborsClassifier
-from knn.cosine import Cosine
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
+
 # Download NLTK resources (if not already downloaded)
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -63,6 +60,17 @@ cons = Cosine()
 
 
 class KNN():
+    def knn_classifier(self, cosine_similarity, k):  # the value of K is 5
+        cosine_similarityList = list(cosine_similarity.values())
+        goals = list(cosine_similarity.keys())
+        nearest_labels = goals[:k]
+        nearest_scores = cosine_similarityList[:k]
+        weighted_votes = Counter()
+        for i, label in enumerate(nearest_labels):
+            weighted_votes[label] += nearest_scores[i]
+        predicted_label = weighted_votes.most_common(4)
+        resultDictionary = dict((x, y) for x, y in predicted_label)
+        return resultDictionary
 
     def preprocess_text(self, document):
         # Remove special characters and convert to lowercase
@@ -79,7 +87,8 @@ class KNN():
         preprocessed_text = ' '.join(tokens)
         return preprocessed_text
 
-    def testing(self, data):
+    def testing(self, data, n):
+        exec = []
         start_time = time.time()
         trainingDocs = []
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
@@ -96,14 +105,13 @@ class KNN():
 
         # Fit and transform the preprocessed documents
         tfidf_matrix = vectorizer.fit_transform(preprocessed_documents)
-        print(tfidf_matrix)
         # Assuming you have a target variable indicating the UN SDG labels for each document
         target_labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
                          12, 13, 14, 15, 16]  # Replace with the actual labels
 
         # Initialize the KNeighborsClassifier
         # Specify the number of neighbors
-        knn_model = KNeighborsClassifier(n_neighbors=4)
+        knn_model = KNeighborsClassifier(n_neighbors=n)
         # Fit the model with the TF-IDF matrix and target labels
         knn_model.fit(tfidf_matrix, target_labels)
         # Preprocess the new document
@@ -114,8 +122,111 @@ class KNN():
 
         # Use the trained KNN model to predict the UN SDG label
         predicted_label = knn_model.predict(new_tfidf)
-        arr_str = np.array2string(predicted_label)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print("Execution time:", execution_time, "seconds")
-        return arr_str
+        # arr_str = np.array2string(predicted_label)
+        # end_time = time.time()
+        # execution_time = end_time - start_time
+        # exec.append(execution_time)
+#         cosine_similarities = cosine_similarity(new_tfidf, tfidf_matrix)
+
+# # Generate random colors for each training document
+#         training_colors = np.random.rand(len(trainingDocs))
+#         new_color = 'red'  # Color for the new document
+
+#         # Calculate the number of training documents and the index range
+#         num_training_docs = len(trainingDocs)
+#         training_indices = range(num_training_docs)
+
+#         # Create an array of indices for the scatter plot
+#         indices = np.concatenate([training_indices, [num_training_docs]])
+
+#         # Repeat the cosine similarity score for each training document
+#         cosine_scores = np.repeat(
+#             cosine_similarities, num_training_docs, axis=1)
+
+#         # Flatten the cosine scores and indices arrays
+#         flattened_scores = cosine_scores.flatten()
+#         flattened_indices = np.tile(indices, len(cosine_similarities))
+
+#         # Plot the scatter plot with cosine similarity on the x-axis and document indices on the y-axis
+#         plt.scatter(flattened_scores, flattened_indices,
+#                     c=training_colors, label='Training Documents')
+#         # Assuming cosine similarity of 1 for the new document
+#         plt.scatter([1.0], [num_training_docs],
+#                     c=new_color, label='New Document')
+
+#         # Set the x-axis and y-axis labels
+#         plt.xlabel('Cosine Similarity')
+#         plt.ylabel('Document')
+
+#         # Show the legend
+#         plt.legend()
+
+#         # Show the scatter plot
+#         plt.show()
+        print(predicted_label)
+        return predicted_label
+
+    def getFromPDF(self, filename):  # notused
+        finalText = " "
+        with pdfplumber.open('C:/Users/Dennis/Documents/COMICS/College/Test PDF/Test/Test Set' + + filename) as pdf:
+            for page in pdf.pages:
+                extractFromPDF = page.extract_text()
+                finalText = finalText + extractFromPDF
+                break
+            extractFromPDF = ""
+        return finalText
+
+    def scatter_plot(self, training_tfidf_matrix, new_document_tfidf):
+
+        # Apply PCA for dimensionality reduction to 2 dimensions
+        pca = PCA(n_components=2)
+        reduced_tfidf = pca.fit_transform(training_tfidf_matrix)
+
+        # Separate the reduced data into training data and new document data
+        # Exclude the last row (new document)
+        reduced_training_tfidf = reduced_tfidf[:-1]
+        # Last row (new document)
+        reduced_new_document_tfidf = reduced_tfidf[-1]
+
+        # Create a scatter plot for the training data
+        plt.scatter(
+            reduced_training_tfidf[:, 0], reduced_training_tfidf[:, 1], label='Training Data')
+
+        # Plot the new document as a separate point with a different color or marker
+        # plt.scatter(
+        #     reduced_new_document_tfidf[0], reduced_new_document_tfidf[1], c='r', marker='x', label='New Document')
+
+        # Add labels, legend, and other plot customizations
+        plt.xlabel('PC1')
+        plt.ylabel('PC2')
+        plt.title('TF-IDF Visualization')
+        plt.legend()
+        plt.show()
+
+    def automated_testing(self):
+        print("Testing TFIDF-KNN ")
+        list_results = []
+        list_pdf = []
+        helper = Helper()
+        finale = {}
+        directory = (glob.glob(
+            "C:/Users/Dennis/Documents/COMICS/College/Test PDF/Test" + "/*.pdf"))
+        extractedText, finalText, appendedData = " ", " ", " "
+        for file in directory:
+            file = file.replace("\\", "/")
+            print("Testing File: ", file)
+            with pdfplumber.open(file) as pdf:
+                for page in pdf.pages:
+                    extractedText = page.extract_text()
+                    finalText = finalText + extractedText
+                string = os.path.basename(file)
+                list_pdf.append(string)
+                result = helper.main_logic(string)
+                appendedData = result['appendedData']
+                res = self.testing(appendedData, 10)
+                list_results.append(res)
+                finale[string] = res
+        # print("Final List of Results: ", list_results)
+        # print("Final List of Files: ", list_pdf)
+        for i in finale:
+            print(i, finale[i])
