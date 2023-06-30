@@ -41,10 +41,8 @@ class Testing():
                 finalRes = knn.knn_classifier(data, 5)
                 predict = self.accuracyTesting(finalRes, string)
                 listOfPredicted.append(predict)
-        print(listOfPredicted)
+
         count = listOfPredicted.count(True)
-        print("SDG Classifier Accuracy: ", round(
-            count / len(listOfPredicted), 2) * 100, "%")
         end_time = time.time()
         execution_time = end_time - start_time
         print("Execution time:", execution_time, "seconds")
@@ -86,8 +84,6 @@ class Testing():
                                             'Goal 8: Decent Work and Economic Growth', 'Goal 11: Sustainable Cities and Communities']
         correctLabels['Test Set 13.pdf'] = ['Goal 1: No Poverty', 'Goal 4: Quality Education',
                                             'Goal 8: Decent Work and Economic Growth', 'Goal 11: Sustainable Cities and Communities']
-        correctLabels['Test Set 14.pdf'] = ['Goal 15: Life on Land', 'Goal 4: Quality Education',
-                                            'Goal 8: Decent Work and Economic Growth', 'Goal 14: Life Below Water']
         correctLabels['Test Set 15.pdf'] = ['Goal 1: No Poverty', 'Goal 4: Quality Education',
                                             'Goal 8: Decent Work and Economic Growth', 'Goal 11: Sustainable Cities and Communities']
         correctLabels['Test Set 16.pdf'] = ['Goal 4: Quality Education',
@@ -110,6 +106,10 @@ class Testing():
                                             'Goal 3: Good Health and Well-Being']
         correctLabels['Test Set 25.pdf'] = ['Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture',
                                             'Goal 3: Good Health and Well-Being']
+        correctLabels['Test Set 26.pdf'] = ['Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture',
+                                            'Goal 3: Good Health and Well-Being']
+        correctLabels['Test Set 27.pdf'] = ['Goal 8: Decent Work and Economic Growth', 'Goal 9: Industry, Innovation, and Infrastrucuture',
+                                            'Goal 3: Good Health and Well-Being']
 
         if (fileName in correctLabels):
             keys = list(finalRes.keys())
@@ -119,6 +119,6 @@ class Testing():
                 correct = True
             else:
                 correct = False
-            print(fileName, "\nExpected Labels: ",
-                  correctLabels[fileName], "\nActual Results: ", keys, "\nResult: ", correct)
+            # print(fileName, "\nExpected Labels: ",
+            #       correctLabels[fileName], "\nActual Results: ", keys, "\nResult: ", correct)
         return correct

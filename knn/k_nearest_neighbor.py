@@ -106,8 +106,11 @@ class KNN():
         # Fit and transform the preprocessed documents
         tfidf_matrix = vectorizer.fit_transform(preprocessed_documents)
         # Assuming you have a target variable indicating the UN SDG labels for each document
-        target_labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-                         12, 13, 14, 15, 16]  # Replace with the actual labels
+        target_labels = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
+                         'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
+                         'Goal 13',
+                         'Goal 14', 'Goal 15: Life on Land', 'Goal 16', 'Goal 17'
+                         ]  # Replace with the actual labels
 
         # Initialize the KNeighborsClassifier
         # Specify the number of neighbors
@@ -122,7 +125,7 @@ class KNN():
 
         # Use the trained KNN model to predict the UN SDG label
         predicted_label = knn_model.predict(new_tfidf)
-        # arr_str = np.array2string(predicted_label)
+        arr_str = np.array2string(predicted_label)
         # end_time = time.time()
         # execution_time = end_time - start_time
         # exec.append(execution_time)
@@ -163,8 +166,8 @@ class KNN():
 
 #         # Show the scatter plot
 #         plt.show()
-        print(predicted_label)
-        return predicted_label
+        # print(predicted_label)
+        return arr_str
 
     def getFromPDF(self, filename):  # notused
         finalText = " "
@@ -178,25 +181,12 @@ class KNN():
 
     def scatter_plot(self, training_tfidf_matrix, new_document_tfidf):
 
-        # Apply PCA for dimensionality reduction to 2 dimensions
         pca = PCA(n_components=2)
         reduced_tfidf = pca.fit_transform(training_tfidf_matrix)
-
-        # Separate the reduced data into training data and new document data
-        # Exclude the last row (new document)
         reduced_training_tfidf = reduced_tfidf[:-1]
-        # Last row (new document)
         reduced_new_document_tfidf = reduced_tfidf[-1]
-
-        # Create a scatter plot for the training data
         plt.scatter(
             reduced_training_tfidf[:, 0], reduced_training_tfidf[:, 1], label='Training Data')
-
-        # Plot the new document as a separate point with a different color or marker
-        # plt.scatter(
-        #     reduced_new_document_tfidf[0], reduced_new_document_tfidf[1], c='r', marker='x', label='New Document')
-
-        # Add labels, legend, and other plot customizations
         plt.xlabel('PC1')
         plt.ylabel('PC2')
         plt.title('TF-IDF Visualization')
@@ -213,8 +203,9 @@ class KNN():
             "C:/Users/Dennis/Documents/COMICS/College/Test PDF/Test" + "/*.pdf"))
         extractedText, finalText, appendedData = " ", " ", " "
         for file in directory:
+            start_time = time.time()
             file = file.replace("\\", "/")
-            print("Testing File: ", file)
+            # print("Testing File: ", file)
             with pdfplumber.open(file) as pdf:
                 for page in pdf.pages:
                     extractedText = page.extract_text()
@@ -223,10 +214,13 @@ class KNN():
                 list_pdf.append(string)
                 result = helper.main_logic(string)
                 appendedData = result['appendedData']
-                res = self.testing(appendedData, 10)
+                res = self.testing(appendedData, 17)
                 list_results.append(res)
                 finale[string] = res
+                end_time = time.time()
+                execution_time = end_time - start_time
+                print("Classify Time (k = 17): ", execution_time)
         # print("Final List of Results: ", list_results)
         # print("Final List of Files: ", list_pdf)
-        for i in finale:
-            print(i, finale[i])
+        # for i in finale:
+        #     print(i, finale[i])

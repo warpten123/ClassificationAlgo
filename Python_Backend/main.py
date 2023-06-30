@@ -27,6 +27,7 @@ CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={
             r"/returnAscii": {"origins": "*"}})
+
 from knn.tfidf_only_confusion import ONLY
 from knn.cosine import Cosine
 from tfidf.extraction_helper import Helper
@@ -85,22 +86,27 @@ def information_extraction_route(filename):
 #     # Return extracted information as JSON
 #     return jsonify(go)
 
-@app.route('/python/knn/testing/', methods=['GET']) ## AUTOMATED TESTING SA KNN 
+@app.route('/python/knn/testing/', methods=['GET'])  # AUTOMATED TESTING SA KNN
 def getKNN():
     classification = KNN()
     # helper = Helper()
     # data = helper.main_logic(filename)
+    start_time = time.time()
     classification.automated_testing()
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print("Final Execution Time (KNN k = 17):", execution_time, "seconds")
     return "test"
 
 
-@app.route('/python/knn/scatter_plot/<filename>', methods=['GET']) ## LEGIT NGA KNN I SPECIFY ANG VALUE SA K, KANANG SECOND PARAMTER
+# LEGIT NGA KNN I SPECIFY ANG VALUE SA K, KANANG SECOND PARAMTER
+@app.route('/python/knn/scatter_plot/<filename>', methods=['GET'])
 def scatter_plot(filename):
     classification = KNN()
     helper = Helper()
     data = helper.main_logic(filename)
-    classification.testing(data['appendedData'], 1)
-    return "test"
+    result = classification.testing(data['appendedData'], 1)
+    return result
 
 
 @app.route('/python/knn', methods=['GET'])
@@ -180,15 +186,16 @@ def initializeDataSet():
     tfidf.createTFIDF(" ")
 
 
-@app.route('/python/classify/<filename>', methods=['GET']) #TFIDF + COSINE i nvm na ang knn calssifier, cosine gihapon na
+# TFIDF + COSINE i nvm na ang knn calssifier, cosine gihapon na
+@app.route('/python/classify/<filename>', methods=['GET'])
 def classify(filename):
     helper = Helper()
     cosine = Cosine()
     knn = KNN()
     appendedData = helper.main_logic(filename)
     data = cosine.classifyResearch(appendedData['appendedData'], False)
-    predict = knn.knn_classifier(data, 5)
-    sorted_dict = dict(sorted(predict.items(), key=lambda item: item[1]))
+    # predict = knn.knn_classifier(data, 1)
+    sorted_dict = dict(sorted(data.items(), key=lambda item: item[1]))
 
     # i = 1
     # finalClassify = {}
@@ -209,17 +216,19 @@ def matrix(filename):
     return cosine.get_cosine_matrix(filename)
 
 
-@app.route('/python/testing_TFIDF/<filename>', methods=['GET'])## TFIDF ONLY
+@app.route('/python/testing_TFIDF/<filename>', methods=['GET'])  # TFIDF ONLY
 def tfidf(filename):
     testing = ONLY()
     helper = Helper()
     cosine = Cosine()
     knn = KNN()
     appendedData = helper.main_logic(filename)
-    return testing.getTFIDF(appendedData['appendedData'])
+    result = testing.getTFIDF(appendedData['appendedData'])
+    return result
 
 
-@app.route('/python/accuracy', methods=['GET']) ##TESTING FOR TFIDF + COSINE
+# TESTING FOR TFIDF + COSINE
+@app.route('/python/testing/cosine', methods=['GET'])
 def accuracy():
     testing = Testing()
     return testing.extractAllPDF()

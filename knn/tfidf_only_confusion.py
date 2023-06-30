@@ -1,5 +1,11 @@
+import glob
+import os
 import time
+
+import pdfplumber
 from knn.cosine import Cosine
+from knn.k_nearest_neighbor import KNN
+from tfidf.extraction_helper import Helper
 
 
 cons = Cosine()
@@ -45,6 +51,30 @@ rules["Goal 17"] = ['partnerships', 'collaboration',
 
 
 class ONLY:
+
+    def main(self):
+        start_time = time.time()
+        helper = Helper()
+        cosine = Cosine()
+        knn = KNN()
+        listOfPredicted = []
+        directory = (glob.glob(
+            "C:/Users/Dennis/Documents/COMICS/College/Test PDF/Test" + "/*.pdf"))
+        extractedText, finalText, appendedData = " ", " ", " "
+        for file in directory:
+            file = file.replace("\\", "/")
+            with pdfplumber.open(file) as pdf:
+                for page in pdf.pages:
+                    extractedText = page.extract_text()
+                    finalText = finalText + extractedText
+                string = os.path.basename(file)
+                result = helper.main_logic(string)
+                appendedData = result['appendedData']
+                data = self.getTFIDF(appendedData)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print("Final Execution time:", execution_time, "seconds")
+
     def getTFIDF(self, data):
         start_time = time.time()
         newDocs = []
@@ -56,11 +86,12 @@ class ONLY:
         listOfDict = cons.TFIDFForConfusion(trainingDocs, False)
         count = 1
         newDoc = listOfDict[len(listOfDict)-1]
+        print(newDoc)
         del listOfDict[-1]
         result = self.compare(newDoc)
         end_time = time.time()
         execution_time = end_time - start_time
-        print("Execution time:", execution_time, "seconds")
+        print("Classify Time (TFIDF Only):", execution_time, "seconds")
         return result
 
     def compare(self, dic):
@@ -125,7 +156,6 @@ class ONLY:
                 super_final_dict['Goal 17: Partnership for the Goals'] = final[test]
         sorted_dict = dict(
             sorted(super_final_dict.items(), key=lambda item: item[1], reverse=True))
-        print(sorted_dict)
 
         return sorted_dict
 
