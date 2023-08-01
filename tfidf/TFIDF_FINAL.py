@@ -197,7 +197,6 @@ class Processing():
         return df2
 
     def extractAllPDF(self, goal):
-        count = 0
         directory = (glob.glob("tfidf/Data Set/" + goal + "/*.pdf"))
         extractedText = " "
         finalText = " "
@@ -270,7 +269,6 @@ class Processing():
         return tf_idf
 
     def insertNewData(self, result={}):
-        # holy shit
         length = 0
         newData = " "
         preProc = PreProcessing()

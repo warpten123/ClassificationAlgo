@@ -73,23 +73,16 @@ class KNN():
         return resultDictionary
 
     def preprocess_text(self, document):
-        # Remove special characters and convert to lowercase
         document = re.sub(r'[^a-zA-Z\s]', '', document.lower())
-        # Tokenize the document
         tokens = nltk.word_tokenize(document)
-        # Remove stop words
         stop_words = set(stopwords.words('english'))
         tokens = [token for token in tokens if token not in stop_words]
-        # Lemmatize the tokens
         lemmatizer = WordNetLemmatizer()
         tokens = [lemmatizer.lemmatize(token) for token in tokens]
-        # Join the tokens back into a single string
         preprocessed_text = ' '.join(tokens)
         return preprocessed_text
 
     def testing(self, data, n):
-        exec = []
-        start_time = time.time()
         trainingDocs = []
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
                  'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
@@ -102,28 +95,16 @@ class KNN():
         preprocessed_documents = [self.preprocess_text(
             document) for document in trainingDocs]
         vectorizer = TfidfVectorizer()
-
-        # Fit and transform the preprocessed documents
         tfidf_matrix = vectorizer.fit_transform(preprocessed_documents)
-        # Assuming you have a target variable indicating the UN SDG labels for each document
         target_labels = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
                          'Goal 6', 'Goal 7', 'Goal 8', 'Goal 9', 'Goal 10', 'Goal 11', 'Goal 12',
                          'Goal 13',
                          'Goal 14', 'Goal 15: Life on Land', 'Goal 16', 'Goal 17'
-                         ]  # Replace with the actual labels
-
-        # Initialize the KNeighborsClassifier
-        # Specify the number of neighbors
+                         ]
         knn_model = KNeighborsClassifier(n_neighbors=n)
-        # Fit the model with the TF-IDF matrix and target labels
         knn_model.fit(tfidf_matrix, target_labels)
-        # Preprocess the new document
-        # new_document = """Plants are categorized into smaller groups according to their shared characteristics, which can be daunting given their complexity. While experts can quickly recognize familiar plants, identifying potentially harmful or toxic ones, particularly in medicine, can be challenging. Botanists possess the expertise to distinguish such plants, but with millions of species featuring similar parts (roots, stems, leaves), they must devise a system to classify them effectively. Living Green aims to expound botanical research through a Mobile Botanical Identifier mobile application for finding an unknown plant's captured or uploaded photo with a barter system. It is a mobile application that connects users with plant enthusiasts and plant experts to aid in identifying a plant name."""
         preprocessed_new_document = self.preprocess_text(data)
-        # Transform the preprocessed new document using the fitted vectorizer
         new_tfidf = vectorizer.transform([preprocessed_new_document])
-
-        # Use the trained KNN model to predict the UN SDG label
         predicted_label = knn_model.predict(new_tfidf)
         arr_str = np.array2string(predicted_label)
         # end_time = time.time()

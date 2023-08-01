@@ -32,14 +32,14 @@ class InformationExtraction:
         self.document_path = document_path
         self.nlp = spacy.load("en_core_web_sm")
 
-    def extract_information(self, fromNode):
+    def extract_information(self):
         start_time = time.time()
 
         print(self.document_path)
         extractor = DocumentExtractor(self.document_path)
         extracted_text = extractor.extract_text_from_document()
         if extracted_text is not None:
-            information = self.process_extracted_text(extracted_text, fromNode)
+            information = self.process_extracted_text(extracted_text)
             end_time = time.time()
             execution_time = end_time - start_time
             print("Execution Time Information Extraction: ", execution_time)
@@ -47,11 +47,11 @@ class InformationExtraction:
         else:
             print('Invalid file format. Please upload a PDF file.')
 
-    def process_extracted_text(self, input_text, fromNode):
+    def process_extracted_text(self, input_text):
         information = {}
         information['title'] = self.extract_title(input_text)
         information['department'] = self.extract_department(input_text)
-        information['authors'] = self.extract_names(input_text, fromNode)
+        # information['authors'] = self.extract_names(input_text, fromNode)
         information['published_date'] = self.extract_published_date(input_text)
         return information
 
@@ -177,10 +177,8 @@ class InformationExtraction:
                 if department in text:
                     extracted_department = department
                     break
-
             if extracted_department:
                 break
-
         return extracted_department
 
     def binarySearchAlgo(self, listFromAlgo, search):

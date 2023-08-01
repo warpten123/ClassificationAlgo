@@ -42,12 +42,9 @@ class Cosine():
         lemmatizer = WordNetLemmatizer()
         lemmatized_tokens = []
         for doc in docs:
-            # Tokenize document
             tokens = word_tokenize(doc)
-            # Remove stopwords and punctuations, and convert to lowercase
             filtered_tokens = [
                 token.lower() for token in tokens if token.isalnum() and token not in stop_words]
-            # Lemmatize tokens
             lemmatized_tokens.append([lemmatizer.lemmatize(
                 token) for token in filtered_tokens])
 
@@ -116,11 +113,9 @@ class Cosine():
     def getTFIDF(self, documents, testing):
         tv, tf, final = [{}], [{}], [{}]
         index = 1
-
         if (self.checkDataSet() == False):
             preProcessedDocs = self.preprocess_documents(documents)
             unique = self.getUniqueWords(preProcessedDocs, False)
-
             for token in preProcessedDocs:
                 self.writeListToTxt(' '.join(token), index)
                 index += 1
@@ -216,10 +211,18 @@ class Cosine():
             classifier[goals[counter]] = percent
             counter += 1
 
-        sorted_dict = dict(
-            sorted(classifier.items(), key=lambda item: item[1], reverse=True))
-
-        return sorted_dict
+            sorted_dict = dict(
+                sorted(classifier.items(), key=lambda item: item[1], reverse=True))
+            i = 1
+            finalClassify = {}
+            for top in sorted_dict:
+                if (i <= 4):
+                    finalClassify[top] = sorted_dict[top]
+                if (i >= 5):
+                    break
+                i += 1
+            print(finalClassify)
+        return finalClassify
 
     def get_cosine_matrix(self, oldDoc):
         del oldDoc[-1]
@@ -314,7 +317,6 @@ class Cosine():
             fp.write(str(training))
 
     def classifyResearch(self, data, testing):
-        start_time = time.time()
         count = 0
         trainingDocs, newDocs = [], []
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
@@ -338,18 +340,7 @@ class Cosine():
         if (self.checkLastData()):
             self.removeNewData()
         result = self.getCosine(values, count)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print("Classify Time: ", execution_time, " seconds")
         return result
-        # a = self.csvToDict()
-        # values = []
-        # del a[-1]
-        # for i in range(len(a)):
-        #     values.append(a[i].values())
-        # self.getCosine(values, 0)
-        # return "test"
-
 
 ##
 # dic = {}

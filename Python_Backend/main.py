@@ -15,7 +15,13 @@ from collections import OrderedDict
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
-
+from knn.tfidf_only_confusion import ONLY
+from knn.cosine import Cosine
+from tfidf.extraction_helper import Helper
+from information_extraction.main import InformationExtraction
+from knn.k_nearest_neighbor import KNN
+from tfidf.TFIDF_FINAL import Processing
+from knn.testing import Testing
 sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
 sys.path.insert(0, 'knn\testing.py')
 sys.path.insert(0, 'information_extraction\testing_extraction.py')
@@ -28,13 +34,6 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={
             r"/returnAscii": {"origins": "*"}})
 
-from knn.tfidf_only_confusion import ONLY
-from knn.cosine import Cosine
-from tfidf.extraction_helper import Helper
-from information_extraction.main import InformationExtraction
-from knn.k_nearest_neighbor import KNN
-from tfidf.TFIDF_FINAL import Processing
-from knn.testing import Testing
 
 @app.route('/api', methods=['GET'])
 def returnAscii():
@@ -66,11 +65,11 @@ def information_extraction_route(filename):
     # Instantiate InformationExtraction class
 
     info_extractor = InformationExtraction(filename)
-    fromNode = getDataFromNode()
+    # fromNode = getDataFromNode()
     # for i in range(len(fromNode)):extractAllPDF
     #     print(fromNode[i]['school_id'])
 
-    output = info_extractor.extract_information(fromNode)
+    output = info_extractor.extract_information()
     return jsonify(output)
 
 
@@ -146,6 +145,7 @@ def extractForDataSet(filename):
 def checkAcceptance(filename):
     helper = Helper()
     result = helper.acceptanceChecker(filename)
+    print(result)
     # tfidf.insertNewData(result)
     return {'result': result}
 
@@ -197,15 +197,6 @@ def classify(filename):
     # predict = knn.knn_classifier(data, 1)
     sorted_dict = dict(sorted(data.items(), key=lambda item: item[1]))
 
-    # i = 1
-    # finalClassify = {}
-    # for top in sorted_dict:
-    #     if (i <= 4):
-    #         finalClassify[top] = sorted_dict[top]
-    #     if (i >= 5):
-    #         break
-    #     i += 1
-    # print(finalClassify)
     # str = ','.join(newList)
     return sorted_dict
 
@@ -247,4 +238,4 @@ if __name__ == "__main__":
     # if not create TFIDF.
     # check if file TFIDF.csv exists in folder Results
     before_first_request_func()
-    app.run(debug=True)
+    app.run(debug=False)

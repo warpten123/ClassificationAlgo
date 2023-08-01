@@ -76,7 +76,6 @@ class ONLY:
         print("Final Execution time:", execution_time, "seconds")
 
     def getTFIDF(self, data):
-        start_time = time.time()
         newDocs = []
         trainingDocs = cons.extractTraining()
         newDocs.append(data)
@@ -89,13 +88,9 @@ class ONLY:
         print(newDoc)
         del listOfDict[-1]
         result = self.compare(newDoc)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print("Classify Time (TFIDF Only):", execution_time, "seconds")
         return result
 
     def compare(self, dic):
-
         total_goal, temp = [], []
         total = 1
         testing, final, super_final_dict = {}, {}, {}
@@ -105,7 +100,6 @@ class ONLY:
             for rules2 in rules1:
                 for val in values:
                     if (rules2 == val):
-                        # print(rules2, val, total)
                         testing[dic[val]] = total
                         temp.append(dic[val])
             total += 1
@@ -115,9 +109,9 @@ class ONLY:
             str_value = str(value)
             if value != -0.0 and str_value != '-0.0':
                 if value not in final:
-                    final[value] = abs(key)
+                    final[value] = key
                 else:
-                    final[value] += abs(key)
+                    final[value] += key
 
         for test in final:
             if test == 1:
