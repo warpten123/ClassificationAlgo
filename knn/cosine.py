@@ -16,25 +16,52 @@ import seaborn as sns
 
 
 class Cosine():
+    
+    def __init__(self):
+        # Base directory: project root (2 levels up from current file)
+        self.base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+        self.preprocessed_dir = os.path.join(self.base_dir, 'tfidf', 'Results', 'PreProcessed')
+        print("preprocessed_dir",self.preprocessed_dir)
+        # Ensure the output directory exists
+        os.makedirs(self.preprocessed_dir, exist_ok=True)
 
     def checkDataSet(self):
         cont = False
-        csv = "TFIDF.csv"
-        directory = (
-            glob.glob("tfidf/Results/PreProcessed/" + "/*.txt"))
+
+        # Get absolute path to the PreProcessed directory
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+        preprocessed_dir = os.path.join(base_dir, 'tfidf', 'Results', 'PreProcessed')
+     
+        checker_path = os.path.join(preprocessed_dir, 'checker.txt')
+
+        # Find all .txt files in the PreProcessed directory
+        directory = glob.glob(os.path.join(preprocessed_dir, '*.txt'))
+
+        # Check if checker.txt is present
         for file in directory:
-            if (file == "tfidf/Results/PreProcessed\checker.txt"):
+            if os.path.abspath(file) == checker_path:
                 cont = True
+                break
+        print("CONT",cont)
         return cont
 
     def checkLastData(self):
         cont = False
 
-        directory = (
-            glob.glob(f"tfidf/Results/PreProcessed/" + "/*.txt"))
+        # Absolute path to PreProcessed directory
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        preprocessed_dir = os.path.join(base_dir, 'tfidf', 'Results', 'PreProcessed')
+        target_file = os.path.join(preprocessed_dir, 'PreProcessed 18.txt')
+
+        # Get all .txt files in PreProcessed directory
+        directory = glob.glob(os.path.join(preprocessed_dir, '*.txt'))
+
+        # Check if target file exists in the list
         for file in directory:
-            if (file == "tfidf/Results/PreProcessed\PreProcessed 18.txt"):
+            if os.path.abspath(file) == target_file:
                 cont = True
+                break
+
         return cont
 
     def preprocess_documents(self, docs):
@@ -111,6 +138,7 @@ class Cosine():
         return tf_idf
 
     def getTFIDF(self, documents, testing):
+        
         tv, tf, final = [{}], [{}], [{}]
         index = 1
         if (self.checkDataSet() == False):
@@ -149,10 +177,22 @@ class Cosine():
             print("Parameter is not a list")
 
     def convertingToDP(self, tf_idf):
+   
         df = pd.DataFrame.from_dict(tf_idf)
         df2 = df.replace(np.nan, 0)
         df2.drop(df2.columns[0], axis=1, inplace=True)
-        df2.to_csv('tfidf/Results/TFIDF.csv')
+
+        # Build absolute path to save the CSV
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        results_dir = os.path.join(base_dir, 'tfidf', 'Results')
+        output_file = os.path.join(results_dir, 'TFIDF.csv')
+
+        # Ensure the directory exists
+        os.makedirs(results_dir, exist_ok=True)
+
+        # Save to CSV
+        df2.to_csv(output_file, index=False)
+
         return df2
 
     def heatMap(self, tf_idf):
@@ -214,14 +254,14 @@ class Cosine():
             sorted_dict = dict(
                 sorted(classifier.items(), key=lambda item: item[1], reverse=True))
             i = 1
-            finalClassify = {}
-            for top in sorted_dict:
-                if (i <= 4):
-                    finalClassify[top] = sorted_dict[top]
-                if (i >= 5):
-                    break
-                i += 1
-            print(finalClassify)
+        finalClassify = {}
+        for top in sorted_dict:
+            if (i <= 4):
+                finalClassify[top] = sorted_dict[top]
+            if (i >= 5):
+                break
+            i += 1
+        print(finalClassify)
         return finalClassify
 
     def get_cosine_matrix(self, oldDoc):
@@ -238,45 +278,60 @@ class Cosine():
 
         return str(count)
 
-    def csvToDict(self):  # not used
-        with open('tfidf/Results/TFIDF.csv', encoding="utf8") as f:
-            a = [{k: float(v) for k, v in row.items()}
-                 for row in csv.DictReader(f, skipinitialspace=True)]
-        print("FROM CSV GOAL 1: ", a[0])
-        return a
+    # def csvToDict(self):  # not used
+    #     with open('tfidf/Results/TFIDF.csv', encoding="utf8") as f:
+    #         a = [{k: float(v) for k, v in row.items()}
+    #              for row in csv.DictReader(f, skipinitialspace=True)]
+    #     return a
 
     def extractAllPDF(self, goal):
-        directory = (glob.glob("tfidf/Data Set/" + goal + "/*.pdf"))
+  
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        pdf_dir = os.path.join(base_dir, 'tfidf', 'Data Set', goal)
+
+       
+        directory = glob.glob(os.path.join(pdf_dir, '*.pdf'))
+
         extractedText = " "
         finalText = " "
         for file in directory:
             with pdfplumber.open(file) as pdf:
                 for page in pdf.pages:
                     extractedText = page.extract_text()
-                    finalText = finalText + extractedText
+                    finalText += extractedText or ""  # Handle None returns gracefully
 
         return finalText
 
     def writeListToTxt(self, training, index):
-        with open(r"tfidf/Results/PreProcessed/PreProcessed " + str(index) + ".txt", 'w', encoding="utf8") as fp:
+        file_path = os.path.join(self.preprocessed_dir, f"PreProcessed {index}.txt")
+        with open(file_path, 'w', encoding="utf8") as fp:
             fp.write(training)
 
     def addChecker(self):
-        with open(r"tfidf/Results/PreProcessed/checker.txt", 'w', encoding="utf8") as fp:
+        file_path = os.path.join(self.preprocessed_dir, "checker.txt")
+        with open(file_path, 'w', encoding="utf8") as fp:
             fp.write("checker")
 
     def readListFromTxt(self, index):
         string = ""
-        with open(r"tfidf/Results/PreProcessed/PreProcessed " + str(index) + ".txt", 'r', encoding="utf8") as f:
+        file_path = os.path.join(self.preprocessed_dir, f"PreProcessed {index}.txt")
+        with open(file_path, 'r', encoding="utf8") as f:
             for line in f:
-                string = string + line.strip()
-
-                # add current item to the list
-
+                string += line.strip()
         return string
 
     def removeNewData(self):
-        return os.remove("tfidf/Results/PreProcessed/" + "PreProcessed 18.txt")
+   
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+        preprocessed_dir = os.path.join(base_dir, 'tfidf', 'Results', 'PreProcessed')
+        target_file = os.path.join(preprocessed_dir, 'PreProcessed 18.txt')
+
+        # Remove the file if it exists
+        if os.path.exists(target_file):
+            os.remove(target_file)
+            return True  # Success
+        else:
+            return False  # File did not exist
 
     def storeTraining(self, preProcessedDocs):
         index = 1
@@ -288,14 +343,23 @@ class Cosine():
 
     def extractTraining(self):
         index = 17
-        string = ""
         extractedTraining = []
+
+        # Get absolute path to PreProcessed directory
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+        preprocessed_dir = os.path.join(base_dir, 'tfidf', 'Results', 'PreProcessed')
+        count = 0
         for i in range(index):
-            with open(r"tfidf/Results/PreProcessed/PreProcessed " + str(i+1) + ".txt", 'r', encoding="utf8") as f:
-                for line in f:
-                    string = line.split()
-                    extractedTraining.append(string)
-                    string = ""
+            count += 1
+            print("Count", count)
+            file_path = os.path.join(preprocessed_dir, f'PreProcessed {i + 1}.txt')
+            if os.path.exists(file_path):
+                print("file_path", file_path)
+                with open(file_path, 'r', encoding="utf8") as f:
+                    for line in f:
+                        words = line.split()
+                        extractedTraining.append(words)
+
         return extractedTraining
 
     def trainingPhase(self):
@@ -313,10 +377,20 @@ class Cosine():
         print("End Training")
 
     def test(self, training):
-        with open(r"tfidf/Results/" + "test.txt", 'w', encoding="utf8") as fp:
+    # Build absolute path to the Results directory
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+        results_dir = os.path.join(base_dir, 'tfidf', 'Results')
+        output_file = os.path.join(results_dir, 'test.txt')
+
+
+        os.makedirs(results_dir, exist_ok=True)
+
+       
+        with open(output_file, 'w', encoding="utf8") as fp:
             fp.write(str(training))
 
     def classifyResearch(self, data, testing):
+        
         count = 0
         trainingDocs, newDocs = [], []
         goals = ['Goal 1', 'Goal 2', 'Goal 3', 'Goal 4', 'Goal 5',
@@ -330,6 +404,7 @@ class Cosine():
                 trainingDocs.append(trainingData)
         else:
             trainingDocs = self.extractTraining()
+           
             newDocs.append(data)
             newData = self.preprocess_documents(newDocs)
             data = newData[0]

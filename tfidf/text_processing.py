@@ -3,6 +3,7 @@ from hashlib import new
 from multiprocessing.resource_sharer import stop
 import re
 import numpy as np
+import os
 import math
 
 
@@ -40,7 +41,8 @@ class PreProcessing():
         return text
 
     def removeStopWords(self, text):
-        with open('tfidf/stopwords.txt', 'r') as f:
+        stopwords_path = os.path.join(os.path.dirname(__file__), 'stopwords.txt')
+        with open(stopwords_path, 'r') as f:
             stop_words = f.read().splitlines()
         text = [word for word in text if word not in stop_words]
         return text

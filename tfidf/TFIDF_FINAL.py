@@ -193,7 +193,12 @@ class Processing():
     def convertingToDP(self, tf_idf):
         df = pd.DataFrame.from_dict(tf_idf)
         df2 = df.replace(np.nan, 0)
-        df2.to_csv('tfidf/Results/TFIDF.csv')
+        output_dir = os.path.join(os.sep, 'tfidf', 'Results')
+        os.makedirs(output_dir, exist_ok=True)
+
+    
+        output_path = os.path.join(output_dir, 'TFIDF.csv')
+        df2.to_csv(output_path)
         return df2
 
     def extractAllPDF(self, goal):
@@ -211,15 +216,31 @@ class Processing():
         return finalText
 
     def listToPDF(self, processedText, goal):
-        with open(r"tfidf/Text Files/" + goal + ".txt", 'w') as fp:
+        # Define base directories
+        base_dir = os.path.dirname(__file__)
+        text_files_dir = os.path.join(base_dir, "Text Files")
+        training_set_dir = os.path.join(base_dir, "Training Set")
+
+        # Ensure directories exist
+        os.makedirs(text_files_dir, exist_ok=True)
+        os.makedirs(training_set_dir, exist_ok=True)
+
+        # Construct file paths
+        text_file_path = os.path.join(text_files_dir, f"{goal}.txt")
+        pdf_file_path = os.path.join(training_set_dir, f"{goal} Training Set.pdf")
+
+        # Write processed text to a text file
+        with open(text_file_path, 'w') as fp:
             fp.write(' '.join(processedText))
-        f = open("tfidf/Text Files/" + goal + ".txt", "r")
-        pdf = FPDF()
-        pdf.set_font('Times', '', 12)
-        pdf.add_page()
-        for x in f:
-            pdf.cell(200, 10, txt=x, ln=1, align='C')
-        pdf.output("tfidf/Training Set/" + goal + " Training Set" + ".pdf")
+
+        # Read the text file and create a PDF
+        with open(text_file_path, "r") as f:
+            pdf = FPDF()
+            pdf.set_font('Times', '', 12)
+            pdf.add_page()
+            for line in f:
+                pdf.cell(200, 10, txt=line.strip(), ln=1, align='C')
+            pdf.output(pdf_file_path)
 
     def mergeAllDict(self, l):
         d = {}
@@ -286,5 +307,6 @@ class Processing():
 
 if __name__ == '__main__':
     rawText = ""
+    nltk.download('punkt_tab')
     TFIDF = Processing(rawText)
     TFIDF.createTFIDF(rawText)

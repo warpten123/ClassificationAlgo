@@ -16,6 +16,7 @@ class Helper:
         introduction = self.getFromPDFIntro(filename)
         method = self.getFromPDFMethod(filename)
         appendedData = abstract + introduction + method
+       
         return {'abstract': abstract, 'introduction': introduction, 'method': method, 'appendedData': appendedData}
 
     def passDataToClassify(data):
@@ -25,28 +26,37 @@ class Helper:
         count = 1
         finalText, final_abstract = " ", " "
         limitPages, currentPage = 10, 0
-        with pdfplumber.open('assets/upload/' + filename) as pdf:
+
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        file_path = os.path.join(base_dir, 'assets', 'upload', filename)
+       
+        with pdfplumber.open(file_path) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF
+
                 checkAbs = self.getAbstract(finalText, count)
-                if (checkAbs):
-                    final_abstract = finalText
-                    final_abstract = self.cleanString(final_abstract)
+                if checkAbs:
+                    final_abstract = self.cleanString(finalText)
                     break
-                if (currentPage == limitPages):
+
+                if currentPage == limitPages:
                     break
+
                 count += 1
                 currentPage += 1
                 final_abstract = " "
                 finalText = " "
+
         return final_abstract
 
     def getFromPDFIntro(self, filename):
         count = 1
         finalText, final_intro = " ", " "
         limitPages, currentPage = 10, 0
-        with pdfplumber.open('assets/upload/' + filename) as pdf:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        file_path = os.path.join(base_dir, 'assets', 'upload', filename)
+        with pdfplumber.open(file_path) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF
@@ -69,7 +79,9 @@ class Helper:
         final_method = " "
         limitPages = 10
         currentPage = 0
-        with pdfplumber.open('assets/upload/' + filename) as pdf:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        file_path = os.path.join(base_dir, 'assets', 'upload', filename)
+        with pdfplumber.open(file_path) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF

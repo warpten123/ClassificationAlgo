@@ -10,6 +10,7 @@ import os
 import sys
 import requests
 import glob
+import nltk
 from collections import OrderedDict
 
 
@@ -22,9 +23,9 @@ from information_extraction.main import InformationExtraction
 from knn.k_nearest_neighbor import KNN
 from tfidf.TFIDF_FINAL import Processing
 from knn.testing import Testing
-sys.path.insert(0, 'cosine-similarity\cosine-similarity.py')
-sys.path.insert(0, 'knn\testing.py')
-sys.path.insert(0, 'information_extraction\testing_extraction.py')
+sys.path.insert(0, 'cosine-similarity/cosine-similarity.py')
+sys.path.insert(0, 'knn/testing.py')
+sys.path.insert(0, 'information_extraction/testing_extraction.py')
 uri = 'http://127.0.0.1:3000'
 # uri = 'http://192.168.143.57:3000'
 app = Flask(__name__)
@@ -176,7 +177,7 @@ def checkDataSet():
     csv = "TFIDF.csv"
     directory = (glob.glob("tfidf/Results/" + "/*.csv"))
     for file in directory:
-        if (file == "tfidf/Results\TFIDF.csv"):
+        if (file == "tfidf/Results/TFIDF.csv"):
             cont = True
     return cont
 
@@ -193,8 +194,10 @@ def classify(filename):
     cosine = Cosine()
     knn = KNN()
     appendedData = helper.main_logic(filename)
+   
     data = cosine.classifyResearch(appendedData['appendedData'], False)
     # predict = knn.knn_classifier(data, 1)
+    print("FINALE BITCH",data)
     sorted_dict = dict(sorted(data.items(), key=lambda item: item[1]))
 
     # str = ','.join(newList)
@@ -232,7 +235,7 @@ def before_first_request_func():
 
 
 if __name__ == "__main__":
-
+    nltk.download('punkt_tab')
     # check if data set has been cooked or not
     # if data set has been cooked, ignoreq
     # if not create TFIDF.
