@@ -79,3 +79,8 @@ install tesseract
 install imagemagick
 -> https://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows
 -> https://imagemagick.org/script/download.php#windows
+
+
+to start this shit:
+1. run .\myenv\Scripts\activate
+2. run py main.py
