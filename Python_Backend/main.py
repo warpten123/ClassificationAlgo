@@ -48,17 +48,26 @@ def returnAscii():
 
 @app.route('/upload-file', methods=['POST'])
 def upload_file():
-    # Extract file and research ID from request data
     file = request.files['file']
     research_id = request.form['research_id']
     result = {}
-    filename = f"{file.filename}"
-    path_directory = "assets/upload"
-    # CAN ADD CHECKER HERE IN UPLOAD WHAT'S THE BETTER WAY? LAHI OR I SAGOL NALANG ARI? FOR NOW LAHI LANG NGA ENDPOINT
-    file.save(os.path.join('assets', 'upload', filename))
-    return result
 
-# Route for information extraction
+    filename = file.filename
+    upload_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'upload'))
+
+    os.makedirs(upload_dir, exist_ok=True)
+
+ 
+    file_path = os.path.join(upload_dir, filename)
+    
+    file.save(file_path)
+
+    result["message"] = "File uploaded successfully"
+    result["filename"] = filename
+    result["research_id"] = research_id
+    return jsonify(result)
+
+
 
 
 @app.route('/python/information_extraction/<filename>', methods=['GET'])
@@ -196,8 +205,8 @@ def classify(filename):
     appendedData = helper.main_logic(filename)
    
     data = cosine.classifyResearch(appendedData['appendedData'], False)
-    # predict = knn.knn_classifier(data, 1)
-    print("FINALE BITCH",data)
+    
+    
     sorted_dict = dict(sorted(data.items(), key=lambda item: item[1]))
 
     # str = ','.join(newList)

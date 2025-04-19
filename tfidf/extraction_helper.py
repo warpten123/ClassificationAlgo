@@ -175,13 +175,14 @@ class Helper:
         final_method = " "
         count = 0
         upload = False
-        with pdfplumber.open('assets/upload/' + filename) as pdf:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        file_path = os.path.join(base_dir, 'assets', 'upload', filename)
+        with pdfplumber.open(file_path) as pdf:
             for page in pdf.pages:
                 extractFromPDF = page.extract_text()
                 finalText = finalText + extractFromPDF
                 count += 1
             finalText = self.cleanString(finalText)
-        print("Number of Pages: " + str(count))
         return count
 
     def endorsementExtraction(self, filename):
@@ -191,7 +192,9 @@ class Helper:
         count = 0
         limitPages = 10
         currentPage = 0  # 1 to 10
-        with pdfplumber.open('assets/upload/' + filename) as pdf:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        file_path = os.path.join(base_dir, 'assets', 'upload', filename)
+        with pdfplumber.open(file_path) as pdf:
             # endorsement = pdf.pages[1]
             # print(endorsement.extract_text())
             for page in pdf.pages:
@@ -225,18 +228,18 @@ class Helper:
         start_time = time.time()
         go = False
         endorsement = " "
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        file_path = os.path.join(base_dir, 'assets', 'upload', filename)
         if (self.checkPages(filename) >= 5):
             endorsement = self.endorsementExtraction(filename)
             if ("PASSED" in endorsement):
                 go = True
             else:
-                os.remove("assets/upload/" + filename)
+                os.remove(file_path)
         else:
-            os.remove("assets/upload/" + filename)
+            os.remove(file_path)
         end_time = time.time()
         execution_time = end_time - start_time
-        print("Execution time:", execution_time, "seconds")
-        print("ACCEPTANCE: ", go)
         return go
 
     # def getIntroduction(self,processedText,page):
